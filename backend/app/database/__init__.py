@@ -15,4 +15,4 @@ database = mongoClient.get_database(db_name)
 users_collection = database.get_collection(users_collection_name)
 projects_collection = database.get_collection(projects_collection_name)
 
-__all__=[users_collection,projects_collection]
+__all__ = [users_collection, projects_collection]

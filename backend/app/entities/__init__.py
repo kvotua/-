@@ -5,4 +5,4 @@ from app.database import users_collection, projects_collection
 users = UserEntity(users_collection)
 projects = ProjectEntity(projects_collection)
 
-__all__=[UserEntity,ProjectEntity,users,projects]
+__all__ = [UserEntity, ProjectEntity, users, projects]
