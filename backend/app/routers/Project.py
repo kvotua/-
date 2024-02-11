@@ -13,6 +13,16 @@ def project_get(id: UUID):
     return projects.get_by_id(id)
 
 
+@router.get("/user/{id}/", response_model=list[Project])
+def project_get_user(id: int):
+    if users.exist(id):
+        return projects.find_projects(id)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=user_do_not_exist
+        )
+
+
 @router.post("/add/")
 def project_add(project: ProjectNew):
 
