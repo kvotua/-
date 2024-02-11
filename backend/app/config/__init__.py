@@ -10,6 +10,7 @@ from .responses_config import (
     user_do_not_exist,
     user_already_exists,
     project_do_not_exist,
+    user_has_no_projects,
 )
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     projects_collection_name,
     user_do_not_exist,
     user_already_exists,
+    user_has_no_projects,
     project_do_not_exist,
 ]

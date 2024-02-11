@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from app.models import Project
 from app.schemas import ProjectNew, ProjectUpdate
 from uuid import UUID
-from app.config import project_do_not_exist
+from app.config import project_do_not_exist, user_has_no_projects
 
 
 class ProjectEntity:
@@ -44,6 +44,20 @@ class ProjectEntity:
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail=project_do_not_exist
+            )
+
+    def find_projects(self, id: int) -> list[Project]:
+        query = self.projects_collection.find({"user_id": id})
+        if query is not None:
+            user_projects = list(query)
+            result: list[Project] = list()
+            for project in user_projects:
+                tmp = Project(**project)
+                result.append(tmp)
+            return result
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=user_has_no_projects
             )
 
     def exist(self, id: UUID) -> bool:
