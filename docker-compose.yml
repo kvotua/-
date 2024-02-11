@@ -1,0 +1,20 @@
+version: "3"
+services:
+  backend:
+      build: ./backend
+      ports:
+        - "8000:8000"
+      depends_on:
+        - mongo
+      volumes:
+        - files_volume:/files
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo_volume:/data/db
+
+
+volumes:
+  mongo_volume:
+  files_volume:
