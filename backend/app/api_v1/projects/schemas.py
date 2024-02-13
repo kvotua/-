@@ -16,4 +16,4 @@ class ProjectUpdateSchema(ProjectBaseSchema):
 
 
 class ProjectSchema(ProjectBaseSchema):
-    id: UUID = Field(default=uuid4(), alias="_id")
+    id: UUID = Field(default_factory=lambda: uuid4(), alias="_id")
