@@ -1,0 +1,5 @@
+*.md
+.gitingore
+Dockerfile
+poetry.lock
+pyproject.toml
