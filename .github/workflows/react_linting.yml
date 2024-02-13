@@ -1,0 +1,58 @@
+# https://binary-studio.com/blog/2021/12/21/lint-your-project-with-github-actions/
+
+name: Run JS linting
+
+run-name: ${{ github.event_name }} to ${{ github.ref_name }} by @${{ github.actor }}
+
+on:
+  workflow_call:
+  push:
+    paths:
+      - frontend/**
+
+env:
+  frontend_path: ./frontend
+
+jobs:
+  linting:
+    name: Run ESLint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ '18.x', '20.x' ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install Eslint
+        run: npm init @eslint/config
+
+      - name: Install Prettier
+        run: |
+          npm install --save-dev eslint-plugin-prettier eslint-config-prettier
+          npm install --save-dev eslint-plugin-react
+          npm install --save-dev --save-exact prettier
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+#        env:
+#          extensions: "css html js json jsx less md scss ts tsx vue yaml yml"
+
+        with:
+          eslint: true
+          eslint_args: "--max-warnings 0"
+#          eslint_extensions: ${{ env.extensions }}
+          eslint_dir: ${{ env.frontend_path }}
+
+          prettier: true
+          prettier_args: "--check"
+#          prettier_extensions: ${{ env.extensions }}
+          prettier_dir: ${{ env.frontend_path }}
+
+
+

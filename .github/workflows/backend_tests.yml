@@ -1,0 +1,47 @@
+name: Run backend tests
+
+run-name: ${{ github.event_name }} to ${{ github.ref_name }} by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: 
+      - dev
+      - main
+  schedule:
+    # every Sunday at midnight
+    - cron: "0 0 * * 0"
+
+jobs:
+  linting:
+    name: Linting
+    if: ${{ github.event_name == 'pull_request' }}
+    uses: ./.github/workflows/python_linting.yml
+
+  testing:
+    name: Testing
+    needs: [ linting ]
+    if: ${{ !failure() && !cancelled() && always() }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.11", "3.12" ]
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        run: |
+          pip install poetry==1.7
+          poetry --version
+
+      - name: Get full code
+        uses: actions/checkout@v4
+      
+#      - name: Install dependencies
+#        run: poetry install --no-interaction --no-root --no-directory --with dev
+#
+#      - name: Run tests
+#        run: poetry run pytest

@@ -1,0 +1,39 @@
+name: Run python linting
+
+run-name: ${{ github.event_name }} to ${{ github.ref_name }} by @${{ github.actor }}
+
+on:
+  workflow_call:
+  push:
+    paths:
+      - backend/**
+      - bot/**
+env:
+  backend_paths: ./backend ./bot
+
+jobs:
+  Lint_python_code:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.11", "3.12" ]
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Get repository code
+        uses: actions/checkout@v4
+
+      - name: Install black
+        run: pip install black
+
+      - name: Black linting
+        run: black ${{ env.backend_paths }}
+
+      - name: Install flake8 with plugins
+        run: pip install flake8 flake8-bugbear flake8-pyproject
+
+      - name: Flake8 linting
+        run: flake8 ${{ env.backend_paths }}

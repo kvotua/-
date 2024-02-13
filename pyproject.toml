@@ -1,0 +1,29 @@
+[tool.black]
+check = true
+verbose = true
+diff = true
+color = true
+
+
+[tool.flake8]
+exclude = [
+    ".git*",
+    "__pycache__",
+    "*docker*",
+    "Dockerfile",
+    "alembic"
+]
+
+extend-ignore = [
+    "E203",
+    "E501",
+    "E704"
+]
+statistics = true
+show-source = true
+max-line-length = 88
+
+select = [
+    "C", "E", "F",
+    "W", "B", "B950"
+]
