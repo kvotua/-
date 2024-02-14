@@ -6,7 +6,7 @@ To create an SSL certificate, run this commands first[^1] (it is only necessary 
 
 ```bash
 docker compose up --build nginx
-docker compose -f docker-compose-le.yaml up --build
+docker compose -f docker-compose-le.yml up --build
 ```
 
 ## Build
