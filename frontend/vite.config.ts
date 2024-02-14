@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
-import mkcert from "vite-plugin-mkcert";
 
 export default defineConfig({
   plugins: [
@@ -9,7 +8,6 @@ export default defineConfig({
       include: "**/*.svg?react",
     }),
     react(),
-    mkcert(),
   ],
   base: "/",
   preview: {
@@ -17,7 +15,6 @@ export default defineConfig({
     port: 5173,
   },
   server: {
-    https: true,
     host: true,
   },
   resolve: {
