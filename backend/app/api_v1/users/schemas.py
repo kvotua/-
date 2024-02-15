@@ -6,7 +6,7 @@ class UserBaseSchema(BaseModel):
 
 
 class UserCreateSchema(UserBaseSchema):
-    id: int
+    id: int = Field(serialization_alias="_id", validation_alias="id")
 
 
 class UserUpdateSchema(UserBaseSchema):

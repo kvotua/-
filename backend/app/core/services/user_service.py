@@ -15,7 +15,7 @@ class UserService(ServiceBase):
 
     def create(self, new_user: UserCreateSchema) -> str:
         """Function to create a project and return the user's id."""
-        user = UserSchema(**new_user.model_dump())
+        user = UserSchema(**new_user.model_dump(by_alias=True))
         return self.registry.create(user.model_dump(by_alias=True))
 
     def update(self, user_id: int, user_update: UserUpdateSchema):
