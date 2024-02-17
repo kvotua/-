@@ -1,6 +1,6 @@
-from app.api_v1.users.exceptions import UserNotFoundHTTPException
-from app.api_v1.users.schemas import UserSchema
-from app.core.services import user_service
+from .exceptions import UserNotFoundHTTPException
+from .schemas import UserSchema
+from app.services import user_service
 
 
 def get_user_by_id(user_id: int) -> UserSchema:

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api_v1 import router as api_v1_router
+from app.routers import router
 
 app = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
 app.add_middleware(
@@ -12,4 +12,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router=api_v1_router)
+app.include_router(router, prefix="/api/v1")

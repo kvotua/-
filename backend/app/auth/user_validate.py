@@ -1,6 +1,6 @@
 from app.auth.exceptions import UserValidationErrorHTTPException
 from app.auth.functions.user import hash_validate
-from app.core.config import settings
+from app.config import settings
 
 
 def validate(user_init_data: str | None) -> None:

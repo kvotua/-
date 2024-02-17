@@ -1,8 +1,8 @@
 from uuid import UUID
 
-from app.api_v1.projects.exceptions import ProjectNotFoundHTTPException
-from app.api_v1.projects.schemas import ProjectSchema
-from app.core.services import project_service
+from .exceptions import ProjectNotFoundHTTPException
+from .schemas import ProjectSchema
+from app.services import project_service
 
 
 def get_project_by_id(project_id: UUID) -> ProjectSchema:
