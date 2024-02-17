@@ -17,6 +17,8 @@ class MongoDBSettings(DataBaseSettings):
 
 class Setting(BaseSettings):
     api_v1_prefix: str = "/api/v1"
+    mode: str = "local"
+    bot_key: str = ""
     mongo_db: DataBaseSettings = MongoDBSettings()
 
 
