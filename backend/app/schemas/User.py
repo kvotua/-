@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class UserBaseSchema(BaseModel):
@@ -6,7 +6,7 @@ class UserBaseSchema(BaseModel):
 
 
 class UserCreateSchema(UserBaseSchema):
-    id: int = Field(serialization_alias="_id", validation_alias="id")
+    id: str
 
 
 class UserUpdateSchema(UserBaseSchema):
@@ -14,4 +14,4 @@ class UserUpdateSchema(UserBaseSchema):
 
 
 class UserSchema(UserBaseSchema):
-    id: int = Field(alias="_id")
+    id: str

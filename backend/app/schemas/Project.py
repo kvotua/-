@@ -1,10 +1,10 @@
 from pydantic import BaseModel, Field
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 
 class ProjectBaseSchema(BaseModel):
     name: str
-    user_id: int
+    user_id: str
 
 
 class ProjectCreateSchema(ProjectBaseSchema):
@@ -16,4 +16,4 @@ class ProjectUpdateSchema(ProjectBaseSchema):
 
 
 class ProjectSchema(ProjectBaseSchema):
-    id: UUID = Field(default_factory=lambda: uuid4(), alias="_id")
+    id: str = Field(default_factory=lambda: str(uuid4()))

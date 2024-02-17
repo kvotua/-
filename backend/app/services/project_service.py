@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from app.routers.projects.schemas import (
+from app.schemas.Project import (
     ProjectSchema,
     ProjectCreateSchema,
     ProjectUpdateSchema,
@@ -14,7 +14,7 @@ class ProjectService:
     def __init__(self, registry: IRegistry) -> None:
         self.__registry = registry
 
-    def get_by_user_id(self, user_id: int) -> list[ProjectSchema]:
+    def get_by_user_id(self, user_id: str) -> list[ProjectSchema]:
         projects = self.__registry.read({"user_id": user_id})
         return [ProjectSchema(**project) for project in projects]
 
