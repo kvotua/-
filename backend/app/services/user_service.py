@@ -14,7 +14,7 @@ class UserService:
 
     def get_by_id(self, user_id: str) -> UserSchema | None:
         """Function to retrieve single user by id"""
-        result = self.__registry.read({"_id": user_id})
+        result = self.__registry.read({"id": user_id})
         if len(result) != 1:
             return None
         return UserSchema(**result[0])
@@ -28,17 +28,17 @@ class UserService:
         """Function to update a single user and return
         the number of users matched for this update."""
         response = self.__registry.update(
-            {"_id": user_id}, user_update.model_dump(exclude_none=True)
+            {"id": user_id}, user_update.model_dump(exclude_none=True)
         )
         return response.count
 
     def delete_by_id(self, user_id: str) -> int:
         """Function to delete a single user and
         return the number of users deleted."""
-        response = self.__registry.delete({"_id": user_id})
+        response = self.__registry.delete({"id": user_id})
         return response.count
 
     def exist(self, user_id: str) -> bool:
         """Verification of existence"""
-        result = self.__registry.read({"_id": user_id})
+        result = self.__registry.read({"id": user_id})
         return len(result) > 0

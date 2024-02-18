@@ -3,7 +3,6 @@ import hmac
 import json
 from typing import Annotated
 from urllib.parse import unquote
-from uuid import UUID
 
 from app.config import settings
 from app.schemas.Project import ProjectSchema
@@ -26,7 +25,7 @@ def get_user_by_init_data(user_init_data: Annotated[str, Header()]) -> None:
 
 
 def get_project_by_id(
-    project_id: UUID, user: Annotated[UserSchema, Depends(get_user_by_init_data)]
+    project_id: str, user: Annotated[UserSchema, Depends(get_user_by_init_data)]
 ) -> ProjectSchema:
     project = project_service.get_by_id(project_id)
     if not project:
