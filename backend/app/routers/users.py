@@ -3,10 +3,11 @@ from typing import Annotated
 from app.schemas.User import UserCreateSchema, UserSchema
 from app.services.exceptions import UserExistError, UserNotFoundError, NotAllowedError
 from fastapi import APIRouter, Depends, status, HTTPException
-from app.services import service_factory, UserService
+from app.services import UserService
 
-from .dependencies import get_user_id_by_init_data
+from .dependencies import get_user_id_by_init_data, get_user_service
 from .exceptions import HTTPExceptionSchema
+
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -24,7 +25,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def user_get(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     user_id: str,
-    user_service: Annotated[UserService, Depends(service_factory.get_user_service)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
 ):
     try:
         return user_service.try_get_by_id(initiator_id, user_id)
@@ -47,7 +48,7 @@ def user_get(
 )
 def user_add(
     user: UserCreateSchema,
-    user_service: Annotated[UserService, Depends(service_factory.get_user_service)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> None:
     try:
         user_service.create(user)

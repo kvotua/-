@@ -9,9 +9,9 @@ from app.services.exceptions import (
 )
 from fastapi import APIRouter, Depends, status, HTTPException
 
-from .dependencies import get_user_id_by_init_data
+from .dependencies import get_user_id_by_init_data, get_project_service
 from .exceptions import HTTPExceptionSchema
-from app.services import ProjectService, service_factory
+from app.services import ProjectService
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -29,9 +29,7 @@ router = APIRouter(prefix="/projects", tags=["Projects"])
 def project_get(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_id: str,
-    project_service: Annotated[
-        ProjectService, Depends(service_factory.get_project_service)
-    ],
+    project_service: Annotated[ProjectService, Depends(get_project_service)],
 ):
     try:
         return project_service.try_get(initiator_id, project_id)
@@ -58,9 +56,7 @@ def project_get(
 def project_get_user(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     user_id: str,
-    project_service: Annotated[
-        ProjectService, Depends(service_factory.get_project_service)
-    ],
+    project_service: Annotated[ProjectService, Depends(get_project_service)],
 ):
     try:
         return project_service.try_get_by_user_id(initiator_id, user_id)
@@ -86,9 +82,7 @@ def project_get_user(
 def project_add(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_create: ProjectCreateSchema,
-    project_service: Annotated[
-        ProjectService, Depends(service_factory.get_project_service)
-    ],
+    project_service: Annotated[ProjectService, Depends(get_project_service)],
 ):
     try:
         return project_service.create(initiator_id, project_create)
@@ -111,9 +105,7 @@ def update_project(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_update: ProjectUpdateSchema,
     project_id: str,
-    project_service: Annotated[
-        ProjectService, Depends(service_factory.get_project_service)
-    ],
+    project_service: Annotated[ProjectService, Depends(get_project_service)],
 ):
     try:
         project_service.try_update(initiator_id, project_id, project_update)
@@ -144,9 +136,7 @@ def update_project(
 def project_delete(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_id: str,
-    project_service: Annotated[
-        ProjectService, Depends(service_factory.get_project_service)
-    ],
+    project_service: Annotated[ProjectService, Depends(get_project_service)],
 ):
     try:
         project_service.try_delete(initiator_id, project_id)
