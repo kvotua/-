@@ -1,19 +1,17 @@
-from pydantic import BaseModel, Field
+from typing import Optional
 from uuid import uuid4
 
+from pydantic import BaseModel, Field
 
-class ProjectBaseSchema(BaseModel):
+
+class ProjectCreateSchema(BaseModel):
     name: str
-    user_id: str
 
 
-class ProjectCreateSchema(ProjectBaseSchema):
-    pass
+class ProjectUpdateSchema(BaseModel):
+    name: Optional[str]
 
 
-class ProjectUpdateSchema(ProjectBaseSchema):
-    pass
-
-
-class ProjectSchema(ProjectBaseSchema):
+class ProjectSchema(ProjectCreateSchema):
     id: str = Field(default_factory=lambda: str(uuid4()))
+    owner_id: str

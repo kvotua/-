@@ -1,13 +1,17 @@
 from typing import Annotated
 
-from fastapi import APIRouter, status, Depends, HTTPException
+from app.schemas.Project import ProjectCreateSchema, ProjectSchema, ProjectUpdateSchema
 
-from .dependences import get_user_by_init_data, get_project_by_id
-from app.schemas.Project import ProjectSchema, ProjectCreateSchema, ProjectUpdateSchema
+from app.services.exceptions import (
+    UserNotFoundError,
+    ProjectNotFoundError,
+    NotAllowedError,
+)
+from fastapi import APIRouter, Depends, status, HTTPException
 
-from app.schemas.User import UserSchema
-from app.services import project_service, user_service
-from .exceptions import Error
+from .dependencies import get_user_id_by_init_data
+from .exceptions import HTTPExceptionSchema
+from app.services import ProjectService, service_factory
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -17,79 +21,146 @@ router = APIRouter(prefix="/projects", tags=["Projects"])
     response_model=ProjectSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        status.HTTP_401_UNAUTHORIZED: {"model": Error},
-        status.HTTP_404_NOT_FOUND: {"model": Error},
+        status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
+        status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
+        status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
 def project_get(
-    project: Annotated[ProjectSchema, Depends(get_project_by_id)],
+    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    project_id: str,
+    project_service: Annotated[
+        ProjectService, Depends(service_factory.get_project_service)
+    ],
 ):
-    return project
+    try:
+        return project_service.try_get(initiator_id, project_id)
+    except ProjectNotFoundError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "A project with this ID does not exist"
+        )
+    except NotAllowedError:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN, "You do not have permission to view this project"
+        )
 
 
 @router.get(
-    "/by/user/id/{user_id}",
+    "/by/user/{user_id}",
     status_code=status.HTTP_200_OK,
     response_model=list[ProjectSchema],
     responses={
-        status.HTTP_401_UNAUTHORIZED: {"model": Error},
-        status.HTTP_404_NOT_FOUND: {"model": Error},
+        status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
+        status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
+        status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
 def project_get_user(
-    user: Annotated[UserSchema, Depends(get_user_by_init_data)],
+    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    user_id: str,
+    project_service: Annotated[
+        ProjectService, Depends(service_factory.get_project_service)
+    ],
 ):
-    return project_service.get_by_user_id(user.id)
+    try:
+        return project_service.try_get_by_user_id(initiator_id, user_id)
+    except UserNotFoundError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "A user with this ID does not exist"
+        )
+    except NotAllowedError:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "You do not have permission to view this user's projects",
+        )
 
 
 @router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
-    response_model=ProjectCreateSchema,
     responses={
-        status.HTTP_401_UNAUTHORIZED: {"model": Error},
-        status.HTTP_404_NOT_FOUND: {"model": Error},
+        status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
+        status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
 def project_add(
+    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_create: ProjectCreateSchema,
-    user: Annotated[UserSchema, Depends(get_user_by_init_data)],
+    project_service: Annotated[
+        ProjectService, Depends(service_factory.get_project_service)
+    ],
 ):
-    if not user_service.exist(project_create.user_id):
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
-    return project_service.create(project_create)
+    try:
+        return project_service.create(initiator_id, project_create)
+    except UserNotFoundError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "The user with this ID was not found"
+        )
 
 
-# TODO: сделать через patch
-@router.put(
+@router.patch(
     path="/{project_id}",
     status_code=status.HTTP_200_OK,
-    response_model=int,
     responses={
-        status.HTTP_401_UNAUTHORIZED: {"model": Error},
-        status.HTTP_404_NOT_FOUND: {"model": Error},
+        status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
+        status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
+        status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
 def update_project(
-    project: Annotated[ProjectSchema, Depends(get_project_by_id)],
+    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_update: ProjectUpdateSchema,
+    project_id: str,
+    project_service: Annotated[
+        ProjectService, Depends(service_factory.get_project_service)
+    ],
 ):
-    return project_service.update(
-        project_id=project.id,
-        project_update=project_update,
-    )
+    try:
+        project_service.try_update(initiator_id, project_id, project_update)
+    except NotAllowedError:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "You do not have permission to update this project",
+        )
+    except UserNotFoundError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            "The user with this ID was not found",
+        )
+    except ProjectNotFoundError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "A project with this ID does not exist"
+        )
 
 
 @router.delete(
     path="/{project_id}",
     status_code=status.HTTP_200_OK,
-    response_model=int,
     responses={
-        status.HTTP_401_UNAUTHORIZED: {"model": Error},
-        status.HTTP_404_NOT_FOUND: {"model": Error},
+        status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
+        status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
 def project_delete(
-    project: Annotated[ProjectSchema, Depends(get_project_by_id)],
+    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    project_id: str,
+    project_service: Annotated[
+        ProjectService, Depends(service_factory.get_project_service)
+    ],
 ):
-    return project_service.delete_by_id(project_id=project.id)
+    try:
+        project_service.try_delete(initiator_id, project_id)
+    except NotAllowedError:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "You do not have permission to delete this project",
+        )
+    except UserNotFoundError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            "The user with this ID was not found",
+        )
+    except ProjectNotFoundError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "A project with this ID does not exist"
+        )

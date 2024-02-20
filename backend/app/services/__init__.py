@@ -1,20 +1,8 @@
-from app.registry import registry_factory, RegistryPermission
-from .project_service import ProjectService
-from .user_service import UserService
+from .ServiceFactory import ServiceFactory
+from app.registry import registry_factory
+from .UserService import UserService
+from .ProjectService import ProjectService
 
-project_service = ProjectService(
-    registry_factory.get(
-        "projects",
-        RegistryPermission(
-            canCreate=True, canRead=True, canUpdate=True, canDelete=True
-        ),
-    )
-)
-user_service = UserService(
-    registry_factory.get(
-        "users",
-        RegistryPermission(
-            canCreate=True, canRead=True, canUpdate=True, canDelete=True
-        ),
-    )
-)
+service_factory = ServiceFactory(registry_factory)
+
+__all__ = ["UserService", "ProjectService", "service_factory"]

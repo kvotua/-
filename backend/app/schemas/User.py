@@ -1,17 +1,9 @@
 from pydantic import BaseModel
 
 
-class UserBaseSchema(BaseModel):
-    pass
-
-
-class UserCreateSchema(UserBaseSchema):
+class UserCreateSchema(BaseModel):
     id: str
 
 
-class UserUpdateSchema(UserBaseSchema):
+class UserSchema(UserCreateSchema):
     pass
-
-
-class UserSchema(UserBaseSchema):
-    id: str

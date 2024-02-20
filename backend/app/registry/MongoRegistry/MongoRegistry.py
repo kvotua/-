@@ -7,9 +7,20 @@ from pymongo.collection import Collection
 
 
 class MongoRegistry(IRegistry):
+    """
+    Implementation of IRegistry interface for interacting with MongoDB.
+    """
+
     __collection: Collection
 
     def __init__(self, permissions: RegistryPermission, collection: Collection) -> None:
+        """
+        Initializes a new instance of the MongoRegistry class.
+
+        Args:
+            permissions (RegistryPermission): The permissions for the registry.
+            collection (Collection): The MongoDB collection to interact with.
+        """
         super().__init__(permissions)
         self.__collection = collection
 
