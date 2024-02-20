@@ -30,10 +30,11 @@ jobs:
         run: pip install black
 
       - name: Black linting
-        run: black ${{ env.backend_paths }}
+        run: black --check --verbose --diff --color ${{ env.backend_paths }}
 
       - name: Install flake8 with plugins
         run: pip install flake8 flake8-bugbear flake8-pyproject
 
       - name: Flake8 linting
-        run: flake8 ${{ env.backend_paths }}
+        run: |
+          flake8 --exclude=.git*,__pycache__,*docker*,Dockerfile,alembic --extend-ignore=E203,E501,E704 --statistics --show-source --max-line-length 88 --select=C,E,F,W,B,B950 ${{ env.backend_paths }}

@@ -30,7 +30,10 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Install Eslint
-        run: npm init @eslint/config
+        run: |
+          cd ${{ env.frontend_path }}
+          npm install
+          npm install --save-dev eslint typescript typescript-eslint
 
       - name: Install Prettier
         run: |
@@ -38,21 +41,10 @@ jobs:
           npm install --save-dev eslint-plugin-react
           npm install --save-dev --save-exact prettier
 
-      - name: Run linters
-        uses: wearerequired/lint-action@v2
-#        env:
-#          extensions: "css html js json jsx less md scss ts tsx vue yaml yml"
-
-        with:
-          eslint: true
-          eslint_args: "--max-warnings 0"
-#          eslint_extensions: ${{ env.extensions }}
-          eslint_dir: ${{ env.frontend_path }}
-
-          prettier: true
-          prettier_args: "--check"
-#          prettier_extensions: ${{ env.extensions }}
-          prettier_dir: ${{ env.frontend_path }}
+      - name: Run linters Eslint
+        run: |
+          cd ${{ env.frontend_path }}
+          npm run lint
 
 
 
