@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container {
+    @apply max-w-[373px] px-[20px] w-full mx-auto
+}
+
+body {
+    background: linear-gradient(#7942D1, #E74EEA);
+    min-height: 100%;    
+}
+
+.title {
+    @apply font-bold text-24 text-main text-center
+}

@@ -1,0 +1,38 @@
+version: "3"
+services:
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+
+  backend:
+      build: ./backend
+      depends_on:
+        - mongo
+      volumes:
+        - files_volume:/files
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo_volume:/data/db
+  
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        - MODE=${MODE}
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - SERVER_NAME=$SERVER_NAME
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /tmp/acme_challenge:/tmp/acme_challenge
+    restart: always
+
+
+volumes:
+  mongo_volume:
+  files_volume:
