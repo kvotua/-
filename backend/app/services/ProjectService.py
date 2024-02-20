@@ -73,7 +73,10 @@ class ProjectService:
                 is not found.
             NotAllowedError: If the initiator is not allowed to perform the operation.
         """
-        project = self._get(project_id)
+        try:
+            project = self._get(project_id)
+        except ProjectNotFoundError:
+            raise NotAllowedError()
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         return project
@@ -112,13 +115,16 @@ class ProjectService:
             NotAllowedError: If the initiator is not allowed to perform the operation.
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
-        project = self._get(project_id)
+        try:
+            project = self._get(project_id)
+        except ProjectNotFoundError:
+            raise NotAllowedError()
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         self._update(project_id, project_update)
 
     @check_initiator_exist
-    def try_delete(self, inititator_id: str, project_id: str) -> None:
+    def try_delete(self, initiator_id: str, project_id: str) -> None:
         """
         Attempt to delete a project.
 
@@ -131,8 +137,11 @@ class ProjectService:
             NotAllowedError: If the initiator is not allowed to perform the operation.
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
-        project = self._get(project_id)
-        if inititator_id != project.owner_id:
+        try:
+            project = self._get(project_id)
+        except ProjectNotFoundError:
+            raise NotAllowedError()
+        if initiator_id != project.owner_id:
             raise NotAllowedError()
         self._delete(project_id)
 

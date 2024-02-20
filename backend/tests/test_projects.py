@@ -245,7 +245,7 @@ class TestProjects:
             headers={"user-init-data": user_init_data_3},
         )
 
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_try_delete_another_project(self):
         """Test for delete another project"""
