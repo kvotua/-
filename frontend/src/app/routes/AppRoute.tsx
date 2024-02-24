@@ -1,6 +1,11 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import { appRoutes, galleryRoutes, profileRoutes, projectRoutes } from "./routes";
+import {
+  appRoutes,
+  galleryRoutes,
+  profileRoutes,
+  projectRoutes,
+} from "./routes";
 import { Menu } from "src/widgets/Menu/Menu";
 import { ProfileHeader } from "src/widgets/ProfileHeader/ProfileHeader";
 import { GalleryHeader } from "src/widgets/GalleryHeader/GalleryHeader";

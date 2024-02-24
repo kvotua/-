@@ -18,14 +18,13 @@ const GalleryHeader: React.FC = () => {
       title: "Новые",
     },
     {
-        path: "/gallery/personal/",
-        title: "Мои",
-      },
+      path: "/gallery/personal/",
+      title: "Мои",
+    },
   ];
   return (
     <>
       <div className="container pt-[4vh] min-h-[100dvh]">
-        
         <InternalMenu MenuInfo={MenuInfo} />
         <Outlet />
       </div>

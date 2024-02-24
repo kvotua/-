@@ -21,8 +21,8 @@ const CustomLink: React.FC<ICustomLink> = ({ Image, to }) => {
                   ? "#FF78E9"
                   : "white"
                 : match
-                ? "#FF78E9"
-                : "white"
+                  ? "#FF78E9"
+                  : "white"
             }
           />
         </Link>
@@ -34,8 +34,8 @@ const CustomLink: React.FC<ICustomLink> = ({ Image, to }) => {
                 ? "#FF78E9"
                 : "white"
               : match
-              ? "#FF78E9"
-              : "white"
+                ? "#FF78E9"
+                : "white"
           }
         />
       )}

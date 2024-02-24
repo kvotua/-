@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react";
 
+const Following: React.FC = () => {
+  return <div className="container pt-[4vh]">Following</div>;
+};
 
-
-const Following:React.FC = () => {
-  return (
-    <div className="container pt-[4vh]">Following</div>
-  )
-}
-
-export default Following
+export default Following;

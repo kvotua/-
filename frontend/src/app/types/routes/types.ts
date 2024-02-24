@@ -1,6 +1,6 @@
 export enum RoutesList {
-    Home = "/",
-    Info = "/info/",
-    Profile = "/profile/",
-    Gallery = "/gallery/"
+  Home = "/",
+  Info = "/info/",
+  Profile = "/profile/",
+  Gallery = "/gallery/",
 }

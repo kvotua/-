@@ -28,7 +28,7 @@ export const updateProject = (
     >
   >,
   id: number,
-  body: IProject
+  body: IProject,
 ) => {
   try {
     mutation({ body, projectId: id });

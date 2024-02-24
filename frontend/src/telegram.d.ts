@@ -1,1 +1,1 @@
-declare var Telegram: any;
+declare let Telegram: unknown;
