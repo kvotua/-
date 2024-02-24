@@ -94,7 +94,7 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         return project
 
-    def create(self, initiator_id: str, new_project: ProjectCreateSchema) -> None:
+    def create(self, initiator_id: str, new_project: ProjectCreateSchema) -> str:
         """
         Create a new project.
 
@@ -114,6 +114,7 @@ class ProjectService(IProjectService):
             **new_project.model_dump(), owner_id=initiator_id, core_node_id=node_id
         )
         self.__registry.create(project.model_dump())
+        return project.id
 
     def try_update(
         self, initiator_id: str, project_id: str, project_update: ProjectUpdateSchema

@@ -70,6 +70,7 @@ def node_get_tree(
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
+    response_model=str,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
         status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},

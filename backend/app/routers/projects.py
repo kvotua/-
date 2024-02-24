@@ -78,6 +78,7 @@ def project_get_user(
 @router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
+    response_model=str,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
