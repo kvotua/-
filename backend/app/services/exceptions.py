@@ -18,3 +18,7 @@ class NotAllowedError(ServiceError):
     """Raised when an action is not allowed."""
 
     pass
+
+
+class NodeNotFoundError(ServiceError):
+    pass

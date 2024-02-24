@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from app.schemas.User import UserCreateSchema, UserSchema
+from app.services.UserService.schemas import UserCreateSchema, UserSchema
 from app.services.exceptions import UserExistError, UserNotFoundError, NotAllowedError
 from fastapi import APIRouter, Depends, status, HTTPException
 from app.services import UserService

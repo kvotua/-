@@ -1,6 +1,10 @@
 from typing import Annotated
 
-from app.schemas.Project import ProjectCreateSchema, ProjectSchema, ProjectUpdateSchema
+from app.services.ProjectService.schemas import (
+    ProjectCreateSchema,
+    ProjectSchema,
+    ProjectUpdateSchema,
+)
 
 from app.services.exceptions import (
     UserNotFoundError,

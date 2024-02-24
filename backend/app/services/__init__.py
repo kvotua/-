@@ -1,8 +1,9 @@
-from .ServiceFactory import ServiceFactory
+from .ServiceMediator import ServiceMediator
 from app.registry import registry_factory
-from .UserService import UserService
-from .ProjectService import ProjectService
+from .UserService.UserService import UserService
+from .ProjectService.ProjectService import ProjectService
+from .NodeService.NodeService import NodeService
 
-service_factory = ServiceFactory(registry_factory)
+service_mediator = ServiceMediator(registry_factory)
 
-__all__ = ["UserService", "ProjectService", "service_factory"]
+__all__ = ["UserService", "ProjectService", "NodeService", "service_mediator"]

@@ -8,19 +8,26 @@ from urllib.parse import unquote
 from app.config import settings
 from fastapi import Header, HTTPException, status
 
-from app.services import service_factory
+from app.services import service_mediator
+from app.services.UserService import IUserService
+from app.services.ProjectService import IProjectService
+from app.services.NodeService import INodeService
 
 secret_key = hmac.new(
     "WebAppData".encode("utf-8"), settings.bot_key.encode("utf-8"), hashlib.sha256
 ).digest()
 
 
-def get_user_service():
-    return service_factory.get_user_service()
+def get_user_service() -> IUserService:
+    return service_mediator.get_user_service()
 
 
-def get_project_service():
-    return service_factory.get_project_service()
+def get_project_service() -> IProjectService:
+    return service_mediator.get_project_service()
+
+
+def get_node_service() -> INodeService:
+    return service_mediator.get_node_service()
 
 
 def get_user_id_by_init_data(user_init_data: Annotated[str, Header()]) -> str:

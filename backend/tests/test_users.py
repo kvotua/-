@@ -1,90 +1,124 @@
-from .setup import test_client, USERS, USER
 from fastapi import status
 
-
-user_1 = {"id": "0"}
-user_2 = {"id": "1"}
-user_3 = {"id": "2"}
-
-user_init_data_1 = f'user={{"id": {user_1["id"]}}}'
-user_init_data_2 = f'user={{"id": {user_2["id"]}}}'
-user_init_data_3 = f'user={{"id": {user_3["id"]}}}'
+from .setup import client
 
 
 class TestUsers:
+    """
+    ## Тестирование эндпоинта users
+
+    ### POST /users
+    - Правильное создание пользователя \
+        `test_create_user`. \
+        Должно возвращаться HTTP 201 CREATED
+
+    - Создание существующего пользователя \
+        `test_try_create_existing_user`. \
+        Должно возвращаться HTTP 409 CONFLICT
+
+    ### GET /users/{user_id}
+    - Получение существующего пользователя \
+        `test_get_user`. \
+        Должно возвращаться HTTP 200 OK
+
+    - Получение пользователя с некорректным токеном (неправильный формат) \
+        `test_try_get_user_with_bad_token`. \
+        Должно возвращаться HTTP 401 UNAUTHORIZED
+
+    - Получение другого пользователя \
+        `test_try_get_another_user`. \
+        Должно возвращаться HTTP 403 FORBIDDEN
+
+    - Получение другого несуществующего пользователя \
+        `test_try_get_another_nonexistent_user`.
+        Должно возвращаться HTTP 403 FORBIDDEN
+
+    - Получение несуществующего пользователя \
+        `test_try_get_nonexistent_user`. \
+        Должно возвращаться HTTP 404 NOT FOUND
+    """
+
+    def create_user(self) -> tuple[dict, str]:
+        """
+        Метод для быстрого создания пользователя
+
+        Возвращает кортеж: (user ({"id": str}), user_init_data (f"user={{"id": str}}"))
+        """
+        user, user_init_data = client.get_random_user()
+
+        response = client.create_user(
+            user_id=user["id"],
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+
+        return user, user_init_data
 
     # POST /users/
     def test_create_user(self):
-        """Test for create new user"""
+        user, _ = client.get_random_user()
 
-        response_1 = test_client.post(
-            f"{USERS}",
-            json=user_1,
+        response = client.create_user(
+            user_id=user["id"],
         )
-        response_2 = test_client.post(
-            f"{USERS}",
-            json=user_2,
-        )
-
-        assert response_1.status_code == 201
-        assert response_2.status_code == 201
+        assert response.status_code == status.HTTP_201_CREATED
 
     def test_try_create_existing_user(self):
-        """Test for create existing user"""
+        user, _ = self.create_user()
 
-        response = test_client.post(
-            f"{USERS}",
-            json=user_1,
+        response = client.create_user(
+            user_id=user["id"],
         )
-
         assert response.status_code == status.HTTP_409_CONFLICT
 
     # GET /users/{user_id}
     def test_get_user(self):
-        """Test for get existing user by id"""
-        response = test_client.get(
-            USER.format(user_id=user_1["id"]),
-            headers={"user-init-data": user_init_data_1},
-        )
+        user, user_init_data = self.create_user()
 
+        response = client.get_user(
+            user_id=user["id"],
+            user_init_data=user_init_data,
+        )
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {"id": "0"}
+        assert response.json() == user
 
     def test_try_get_user_with_bad_token(self):
-        """Test for get user with bad token"""
-        user_init_data = "bad-format"
+        user, _ = self.create_user()
 
-        response = test_client.get(
-            USER.format(user_id=user_1["id"]),
-            headers={"user-init-data": user_init_data},
+        response = client.get_user(
+            user_id=user["id"],
+            user_init_data="bad-format",
         )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_try_get_another_user(self):
-        """Test for get user from another user"""
+        user, _ = self.create_user()
+        _, user_init_data = self.create_user()
 
-        response = test_client.get(
-            USER.format(user_id=user_1["id"]),
-            headers={"user-init-data": user_init_data_2},
+        response = client.get_user(
+            user_id=user["id"],
+            user_init_data=user_init_data,
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_try_get_another_nonexistent_user(self):
-        """Test for get non-existent user from another user"""
-        response = test_client.get(
-            USER.format(user_id=user_3["id"]),
-            headers={"user-init-data": user_init_data_1},
+        user, _ = client.get_random_user()
+        _, user_init_data = self.create_user()
+
+        response = client.get_user(
+            user_id=user["id"],
+            user_init_data=user_init_data,
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_try_get_nonexistent_user(self):
-        """Test for get non-existent user"""
-        response = test_client.get(
-            USER.format(user_id=user_3["id"]),
-            headers={"user-init-data": user_init_data_3},
+        user, user_init_data = client.get_random_user()
+
+        response = client.get_user(
+            user_id=user["id"],
+            user_init_data=user_init_data,
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
