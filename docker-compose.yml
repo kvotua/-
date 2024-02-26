@@ -11,11 +11,19 @@ services:
         - mongo
       volumes:
         - files_volume:/files
+      environment:
+        - MONGO_USERNAME=${MONGO_USERNAME}
+        - MONGO_PASSWORD=${MONGO_PASSWORD}
 
   mongo:
     image: mongo:latest
     volumes:
       - mongo_volume:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    ports:
+      - "27017:27017"
   
   nginx:
     build:
