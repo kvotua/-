@@ -1,0 +1,95 @@
+name: Bot
+
+run-name: ${{ github.event_name }} to ${{ github.ref_name }} by @${{ github.actor }}
+
+on:
+  push:
+    paths:
+      - bot/**
+  pull_request:
+    paths:
+      - bot/**
+
+env:
+  path: ./bot
+
+jobs:
+  linting_black:
+    name: Linting with black (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install black
+        run: pip install black
+
+      - name: Run black
+        run: black --check --verbose --diff --color ${{ env.path }}
+
+  linting_flake:
+    name: Linting with flake8 (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install flake8 with plugins
+        run: pip install flake8 flake8-bugbear
+
+      - name: Flake8 linting
+        run: |
+          flake8 --statistics --show-source --max-line-length 88  ${{ env.path }}
+
+  typing_mypy:
+    name: Checking static types with mypy (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pip install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "poetry"
+
+      - name: Install dependecies
+        run: |
+          cd ${{ env.path }}
+          poetry add mypy types-cachetools
+          poetry install
+
+      - name: Creating configuration file
+        run: |
+          echo '[mypy]' >> ${{ env.path }}/mypy.ini
+          echo 'plugins = pydantic.mypy' >> ${{ env.path }}/mypy.ini
+
+      - name: Mypy checking
+        run: |
+          cd ${{ env.path }}
+          poetry run mypy .
