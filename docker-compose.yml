@@ -45,6 +45,14 @@ services:
       - /tmp/acme_challenge:/tmp/acme_challenge
     restart: always
 
+  bot:
+    build:
+      context: ./bot
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - MODE=${MODE}
+      - SERVER_NAME=${SERVER_NAME}
+
 volumes:
   mongo_volume:
   files_volume:
