@@ -10,6 +10,10 @@ class UserNotFoundError(ServiceError):
     """Raised when a user is not found."""
 
 
+class WrongInitiatorError(ServiceError):
+    """Raised when initiator is not found."""
+
+
 class UserExistError(ServiceError):
     """Raised when a user already exists."""
 

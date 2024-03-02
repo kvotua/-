@@ -1,7 +1,12 @@
 from typing import Annotated
 
 from app.services.UserService.schemas import UserCreateSchema, UserSchema
-from app.services.exceptions import UserExistError, UserNotFoundError, NotAllowedError
+from app.services.exceptions import (
+    UserExistError,
+    WrongInitiatorError,
+    NotAllowedError,
+    UserNotFoundError,
+)
 from fastapi import APIRouter, Depends, status, HTTPException
 from app.services import UserService
 
@@ -29,13 +34,17 @@ def user_get(
 ):
     try:
         return user_service.try_get_by_id(initiator_id, user_id)
-    except UserNotFoundError:
+    except WrongInitiatorError:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND, "The user with this ID was not found"
+            status.HTTP_401_UNAUTHORIZED, "The user with this ID was not found"
         )
     except NotAllowedError:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN, "You do not have permission to receive this user"
+        )
+    except UserNotFoundError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "The user with this ID was not found"
         )
 
 

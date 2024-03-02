@@ -1,7 +1,12 @@
 from app.registry import IRegistry
 from .schemas import UserCreateSchema, UserSchema
 
-from ..exceptions import UserExistError, UserNotFoundError, NotAllowedError
+from ..exceptions import (
+    UserExistError,
+    UserNotFoundError,
+    NotAllowedError,
+    WrongInitiatorError,
+)
 from .IUserService import IUserService
 
 
@@ -21,10 +26,9 @@ class UserService(IUserService):
         """
         self.__registry = registry
 
-    def user_exist_validation(self, user_id: str) -> str:
-        if not self._exist(user_id):
-            raise UserNotFoundError()
-        return user_id
+    def user_exist_validation(self, user_id: str) -> None:
+        if not self.exist(user_id):
+            raise WrongInitiatorError()
 
     def try_get_by_id(self, initiator_id: str, user_id: str) -> UserSchema:
         """
@@ -42,9 +46,10 @@ class UserService(IUserService):
             UserNotFoundError: If the user with the specified ID is not found.
         """
         self.user_exist_validation(initiator_id)
+        user = self._get_by_id(user_id)
         if initiator_id != user_id:
             raise NotAllowedError()
-        return self._get_by_id(user_id)
+        return user
 
     def create(self, new_user: UserCreateSchema) -> None:
         """
@@ -56,12 +61,12 @@ class UserService(IUserService):
         Raises:
             UserExistError: If a user with the same ID already exists.
         """
-        if self._exist(new_user.id):
+        if self.exist(new_user.id):
             raise UserExistError()
         user = UserSchema(**new_user.model_dump())
         self.__registry.create(user.model_dump())
 
-    def _exist(self, user_id: str) -> bool:
+    def exist(self, user_id: str) -> bool:
         """
         Check if a user exists based on the provided ID.
 
@@ -87,7 +92,6 @@ class UserService(IUserService):
         Raises:
             UserNotFoundError: If the user with the specified ID is not found.
         """
-        self.user_exist_validation(user_id)
         result = self.__registry.read({"id": user_id})
         if len(result) < 1:
             raise UserNotFoundError()

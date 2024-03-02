@@ -15,5 +15,9 @@ class IUserService(ABC):
         pass
 
     @abstractmethod
-    def user_exist_validation(self, user_id: str) -> str:
+    def user_exist_validation(self, user_id: str) -> None:
+        pass
+
+    @abstractmethod
+    def exist(self, user_id: str) -> bool:
         pass

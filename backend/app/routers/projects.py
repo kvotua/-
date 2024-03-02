@@ -10,6 +10,7 @@ from app.services.exceptions import (
     UserNotFoundError,
     ProjectNotFoundError,
     NotAllowedError,
+    WrongInitiatorError,
 )
 from fastapi import APIRouter, Depends, status, HTTPException
 
@@ -37,6 +38,8 @@ def project_get(
 ):
     try:
         return project_service.try_get(initiator_id, project_id)
+    except WrongInitiatorError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong initiator")
     except ProjectNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A project with this ID does not exist"
@@ -64,6 +67,8 @@ def project_get_user(
 ):
     try:
         return project_service.try_get_by_user_id(initiator_id, user_id)
+    except WrongInitiatorError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong initiator")
     except UserNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A user with this ID does not exist"
@@ -91,6 +96,8 @@ def project_add(
 ):
     try:
         return project_service.create(initiator_id, project_create)
+    except WrongInitiatorError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong initiator")
     except UserNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "The user with this ID was not found"
@@ -114,15 +121,12 @@ def update_project(
 ):
     try:
         project_service.try_update(initiator_id, project_id, project_update)
+    except WrongInitiatorError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong initiator")
     except NotAllowedError:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
             "You do not have permission to update this project",
-        )
-    except UserNotFoundError:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
-            "The user with this ID was not found",
         )
     except ProjectNotFoundError:
         raise HTTPException(
@@ -135,6 +139,7 @@ def update_project(
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
+        status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
@@ -150,9 +155,9 @@ def project_delete(
             status.HTTP_403_FORBIDDEN,
             "You do not have permission to delete this project",
         )
-    except UserNotFoundError:
+    except WrongInitiatorError:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
+            status.HTTP_401_UNAUTHORIZED,
             "The user with this ID was not found",
         )
     except ProjectNotFoundError:

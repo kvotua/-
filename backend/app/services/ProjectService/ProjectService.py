@@ -10,6 +10,7 @@ from ..exceptions import (
     ProjectNotFoundError,
     NotAllowedError,
     NodeNotFoundError,
+    UserNotFoundError,
 )
 from .IProjectService import IProjectService
 
@@ -64,10 +65,10 @@ class ProjectService(IProjectService):
             NotAllowedError: If the initiator is not allowed to perform the operation.
         """
         self.__user_service.user_exist_validation(initiator_id)
-        self.__user_service.user_exist_validation(user_id)
+        project = self._get_by_user_id(user_id)
         if initiator_id != user_id:
             raise NotAllowedError()
-        return self._get_by_user_id(user_id)
+        return project
 
     def try_get(self, initiator_id: str, project_id: str) -> ProjectSchema:
         """
@@ -86,10 +87,7 @@ class ProjectService(IProjectService):
             NotAllowedError: If the initiator is not allowed to perform the operation.
         """
         self.__user_service.user_exist_validation(initiator_id)
-        try:
-            project = self._get(project_id)
-        except ProjectNotFoundError:
-            raise NotAllowedError()
+        project = self._get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         return project
@@ -134,10 +132,7 @@ class ProjectService(IProjectService):
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
         self.__user_service.user_exist_validation(initiator_id)
-        try:
-            project = self._get(project_id)
-        except ProjectNotFoundError:
-            raise NotAllowedError()
+        project = self._get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         self._update(project_id, project_update)
@@ -156,10 +151,7 @@ class ProjectService(IProjectService):
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
         self.__user_service.user_exist_validation(initiator_id)
-        try:
-            project = self._get(project_id)
-        except ProjectNotFoundError:
-            raise NotAllowedError()
+        project = self._get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         self._delete(project_id)
@@ -228,6 +220,8 @@ class ProjectService(IProjectService):
         Raises:
             UserNotFoundError: If the user with the specified ID is not found.
         """
+        if not self.__user_service.exist(user_id):
+            raise UserNotFoundError
         projects = self.__registry.read({"owner_id": user_id})
         return [ProjectSchema(**project) for project in projects]
 

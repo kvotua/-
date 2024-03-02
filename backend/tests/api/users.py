@@ -1,4 +1,5 @@
 import httpx
+
 from .base import ApiBase
 
 
@@ -30,8 +31,8 @@ class ApiUsers(ApiBase):
 
     def get_user(
         self,
-        user_id: str,
         user_init_data: str,
+        user_id: str,
     ) -> httpx.Response:
         """
         Retrieves an existing user from the `/users` endpoint.

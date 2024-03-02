@@ -23,7 +23,7 @@ class ApiBase:
     def __init__(self, app: FastAPI):
         self.client = TestClient(app)
 
-    def get_random_user(self) -> tuple[dict, str]:
+    def get_random_user(self) -> tuple[dict[str, str], str]:
         """
         Generates a random user object and corresponding user-specific data string.
 
@@ -66,9 +66,6 @@ class ApiBase:
             httpx.Response: The response object from the server.
         """
 
-        json = json or dict()
-        headers = headers or dict()
-
         return self.client.post(
             url=url,
             json=json,
@@ -94,9 +91,6 @@ class ApiBase:
         Returns:
             httpx.Response: The response object from the server.
         """
-
-        params = params or dict()
-        headers = headers or dict()
 
         return self.client.get(
             url=url,
@@ -146,8 +140,6 @@ class ApiBase:
         Returns:
             httpx.Response: The response object from the server.
         """
-        json = json or dict()
-        headers = headers or dict()
 
         return self.client.patch(
             url=url,

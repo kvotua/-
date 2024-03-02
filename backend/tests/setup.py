@@ -1,8 +1,9 @@
-from .api import ClientApi
 from app.main import app
 from app.registry.MongoMockRegistry import MongoMockRegistryFactory
 from app.routers.dependencies import get_project_service, get_user_service
 from app.services.ServiceMediator import ServiceMediator
+
+from .api import ClientApi
 
 client = ClientApi(app)
 
