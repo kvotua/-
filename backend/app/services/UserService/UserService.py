@@ -1,13 +1,13 @@
 from app.registry import IRegistry
-from .schemas import UserCreateSchema, UserSchema
 
 from ..exceptions import (
+    NotAllowedError,
     UserExistError,
     UserNotFoundError,
-    NotAllowedError,
     WrongInitiatorError,
 )
 from .IUserService import IUserService
+from .schemas import UserCreateSchema, UserSchema
 
 
 class UserService(IUserService):

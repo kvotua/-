@@ -1,14 +1,17 @@
 from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.services import NodeService
+from app.services.exceptions import NodeNotFoundError, UserNotFoundError
 from app.services.NodeService.schemas import (
     NodeCreateSchema,
     NodeSchema,
     NodeTreeSchema,
     NodeUpdateSchema,
 )
-from app.services import NodeService
-from app.services.exceptions import NodeNotFoundError, UserNotFoundError
-from fastapi import APIRouter, Depends, status, HTTPException
-from .dependencies import get_user_id_by_init_data, get_node_service
+
+from .dependencies import get_node_service, get_user_id_by_init_data
 from .exceptions import HTTPExceptionSchema
 
 router = APIRouter(prefix="/nodes", tags=["nodes"])

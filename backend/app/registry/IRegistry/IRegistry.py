@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, List
-from ..RegistryPermissionException import RegistryPermissionException
+
 from ..RegistryPermission import RegistryPermission
+from ..RegistryPermissionException import RegistryPermissionException
 from ..RegistryResponse import RegistryResponse
 from ..RegistryTypes import RegistryData, RegistryQuery
 

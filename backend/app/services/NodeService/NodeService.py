@@ -1,15 +1,10 @@
 from app.registry import IRegistry
-from .schemas import (
-    NodeSchema,
-    NodeCreateSchema,
-    NodeUpdateSchema,
-    NodeTreeSchema,
-)
 
 from ..exceptions import NodeNotFoundError
-from .INodeService import INodeService
 from ..ProjectService.ProjectService import IProjectService
 from ..UserService.UserService import IUserService
+from .INodeService import INodeService
+from .schemas import NodeCreateSchema, NodeSchema, NodeTreeSchema, NodeUpdateSchema
 
 
 class NodeService(INodeService):

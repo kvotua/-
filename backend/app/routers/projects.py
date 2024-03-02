@@ -1,22 +1,22 @@
 from typing import Annotated
 
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.services import ProjectService
+from app.services.exceptions import (
+    NotAllowedError,
+    ProjectNotFoundError,
+    UserNotFoundError,
+    WrongInitiatorError,
+)
 from app.services.ProjectService.schemas import (
     ProjectCreateSchema,
     ProjectSchema,
     ProjectUpdateSchema,
 )
 
-from app.services.exceptions import (
-    UserNotFoundError,
-    ProjectNotFoundError,
-    NotAllowedError,
-    WrongInitiatorError,
-)
-from fastapi import APIRouter, Depends, status, HTTPException
-
-from .dependencies import get_user_id_by_init_data, get_project_service
+from .dependencies import get_project_service, get_user_id_by_init_data
 from .exceptions import HTTPExceptionSchema
-from app.services import ProjectService
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 

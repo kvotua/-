@@ -1,18 +1,18 @@
 from typing import Annotated
 
-from app.services.UserService.schemas import UserCreateSchema, UserSchema
-from app.services.exceptions import (
-    UserExistError,
-    WrongInitiatorError,
-    NotAllowedError,
-    UserNotFoundError,
-)
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+
 from app.services import UserService
+from app.services.exceptions import (
+    NotAllowedError,
+    UserExistError,
+    UserNotFoundError,
+    WrongInitiatorError,
+)
+from app.services.UserService.schemas import UserCreateSchema, UserSchema
 
 from .dependencies import get_user_id_by_init_data, get_user_service
 from .exceptions import HTTPExceptionSchema
-
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

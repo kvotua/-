@@ -1,9 +1,11 @@
 from typing import List
+
+from pymongo.collection import Collection
+
+from ..IRegistry import IRegistry
 from ..RegistryPermission import RegistryPermission
 from ..RegistryResponse import RegistryResponse
 from ..RegistryTypes import RegistryData, RegistryQuery
-from ..IRegistry import IRegistry
-from pymongo.collection import Collection
 
 
 class MongoRegistry(IRegistry):

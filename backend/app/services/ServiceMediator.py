@@ -1,10 +1,11 @@
-from .UserService.UserService import UserService
-from .ProjectService.ProjectService import ProjectService
-from .NodeService.NodeService import NodeService
-from .UserService import IUserService
-from .ProjectService import IProjectService
+from app.registry import IRegistryFactory, RegistryPermission
+
 from .NodeService import INodeService
-from app.registry import RegistryPermission, IRegistryFactory
+from .NodeService.NodeService import NodeService
+from .ProjectService import IProjectService
+from .ProjectService.ProjectService import ProjectService
+from .UserService import IUserService
+from .UserService.UserService import UserService
 
 
 class ServiceMediator:

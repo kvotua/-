@@ -1,10 +1,6 @@
 from abc import ABC, abstractmethod
-from .schemas import (
-    NodeSchema,
-    NodeCreateSchema,
-    NodeUpdateSchema,
-    NodeTreeSchema,
-)
+
+from .schemas import NodeCreateSchema, NodeSchema, NodeTreeSchema, NodeUpdateSchema
 
 
 class INodeService(ABC):

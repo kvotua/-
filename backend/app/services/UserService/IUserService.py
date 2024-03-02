@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from .schemas import (
-    UserCreateSchema,
-    UserSchema,
-)
+
+from .schemas import UserCreateSchema, UserSchema
 
 
 class IUserService(ABC):

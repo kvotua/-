@@ -1,21 +1,16 @@
 from app.registry import IRegistry
-from .schemas import (
-    ProjectCreateSchema,
-    ProjectSchema,
-    ProjectUpdateSchema,
-)
-from ..NodeService.schemas import NodeCreateSchema
 
 from ..exceptions import (
-    ProjectNotFoundError,
-    NotAllowedError,
     NodeNotFoundError,
+    NotAllowedError,
+    ProjectNotFoundError,
     UserNotFoundError,
 )
-from .IProjectService import IProjectService
-
 from ..NodeService import INodeService
+from ..NodeService.schemas import NodeCreateSchema
 from ..UserService import IUserService
+from .IProjectService import IProjectService
+from .schemas import ProjectCreateSchema, ProjectSchema, ProjectUpdateSchema
 
 
 class ProjectService(IProjectService):

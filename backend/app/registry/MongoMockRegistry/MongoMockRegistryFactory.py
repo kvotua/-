@@ -1,8 +1,9 @@
 from mongomock.database import Database
 from mongomock.mongo_client import MongoClient
+
 from ..IRegistry import IRegistry, IRegistryFactory
-from .MongoMockRegistry import MongoMockRegistry
 from ..RegistryPermission import RegistryPermission
+from .MongoMockRegistry import MongoMockRegistry
 
 
 class MongoMockRegistryFactory(IRegistryFactory):

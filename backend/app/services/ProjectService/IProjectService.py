@@ -1,9 +1,6 @@
 from abc import ABC, abstractmethod
-from .schemas import (
-    ProjectCreateSchema,
-    ProjectSchema,
-    ProjectUpdateSchema,
-)
+
+from .schemas import ProjectCreateSchema, ProjectSchema, ProjectUpdateSchema
 
 
 class IProjectService(ABC):

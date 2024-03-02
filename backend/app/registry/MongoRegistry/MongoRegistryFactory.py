@@ -1,9 +1,11 @@
+import os
+
 from pymongo import MongoClient
 from pymongo.database import Database
+
 from ..IRegistry import IRegistry, IRegistryFactory
-from .MongoRegistry import MongoRegistry
 from ..RegistryPermission import RegistryPermission
-import os
+from .MongoRegistry import MongoRegistry
 
 
 class MongoRegistryFactory(IRegistryFactory):

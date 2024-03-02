@@ -5,13 +5,13 @@ from json import JSONDecodeError
 from typing import Annotated
 from urllib.parse import unquote
 
-from app.config import settings
 from fastapi import Header, HTTPException, status
 
+from app.config import settings
 from app.services import service_mediator
-from app.services.UserService import IUserService
-from app.services.ProjectService import IProjectService
 from app.services.NodeService import INodeService
+from app.services.ProjectService import IProjectService
+from app.services.UserService import IUserService
 
 secret_key = hmac.new(
     "WebAppData".encode("utf-8"), settings.bot_key.encode("utf-8"), hashlib.sha256

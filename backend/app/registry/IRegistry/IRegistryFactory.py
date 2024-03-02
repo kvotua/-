@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from .IRegistry import IRegistry
+
 from ..RegistryPermission import RegistryPermission
+from .IRegistry import IRegistry
 
 
 class IRegistryFactory(ABC):
