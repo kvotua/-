@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { axiosUser } from "src/app/http";
+import { axiosBase } from "src/app/http";
 
 export const getUser = createAsyncThunk("getUser", async (id: string) => {
-  return await axiosUser.get(`${id}`).then(({ data }) => data);
+  return await axiosBase.get(`users/${id}`).then(({ data }) => data);
 });
 
 // import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';

@@ -1,6 +1,5 @@
 import { Awards } from "src/pages/Awards/Awards";
 import { Edit } from "src/pages/Edit/Edit";
-import { Forms } from "src/pages/Forms/Forms";
 import Following from "src/pages/Gallery/Following";
 import New from "src/pages/Gallery/New";
 import Personal from "src/pages/Gallery/Personal";
@@ -12,6 +11,7 @@ import { ProfileSettings } from "src/pages/ProfileSettings/ProfileSettings";
 import { Quests } from "src/pages/Quests/Quests";
 import { RoutesList } from "../types/routes/types";
 import { AddProject } from "src/pages/AddProject/AddProject";
+import { UserPage } from "src/pages/UserPage/UserPage";
 
 export const appRoutes = [
   {
@@ -26,15 +26,15 @@ export const appRoutes = [
 
 export const projectRoutes = [
   {
-    path: "/projects/add",
+    path: RoutesList.ProjectAdd,
     Component: AddProject,
   },
   {
-    path: "/project/:projectId/",
-    Component: Forms,
+    path: RoutesList.Project,
+    Component: UserPage,
   },
   {
-    path: "/project/:projectId/edit/",
+    path: RoutesList.ProjectEdit,
     Component: Edit,
   },
 ];

@@ -17,10 +17,11 @@ const AddProject: React.FC = () => {
       Image: Back,
     },
     {
-      handleClick: () => addProject(mutation, 0, { id: 0, name: projectName }),
+      handleClick: () => addProject(mutation, navigate, { name: projectName }),
       Image: Save,
     },
   ];
+
   return (
     <div>
       <div

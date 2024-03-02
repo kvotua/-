@@ -10,15 +10,15 @@ const GalleryHeader: React.FC = () => {
       title: "Популярные",
     },
     {
-      path: "/gallery/following/",
+      path: RoutesList.GalleryFollowing,
       title: "Избранные",
     },
     {
-      path: "/gallery/new/",
+      path: RoutesList.GalleryNew,
       title: "Новые",
     },
     {
-      path: "/gallery/personal/",
+      path: RoutesList.GalleryPersonal,
       title: "Мои",
     },
   ];

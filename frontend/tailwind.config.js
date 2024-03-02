@@ -13,10 +13,10 @@ export default {
         main: "#FFFFFF",
         project: "#B96CE3",
         addProject: "#9F46D9",
-        mainBlack: "#292929"
+        mainBlack: "#292929",
       },
       borderWidth: {
-        3: '3px'
+        3: "3px",
       },
       borderRadius: {
         20: "20px",
@@ -27,7 +27,7 @@ export default {
         16: "16px",
         14: "14px",
         12: "12px",
-      }
+      },
     },
   },
   plugins: [],

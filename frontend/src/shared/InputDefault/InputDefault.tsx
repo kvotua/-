@@ -11,6 +11,7 @@ const InputDefault: FC<IInputDefaultProps> = ({
   valueInp,
   handelFocus,
   handelBlur,
+  defaultValue,
 }) => {
   const change = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleChange(e.target.value);
@@ -27,6 +28,7 @@ const InputDefault: FC<IInputDefaultProps> = ({
       onChange={change}
       onFocus={handelFocus}
       onBlur={handelBlur}
+      defaultValue={defaultValue}
     />
   );
 };

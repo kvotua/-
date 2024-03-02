@@ -17,15 +17,20 @@ function App() {
   // const tgUser: telegram = tg.initDataUnsafe.user;
   const tgUser: IUser = tg.initDataUnsafe.user;
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     // const projectId = localStorage.getItem("projectId");
     // if (!projectId) navigate("/");
     tg.ready();
     tg.expand();
     tg.enableClosingConfirmation();
-    if (tgUser && tgUser.id) {
-      dispatch(getUser(tgUser.id));
-    }
+    // if (tgUser && tgUser.id) {
+    //   dispatch(getUser(tgUser.id));
+    // }
+    // // Локальные данные
+    // else {
+    // }
+    dispatch(getUser("0"));
     // async function validUser() {
     //   if (tgUser === undefined) {
     //     dispatch(getUserWithProjectsByIdThunk({ userId: "string" }));

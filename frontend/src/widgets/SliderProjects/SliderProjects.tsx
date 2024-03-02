@@ -44,9 +44,9 @@ const SliderProjects: React.FC<ISliderProjects> = ({ projects }) => {
     //   </SwiperSlide>
     // </Swiper>
     <div className="h-fit w-full py-[4vh] px-[10px] grid gap-[20px] grid-cols-2 pb-[140px]">
-      {projects?.map((_, i) => (
-        <Link key={i} to={`/project/${_.id}`}>
-          <ProjectCard title="project" />
+      {projects?.map((item, i) => (
+        <Link key={i} to={`/project/${item.id}`}>
+          <ProjectCard title="project" id={item.id} />
         </Link>
       ))}
       <div className="bg-project border-3 text-main border-main rounded-20 h-[280px] text-center p-[20px] flex flex-col items-center justify-between">

@@ -6,20 +6,18 @@ import {
   MutationDefinition,
 } from "@reduxjs/toolkit/query";
 import { MutationTrigger } from "node_modules/@reduxjs/toolkit/dist/query/react/buildHooks";
+import { NavigateFunction } from "react-router-dom";
 import { IProject } from "src/app/store/slice/ProjectsSlice/projectsApi";
 
 export const addProject = (
   mutation: MutationTrigger<
     MutationDefinition<
-      {
-        userId: number;
-        body: Partial<IProject>;
-      },
+      { body: Partial<IProject> },
       BaseQueryFn<
         string | FetchArgs,
         unknown,
         FetchBaseQueryError,
-        object,
+        Record<string, unknown>,
         FetchBaseQueryMeta
       >,
       "Projects",
@@ -27,15 +25,12 @@ export const addProject = (
       "projectsApi"
     >
   >,
-  id: number,
+  navigate: NavigateFunction,
   body: IProject,
 ) => {
-  try {
-    mutation({
-      userId: id,
-      body,
+  mutation({ body })
+    .then((data) => ("error" in data ? console.log(data.error) : navigate(-1)))
+    .catch((err) => {
+      console.log(err);
     });
-  } catch (error) {
-    console.log(error);
-  }
 };
