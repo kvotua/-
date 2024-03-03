@@ -4,4 +4,5 @@ from config_reader import config
 
 
 def get_webapp() -> WebAppInfo:
-    return WebAppInfo(url=f"{config.APP_BASE_URL}")
+    protocol = "https" if config.MODE != "local" else "http"
+    return WebAppInfo(url=f"{protocol}://{config.SERVER_NAME}")

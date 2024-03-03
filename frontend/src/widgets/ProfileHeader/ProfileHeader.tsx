@@ -11,11 +11,11 @@ const ProfileHeader: React.FC = () => {
       title: "Профиль",
     },
     {
-      path: "/profile/awards",
+      path: RoutesList.ProfileSettings,
       title: "Награды",
     },
     {
-      path: "/profile/quests",
+      path: RoutesList.ProfileQuests,
       title: "Испытания",
     },
   ];

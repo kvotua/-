@@ -1,6 +1,7 @@
 FROM python:3.12-slim
 WORKDIR /code
-COPY ./requirements.txt /code/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-COPY ./app /code/app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+RUN pip install --no-cache-dir --upgrade poetry
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --only main
+COPY . .
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

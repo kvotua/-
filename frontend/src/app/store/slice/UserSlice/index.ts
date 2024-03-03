@@ -27,6 +27,12 @@ export const userSlice = createSlice({
     builder.addCase(getUser.fulfilled, (state, { payload }) => {
       state.user = payload;
     });
+    builder.addCase(getUser.rejected, (state) => {
+      state.user = null;
+    });
+    builder.addCase(getUser.pending, (state) => {
+      state.user = null;
+    });
   },
 });
 export const { setUser } = userSlice.actions;

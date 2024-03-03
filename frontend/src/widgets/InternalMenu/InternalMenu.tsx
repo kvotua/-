@@ -12,23 +12,19 @@ interface IInternalMenu {
 }
 
 const InternalMenu: React.FC<IInternalMenu> = ({ MenuInfo }) => {
-  const ref = useRef(null)
+  const ref = useRef(null);
   return (
     <div>
       <ul ref={ref} className="flex justify-center gap-[16px]">
-        {MenuInfo.map(({ path, title },i) => (
+        {MenuInfo.map(({ path, title }, i) => (
           <li key={i} className="text-white">
-            <NavLink
-              className={` font-semibold text-14`}
-              to={path}
-              end
-            >
+            <NavLink className={` font-semibold text-14`} to={path} end>
               {title}
             </NavLink>
           </li>
         ))}
       </ul>
-      <Underline fatherBlock={ref}/>
+      <Underline fatherBlock={ref} />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { SVGProps } from "react";
-import { Link, useLocation, useMatch } from "react-router-dom";
+import { Link, useMatch } from "react-router-dom";
 
 interface ICustomLink {
   Image: React.FC<SVGProps<SVGSVGElement>>;
@@ -8,36 +8,15 @@ interface ICustomLink {
 
 const CustomLink: React.FC<ICustomLink> = ({ Image, to }) => {
   const match = useMatch({ path: to ? to : "/", end: false });
-  const location = useLocation();
 
   return (
     <>
       {to ? (
         <Link to={to}>
-          <Image
-            stroke={
-              match?.pathname === "/"
-                ? location.pathname === match.pathname
-                  ? "#FF78E9"
-                  : "white"
-                : match
-                ? "#FF78E9"
-                : "white"
-            }
-          />
+          <Image stroke={match ? "#FF78E9" : "#FFFFFF"} />
         </Link>
       ) : (
-        <Image
-          stroke={
-            match?.pathname === "/"
-              ? location.pathname === match.pathname
-                ? "#FF78E9"
-                : "white"
-              : match
-              ? "#FF78E9"
-              : "white"
-          }
-        />
+        <Image stroke={match ? "#FF78E9" : "#FFFFFF"} />
       )}
     </>
   );

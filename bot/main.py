@@ -12,7 +12,7 @@ from middlewares import ThrottlingMiddleware
 
 async def main() -> None:
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    bot = Bot(config.BOT_TOKEN.get_secret_value(), parse_mode=ParseMode.HTML)
+    bot = Bot(config.TELEGRAM_TOKEN.get_secret_value(), parse_mode=ParseMode.HTML)
     dp = Dispatcher()
 
     dp.message.middleware(ThrottlingMiddleware())

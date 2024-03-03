@@ -1,10 +1,11 @@
 import axios from "axios";
 
-export const axiosUser = axios.create({
-    baseURL: 'http://localhost:8000/users'
-})
+console.log(import.meta.env.VITE_API_URL);
 
-
-export const axiosProjects = axios.create({
-    baseURL: 'http://localhost:8000/projects'
-})
+export const axiosBase = axios.create({
+  baseURL:
+    `${import.meta.env.VITE_API_URL}/api/v1` || "http://localhost/api/v1/",
+  headers: {
+    "user-init-data": 'user={"id":0}',
+  },
+});

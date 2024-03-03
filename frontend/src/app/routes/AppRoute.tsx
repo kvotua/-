@@ -1,12 +1,22 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { appRoutes, galleryRoutes, profileRoutes, projectRoutes } from "./routes";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import {
+  appRoutes,
+  galleryRoutes,
+  profileRoutes,
+  projectRoutes,
+} from "./routes";
 import { Menu } from "src/widgets/Menu/Menu";
 import { ProfileHeader } from "src/widgets/ProfileHeader/ProfileHeader";
 import { GalleryHeader } from "src/widgets/GalleryHeader/GalleryHeader";
 import { menuItem } from "./menuListItem";
 
 const AppRoute: React.FC = () => {
+  const location = useLocation();
+
+  if (location.pathname === "/") {
+    return <Navigate to={"/home"} />;
+  }
   return (
     <>
       <Routes>

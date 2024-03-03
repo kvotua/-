@@ -1,6 +1,6 @@
 import React from "react";
 import { ProjectCard } from "src/entities/ProjectCard/ProjectCard";
-import picture from "../../assets/picture.svg"
+import picture from "../../assets/picture.svg";
 import "swiper/css";
 import "swiper/css/effect-cards";
 import { Link } from "react-router-dom";
@@ -12,11 +12,10 @@ interface IProject {
 }
 
 interface ISliderProjects {
-  projects: IProject[] | null
+  projects: IProject[] | null;
 }
 
-
-const SliderProjects: React.FC<ISliderProjects> = ({ projects}) => {
+const SliderProjects: React.FC<ISliderProjects> = ({ projects }) => {
   return (
     // <Swiper
     //   effect={"coverflow"}
@@ -45,23 +44,27 @@ const SliderProjects: React.FC<ISliderProjects> = ({ projects}) => {
     //   </SwiperSlide>
     // </Swiper>
     <div className="h-fit w-full py-[4vh] px-[10px] grid gap-[20px] grid-cols-2 pb-[140px]">
-      {projects?.map((_, i) => (
-        <Link key={i} to={`/project/${_.id}`}>
-          <ProjectCard  title="project" />
+      {projects?.map((item, i) => (
+        <Link key={i} to={`/project/${item.id}`}>
+          <ProjectCard title="project" id={item.id} />
         </Link>
-        
       ))}
       <div className="bg-project border-3 text-main border-main rounded-20 h-[280px] text-center p-[20px] flex flex-col items-center justify-between">
         <h2 className="text-[practice20px] font-bold uppercase">
           СОЗДАТЬ САЙТ
         </h2>
-        <Link to={'/projects/add'} className="w-full max-w-[70px] aspect-square rounded-full bg-main text-6xl flex items-center justify-center font-thin text-addProject cursor-pointer">
+        <Link
+          to={"/projects/add"}
+          className="w-full max-w-[70px] aspect-square rounded-full bg-main text-6xl flex items-center justify-center font-thin text-addProject cursor-pointer"
+        >
           +
         </Link>
         <h2 className="text-[practice20px] font-bold uppercase">
           ИЛИ ВЫБРАТЬ ИЗ ГАЛЕРЕИ
         </h2>
-        <Link className="max-w-[70px] aspect-square" to={RoutesList.Gallery}><img className=" " src={picture} alt="" /></Link>
+        <Link className="max-w-[70px] aspect-square" to={RoutesList.Gallery}>
+          <img className=" " src={picture} alt="" />
+        </Link>
       </div>
     </div>
   );

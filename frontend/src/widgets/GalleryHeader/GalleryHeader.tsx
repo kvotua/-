@@ -10,22 +10,21 @@ const GalleryHeader: React.FC = () => {
       title: "Популярные",
     },
     {
-      path: "/gallery/following/",
+      path: RoutesList.GalleryFollowing,
       title: "Избранные",
     },
     {
-      path: "/gallery/new/",
+      path: RoutesList.GalleryNew,
       title: "Новые",
     },
     {
-        path: "/gallery/personal/",
-        title: "Мои",
-      },
+      path: RoutesList.GalleryPersonal,
+      title: "Мои",
+    },
   ];
   return (
     <>
       <div className="container pt-[4vh] min-h-[100dvh]">
-        
         <InternalMenu MenuInfo={MenuInfo} />
         <Outlet />
       </div>

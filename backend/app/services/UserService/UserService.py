@@ -1,10 +1,16 @@
 from app.registry import IRegistry
-from app.schemas.User import UserCreateSchema, UserSchema
 
-from .exceptions import UserExistError, UserNotFoundError, NotAllowedError
+from ..exceptions import (
+    NotAllowedError,
+    UserExistError,
+    UserNotFoundError,
+    WrongInitiatorError,
+)
+from .IUserService import IUserService
+from .schemas import UserCreateSchema, UserSchema
 
 
-class UserService:
+class UserService(IUserService):
     """
     A service class for managing user-related operations.
     """
@@ -19,6 +25,10 @@ class UserService:
             registry (IRegistry): The registry to use for user operations.
         """
         self.__registry = registry
+
+    def user_exist_validation(self, user_id: str) -> None:
+        if not self.exist(user_id):
+            raise WrongInitiatorError()
 
     def try_get_by_id(self, initiator_id: str, user_id: str) -> UserSchema:
         """
@@ -35,9 +45,11 @@ class UserService:
             NotAllowedError: If the initiator is not allowed to perform the operation.
             UserNotFoundError: If the user with the specified ID is not found.
         """
+        self.user_exist_validation(initiator_id)
+        user = self._get_by_id(user_id)
         if initiator_id != user_id:
             raise NotAllowedError()
-        return self._get_by_id(user_id)
+        return user
 
     def create(self, new_user: UserCreateSchema) -> None:
         """

@@ -1,0 +1,69 @@
+name: Frontend
+
+run-name: ${{ github.event_name }} to ${{ github.ref_name }} by @${{ github.actor }}
+
+on:
+  push:
+    paths:
+      - frontend/**
+  pull_request:
+    paths:
+      - frontend/**
+
+env:
+  path: ./frontend
+
+jobs:
+  linting:
+    name: Run ESLint (${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["20.x", "21.x"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "npm"
+          cache-dependency-path: "${{ env.path }}/package-lock.json"
+
+      - name: Install dependecies
+        run: |
+          cd ${{ env.path }}
+          npm install
+
+      - name: Run linters
+        run: |
+          cd ${{ env.path }}
+          npm run lint
+
+  typing:
+    name: Run TypeScript (${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["20.x", "21.x"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "npm"
+          cache-dependency-path: "${{ env.path }}/package-lock.json"
+
+      - name: Install dependecies
+        run: |
+          cd ${{ env.path }}
+          npm install
+
+      - name: Run typescript
+        run: |
+          cd ${{ env.path }}
+          npx tsc --noEmit

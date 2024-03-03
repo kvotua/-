@@ -14,4 +14,5 @@ class ProjectUpdateSchema(BaseModel):
 
 class ProjectSchema(ProjectCreateSchema):
     id: str = Field(default_factory=lambda: str(uuid4()))
+    core_node_id: str
     owner_id: str

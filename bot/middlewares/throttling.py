@@ -3,6 +3,7 @@ from typing import Any, Awaitable, Callable
 from aiogram import BaseMiddleware
 from aiogram.types import CallbackQuery, Message
 from cachetools import TTLCache
+from aiogram.types import TelegramObject
 
 
 class ThrottlingMiddleware(BaseMiddleware):
@@ -16,18 +17,17 @@ class ThrottlingMiddleware(BaseMiddleware):
             "отключает" хендлер на определенное время.
             По умолчанию 1 секунда.
         """
-        self._limit = TTLCache(maxsize=10_000, ttl=time_limit)
+        self._limit: TTLCache = TTLCache(maxsize=10_000, ttl=time_limit)
 
     async def __call__(
         self,
-        handler: Callable[
-            [Message | CallbackQuery, dict[str, Any]],
-            Awaitable[Any],
-        ],
-        event: Message | CallbackQuery,
+        handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
+        event: TelegramObject,
         data: dict[str, Any],
     ) -> Any:
-        id: int = event.from_user.id if event.from_user else 0
+        if not isinstance(event, Message) or not isinstance(event, CallbackQuery):
+            return
+        id = event.from_user.id if event.from_user else 0
         if id in self._limit:
             return
         else:
