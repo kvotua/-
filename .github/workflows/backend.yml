@@ -69,28 +69,24 @@ jobs:
       - name: Get repository code
         uses: actions/checkout@v4
 
+      - name: Install Poetry
+        run: pip install poetry
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
-          pip install --no-cache-dir --upgrade -r ${{ env.path }}/requirements.txt
-
-      - name: Install mypy
-        run: pip install mypy
-
-      - name: Creating configuration file
-        run: |
-          echo '[mypy]' >> ${{ env.path }}/mypy.ini
-          echo 'plugins = pydantic.mypy' >> ${{ env.path }}/mypy.ini
+          cd ${{ env.path }}
+          poetry install
 
       - name: Mypy checking
         run: |
           cd ${{ env.path }}
-          mypy .
+          poetry run mypy .
 
   testing:
     name: Testing ${{ matrix.python-version }}
@@ -103,17 +99,21 @@ jobs:
       - name: Get full code
         uses: actions/checkout@v4
 
+      - name: Install Poetry
+        run: pip install poetry
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
-          pip install --no-cache-dir --upgrade -r ${{ env.path }}/requirements.txt pytest mongomock setuptools
+          cd ${{ env.path }}
+          poetry install
 
       - name: Run tests
         run: |
           cd ${{ env.path }}
-          pytest .
+          poetry run pytest .
