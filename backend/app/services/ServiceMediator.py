@@ -1,4 +1,4 @@
-from app.registry import IRegistryFactory, RegistryPermission
+from app.registry import IRegistryFactory
 
 from .NodeService import INodeService
 from .NodeService.NodeService import NodeService
@@ -30,30 +30,15 @@ class ServiceMediator:
         )
 
     def instantiate_user_service(self) -> None:
-        users_registry = self.__registry_factory.get(
-            "users",
-            RegistryPermission(
-                canCreate=True, canRead=True, canUpdate=True, canDelete=True
-            ),
-        )
+        users_registry = self.__registry_factory.get("users")
         self.__user_service = UserService(users_registry)
 
     def instantiate_project_service(self) -> None:
-        project_registry = self.__registry_factory.get(
-            "projects",
-            RegistryPermission(
-                canCreate=True, canRead=True, canUpdate=True, canDelete=True
-            ),
-        )
+        project_registry = self.__registry_factory.get("projects")
         self.__project_service = ProjectService(project_registry)
 
     def instantiate_node_service(self) -> None:
-        node_registry = self.__registry_factory.get(
-            "nodes",
-            RegistryPermission(
-                canCreate=True, canRead=True, canUpdate=True, canDelete=True
-            ),
-        )
+        node_registry = self.__registry_factory.get("nodes")
 
         self.__node_service = NodeService(node_registry)
 

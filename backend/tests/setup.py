@@ -1,5 +1,7 @@
+from mongomock import MongoClient
+
 from app.main import app
-from app.registry.MongoMockRegistry import MongoMockRegistryFactory
+from app.registry.MongoRegistry import MongoRegistryFactory
 from app.routers.dependencies import get_project_service, get_user_service
 from app.services.ServiceMediator import ServiceMediator
 
@@ -7,7 +9,7 @@ from .api import ClientApi
 
 client = ClientApi(app)
 
-mock_registry_factory = MongoMockRegistryFactory()
+mock_registry_factory = MongoRegistryFactory(MongoClient())
 mock_service_factory = ServiceMediator(mock_registry_factory)
 
 

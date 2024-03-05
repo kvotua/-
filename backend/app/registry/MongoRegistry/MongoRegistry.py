@@ -1,41 +1,43 @@
-from typing import List
-
 from pymongo.collection import Collection
 
-from ..IRegistry import IRegistry
-from ..RegistryPermission import RegistryPermission
-from ..RegistryResponse import RegistryResponse
-from ..RegistryTypes import RegistryData, RegistryQuery
+from ..IRegistry import (
+    IRegistry,
+    IRegistryCreate,
+    IRegistryDelete,
+    IRegistryRead,
+    IRegistryUpdate,
+)
+from .MongoRegistryCreate import MongoRegistryCreate
+from .MongoRegistryDelete import MongoRegistryDelete
+from .MongoRegistryRead import MongoRegistryRead
+from .MongoRegistryUpdate import MongoRegistryUpdate
 
 
 class MongoRegistry(IRegistry):
-    """
-    Implementation of IRegistry interface for interacting with MongoDB.
-    """
+    __create: IRegistryCreate
+    __read: IRegistryRead
+    __update: IRegistryUpdate
+    __delete: IRegistryDelete
 
-    __collection: Collection
+    def __init__(self, collection: Collection) -> None:
+        super().__init__()
+        self.__create = MongoRegistryCreate(collection)
+        self.__read = MongoRegistryRead(collection)
+        self.__update = MongoRegistryUpdate(collection)
+        self.__delete = MongoRegistryDelete(collection)
 
-    def __init__(self, permissions: RegistryPermission, collection: Collection) -> None:
-        """
-        Initializes a new instance of the MongoRegistry class.
+    @property
+    def create(self) -> IRegistryCreate:
+        return self.__create
 
-        Args:
-            permissions (RegistryPermission): The permissions for the registry.
-            collection (Collection): The MongoDB collection to interact with.
-        """
-        super().__init__(permissions)
-        self.__collection = collection
+    @property
+    def read(self) -> IRegistryRead:
+        return self.__read
 
-    def create(self, data: RegistryData) -> None:
-        self.__collection.insert_one(data)
+    @property
+    def update(self) -> IRegistryUpdate:
+        return self.__update
 
-    def read(self, query: RegistryQuery) -> List[RegistryData]:
-        return list(self.__collection.find(query))
-
-    def update(self, query: RegistryQuery, data: RegistryData) -> RegistryResponse:
-        result = self.__collection.update_many(query, {"$set": data})
-        return RegistryResponse(count=result.modified_count)
-
-    def delete(self, query: RegistryQuery) -> RegistryResponse:
-        result = self.__collection.delete_many(query)
-        return RegistryResponse(count=result.deleted_count)
+    @property
+    def delete(self) -> IRegistryDelete:
+        return self.__delete
