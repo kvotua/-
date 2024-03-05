@@ -29,7 +29,5 @@ class IProjectService(ABC):
         pass
 
     @abstractmethod
-    def try_get_by_core_node_id(
-        self, inittiator_id: str, node_id: str
-    ) -> ProjectSchema:
+    def get_by_root_node_id(self, node_id: str) -> ProjectSchema:
         pass

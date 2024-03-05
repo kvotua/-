@@ -1,3 +1,7 @@
+from typing import Annotated
+
+from pydantic import AfterValidator
+
 from app.registry import IRegistry
 
 from ..exceptions import (
@@ -7,7 +11,6 @@ from ..exceptions import (
     UserNotFoundError,
 )
 from ..NodeService import INodeService
-from ..NodeService.schemas import NodeCreateSchema
 from ..UserService import IUserService
 from .IProjectService import IProjectService
 from .schemas import ProjectCreateSchema, ProjectSchema, ProjectUpdateSchema
@@ -41,8 +44,13 @@ class ProjectService(IProjectService):
         self.__user_service = user_service
         self.__node_service = node_service
 
+    def user_exist_validation(self, user_id: str) -> None:
+        self.__user_service.user_exist_validation(user_id)
+
     def try_get_by_user_id(
-        self, initiator_id: str, user_id: str
+        self,
+        initiator_id: Annotated[str, AfterValidator(user_exist_validation)],
+        user_id: Annotated[str, AfterValidator(user_exist_validation)],
     ) -> list[ProjectSchema]:
         """
         Attempt to retrieve projects associated with a user.
@@ -65,7 +73,11 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         return project
 
-    def try_get(self, initiator_id: str, project_id: str) -> ProjectSchema:
+    def try_get(
+        self,
+        initiator_id: Annotated[str, AfterValidator(user_exist_validation)],
+        project_id: str,
+    ) -> ProjectSchema:
         """
         Attempt to retrieve a specific project.
 
@@ -87,7 +99,11 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         return project
 
-    def create(self, initiator_id: str, new_project: ProjectCreateSchema) -> str:
+    def create(
+        self,
+        initiator_id: Annotated[str, AfterValidator(user_exist_validation)],
+        new_project: ProjectCreateSchema,
+    ) -> str:
         """
         Create a new project.
 
@@ -99,10 +115,8 @@ class ProjectService(IProjectService):
         Raises:
             UserNotFoundError: If the owner of the project is not found.
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        node_id = self.__node_service.create(
-            initiator_id, NodeCreateSchema(parent=None, children=[])
-        )
+        self.user_exist_validation(initiator_id)
+        node_id = self.__node_service.create_root()
         project = ProjectSchema(
             **new_project.model_dump(), owner_id=initiator_id, core_node_id=node_id
         )
@@ -110,7 +124,10 @@ class ProjectService(IProjectService):
         return project.id
 
     def try_update(
-        self, initiator_id: str, project_id: str, project_update: ProjectUpdateSchema
+        self,
+        initiator_id: Annotated[str, AfterValidator(user_exist_validation)],
+        project_id: str,
+        project_update: ProjectUpdateSchema,
     ) -> None:
         """
         Attempt to update a project.
@@ -132,7 +149,11 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         self._update(project_id, project_update)
 
-    def try_delete(self, initiator_id: str, project_id: str) -> None:
+    def try_delete(
+        self,
+        initiator_id: Annotated[str, AfterValidator(user_exist_validation)],
+        project_id: str,
+    ) -> None:
         """
         Attempt to delete a project.
 
@@ -202,7 +223,9 @@ class ProjectService(IProjectService):
             raise ProjectNotFoundError()
         return ProjectSchema(**projects[0])
 
-    def _get_by_user_id(self, user_id: str) -> list[ProjectSchema]:
+    def _get_by_user_id(
+        self, user_id: Annotated[str, AfterValidator(user_exist_validation)]
+    ) -> list[ProjectSchema]:
         """
         Retrieve projects associated with a user.
 
@@ -220,13 +243,25 @@ class ProjectService(IProjectService):
         projects = self.__registry.read({"owner_id": user_id})
         return [ProjectSchema(**project) for project in projects]
 
-    def try_get_by_core_node_id(self, initiator_id: str, node_id: str) -> ProjectSchema:
+    def get_by_root_node_id(self, node_id: str) -> ProjectSchema:
+        """
+        get project using it's root node
+
+        Args:
+            node_id (str): id of a root node
+
+        Raises:
+            NodeNotFoundError: raised when node with given id does not exist
+            ProjectNotFoundError: raised when there is no project that has given node
+            as a root node
+
+        Returns:
+            ProjectSchema: dict representation of a project
+        """
         if not self.__node_service.exist(node_id):
             raise NodeNotFoundError()
         project = self.__registry.read({"core_node_id": node_id})
         if len(project) < 1:
             raise ProjectNotFoundError()
         project_schema = ProjectSchema(**project[0])
-        if project_schema.owner_id != initiator_id:
-            raise NotAllowedError()
         return project_schema

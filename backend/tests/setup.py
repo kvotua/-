@@ -10,5 +10,6 @@ client = ClientApi(app)
 mock_registry_factory = MongoMockRegistryFactory()
 mock_service_factory = ServiceMediator(mock_registry_factory)
 
+
 app.dependency_overrides[get_project_service] = mock_service_factory.get_project_service
 app.dependency_overrides[get_user_service] = mock_service_factory.get_user_service

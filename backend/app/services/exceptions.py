@@ -25,4 +25,12 @@ class NotAllowedError(ServiceError):
 
 
 class NodeNotFoundError(ServiceError):
+    """Raised when node is not found"""
+
+    pass
+
+
+class NodeCannotBeDeletedError(ServiceError):
+    """Raised when node is cannot be deleted"""
+
     pass

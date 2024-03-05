@@ -28,5 +28,9 @@ class INodeService(ABC):
         pass
 
     @abstractmethod
+    def create_root(self) -> str:
+        pass
+
+    @abstractmethod
     def exist(self, node_id: str) -> bool:
         pass

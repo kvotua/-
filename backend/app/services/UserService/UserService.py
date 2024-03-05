@@ -1,3 +1,7 @@
+from typing import Annotated
+
+from pydantic import AfterValidator
+
 from app.registry import IRegistry
 
 from ..exceptions import (
@@ -30,7 +34,11 @@ class UserService(IUserService):
         if not self.exist(user_id):
             raise WrongInitiatorError()
 
-    def try_get_by_id(self, initiator_id: str, user_id: str) -> UserSchema:
+    def try_get_by_id(
+        self,
+        initiator_id: Annotated[str, AfterValidator(user_exist_validation)],
+        user_id: str,
+    ) -> UserSchema:
         """
         Attempt to retrieve user information by user ID.
 
@@ -56,7 +64,8 @@ class UserService(IUserService):
         Create a new user.
 
         Parameters:
-            new_user (UserCreateSchema): The schema representing the new user to create.
+            new_user (UserCreateSchema): The schema representing the new user
+            to create.
 
         Raises:
             UserExistError: If a user with the same ID already exists.
@@ -79,7 +88,9 @@ class UserService(IUserService):
         result = self.__registry.read({"id": user_id})
         return len(result) > 0
 
-    def _get_by_id(self, user_id: str) -> UserSchema:
+    def _get_by_id(
+        self, user_id: Annotated[str, AfterValidator(user_exist_validation)]
+    ) -> UserSchema:
         """
         Get user information by ID.
 
