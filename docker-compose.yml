@@ -6,9 +6,8 @@ services:
       args:
         - MODE=${MODE}
         - SERVER_NAME=${SERVER_NAME}
-
-    depends_on:
-      - backend
+    volumes:
+      - html_volume:/app/dist
 
   backend:
     build: ./backend
@@ -43,7 +42,10 @@ services:
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /tmp/acme_challenge:/tmp/acme_challenge
+      - html_volume:/usr/share/nginx/html:ro
     restart: always
+    depends_on:
+      - frontend
 
   bot:
     build:
@@ -56,3 +58,4 @@ services:
 volumes:
   mongo_volume:
   files_volume:
+  html_volume:
