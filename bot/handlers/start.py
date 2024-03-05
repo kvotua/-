@@ -21,11 +21,12 @@ async def start(message: Message, bot: Bot) -> None:
     """
     async with httpx.AsyncClient() as client:
         protocol = "https" if config.MODE != "local" else "http"
-        await client.post(
-            url=f"{protocol}://{config.SERVER_NAME}/api/v1/users/",
-            json={
-                "id": str(message.from_user.id if message.from_user is not None else 0)
-            },
+        url = f"{protocol}://{config.SERVER_NAME}/api/v1/users/"
+        _id = str(message.from_user.id if message.from_user is not None else 0)
+
+        _ = await client.post(
+            url=url,
+            json={"id": _id},
         )
 
     webapp = get_webapp()

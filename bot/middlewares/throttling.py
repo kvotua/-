@@ -25,7 +25,7 @@ class ThrottlingMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: dict[str, Any],
     ) -> Any:
-        if not isinstance(event, Message) or not isinstance(event, CallbackQuery):
+        if not (isinstance(event, Message) or isinstance(event, CallbackQuery)):
             return
         id = event.from_user.id if event.from_user else 0
         if id in self._limit:
