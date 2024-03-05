@@ -35,7 +35,7 @@ def project_get(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_id: str,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
-):
+) -> ProjectSchema:
     try:
         return project_service.try_get(initiator_id, project_id)
     except WrongInitiatorError:
@@ -64,7 +64,7 @@ def project_get_user(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     user_id: str,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
-):
+) -> list[ProjectSchema]:
     try:
         return project_service.try_get_by_user_id(initiator_id, user_id)
     except WrongInitiatorError:
@@ -93,7 +93,7 @@ def project_add(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_create: ProjectCreateSchema,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
-):
+) -> str:
     try:
         return project_service.create(initiator_id, project_create)
     except WrongInitiatorError:
@@ -118,7 +118,7 @@ def update_project(
     project_update: ProjectUpdateSchema,
     project_id: str,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
-):
+) -> None:
     try:
         project_service.try_update(initiator_id, project_id, project_update)
     except WrongInitiatorError:
@@ -147,7 +147,7 @@ def project_delete(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_id: str,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
-):
+) -> None:
     try:
         project_service.try_delete(initiator_id, project_id)
     except NotAllowedError:

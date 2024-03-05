@@ -1,3 +1,5 @@
+from typing import Callable
+
 from fastapi import status
 
 from ..setup import client
@@ -30,7 +32,7 @@ project_id:
 
 
 # (1, 1)
-def test_delete_project(create_user, create_project):
+def test_delete_project(create_user: Callable, create_project: Callable) -> None:
     """(1, 1) - 200 - проект действительно удалился"""
     user, user_init_data = create_user()
     _, _id = create_project(user_init_data=user_init_data)
@@ -52,7 +54,9 @@ def test_delete_project(create_user, create_project):
 
 
 # (1, 2)
-def test_try_delete_another_project(create_user, create_project):
+def test_try_delete_another_project(
+    create_user: Callable, create_project: Callable
+) -> None:
     """(1, 2) - 403"""
     _, user_init_data = create_user()
     _, _id = create_project(user_init_data=user_init_data)
@@ -67,7 +71,7 @@ def test_try_delete_another_project(create_user, create_project):
 
 
 # (1, 3)
-def test_try_delete_nonexistent_project(create_user):
+def test_try_delete_nonexistent_project(create_user: Callable) -> None:
     """(1, 3) - 404"""
     _, user_init_data = create_user()
     _id = "0"
@@ -81,7 +85,9 @@ def test_try_delete_nonexistent_project(create_user):
 
 
 # (2, 1), (2, 2)
-def test_try_delete_project_from_nonexistent_user(create_user, create_project):
+def test_try_delete_project_from_nonexistent_user(
+    create_user: Callable, create_project: Callable
+) -> None:
     """(2, 1), (2, 2) - 401"""
     _, user_init_data = create_user()
     _, _id = create_project(user_init_data=user_init_data)
@@ -96,7 +102,9 @@ def test_try_delete_project_from_nonexistent_user(create_user, create_project):
 
 
 # (2, 3)
-def test_try_delete_nonexistent_project_from_nonexistent_user(create_user):
+def test_try_delete_nonexistent_project_from_nonexistent_user(
+    create_user: Callable,
+) -> None:
     """(2, 3) - 401"""
     _, user_init_data = client.get_random_user()
     _id = "0"
@@ -110,7 +118,9 @@ def test_try_delete_nonexistent_project_from_nonexistent_user(create_user):
 
 
 # (3, 1), (3, 2)
-def test_try_delete_project_with_bad_token(create_user, create_project):
+def test_try_delete_project_with_bad_token(
+    create_user: Callable, create_project: Callable
+) -> None:
     """(3, 1), (3, 2) - 401"""
     user, user_init_data = create_user()
     _, _id = create_project(user_init_data=user_init_data)
@@ -126,7 +136,9 @@ def test_try_delete_project_with_bad_token(create_user, create_project):
 
 
 # (3, 3)
-def test_try_delete_nonexistent_project_with_bad_token(create_user, create_project):
+def test_try_delete_nonexistent_project_with_bad_token(
+    create_user: Callable, create_project: Callable
+) -> None:
     """(3, 3) - 401"""
     user_init_data = "bad-format"
     _id = "0"

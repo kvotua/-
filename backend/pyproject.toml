@@ -6,6 +6,7 @@ max-line-length = 88
 
 [tool.mypy]
 plugins = "pydantic.mypy"
+disallow_untyped_defs = true
 
 [tool.poetry]
 name = "app"

@@ -29,7 +29,7 @@ def create_user() -> tuple[dict[str, str], str]:
 
 
 # (1)
-def test_create_user(create_user):
+def test_create_user(create_user: tuple[dict[str, str], str]) -> None:
     """(1) - 201 - пользователь действительно создался"""
     user, user_init_data = create_user
 
@@ -43,7 +43,7 @@ def test_create_user(create_user):
 
 
 # (2)
-def test_try_create_existing_user(create_user):
+def test_try_create_existing_user(create_user: tuple[dict[str, str], str]) -> None:
     """(2) - 409 - пользователь с таким id уже существует"""
     user, _ = create_user
 

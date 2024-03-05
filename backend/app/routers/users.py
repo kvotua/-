@@ -31,7 +31,7 @@ def user_get(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     user_id: str,
     user_service: Annotated[UserService, Depends(get_user_service)],
-):
+) -> UserSchema:
     try:
         return user_service.try_get_by_id(initiator_id, user_id)
     except WrongInitiatorError:

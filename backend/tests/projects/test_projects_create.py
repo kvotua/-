@@ -1,3 +1,5 @@
+from typing import Callable
+
 from fastapi import status
 
 from ..setup import client
@@ -18,7 +20,7 @@ user-init-data:
 
 
 # (1)
-def test_create_project(create_user):
+def test_create_project(create_user: Callable) -> None:
     """(1) - 201 - проект создался у пользователя"""
     _, user_init_data = create_user()
     name = client.get_random_project_name()
@@ -32,7 +34,7 @@ def test_create_project(create_user):
 
 
 # (2)
-def test_try_create_project_for_unexistent_user():
+def test_try_create_project_for_unexistent_user() -> None:
     """(2) - 401 - пользователь не существует"""
     _, user_init_data = client.get_random_user()
     name = client.get_random_project_name()
@@ -46,7 +48,7 @@ def test_try_create_project_for_unexistent_user():
 
 
 # (3)
-def test_try_create_project_with_bad_token():
+def test_try_create_project_with_bad_token() -> None:
     """(3) - 401 - неправильный формат"""
     user_init_data = "bad-format"
     name = client.get_random_project_name()
