@@ -1,4 +1,5 @@
 version: "3"
+
 services:
   frontend:
     build:
@@ -13,8 +14,6 @@ services:
     build: ./backend
     depends_on:
       - mongo
-    volumes:
-      - files_volume:/files
     environment:
       - MONGO_USERNAME=${MONGO_USERNAME}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
@@ -43,9 +42,9 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /tmp/acme_challenge:/tmp/acme_challenge
       - html_volume:/usr/share/nginx/html:ro
-    restart: always
     depends_on:
       - frontend
+      - backend
 
   bot:
     build:
@@ -57,5 +56,4 @@ services:
 
 volumes:
   mongo_volume:
-  files_volume:
   html_volume:

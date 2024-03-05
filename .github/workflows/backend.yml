@@ -6,9 +6,6 @@ on:
   push:
     paths:
       - backend/**
-  pull_request:
-    paths:
-      - backend/**
 
 env:
   path: ./backend

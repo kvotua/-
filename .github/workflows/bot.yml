@@ -6,9 +6,6 @@ on:
   push:
     paths:
       - bot/**
-  pull_request:
-    paths:
-      - bot/**
 
 env:
   path: ./bot
