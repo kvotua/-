@@ -1,7 +1,3 @@
-from typing import Annotated
-
-from pydantic import AfterValidator
-
 from app.registry import IRegistry
 
 from ..exceptions import (
@@ -31,14 +27,19 @@ class UserService(IUserService):
         self.__registry = registry
 
     def user_exist_validation(self, user_id: str) -> None:
+        """
+        Checks the existence of the user by his ID.
+
+        Parameters:
+            user_id (str): The ID of the user to check.
+
+        Raises:
+            WrongInitiatorError: if the user does not exist.
+        """
         if not self.exist(user_id):
             raise WrongInitiatorError()
 
-    def try_get_by_id(
-        self,
-        initiator_id: Annotated[str, AfterValidator(user_exist_validation)],
-        user_id: str,
-    ) -> UserSchema:
+    def try_get_by_id(self, initiator_id: str, user_id: str) -> UserSchema:
         """
         Attempt to retrieve user information by user ID.
 
@@ -50,11 +51,12 @@ class UserService(IUserService):
             UserSchema: The user information.
 
         Raises:
+            WrongInitiatorError: if the user does not exist.
             NotAllowedError: If the initiator is not allowed to perform the operation.
             UserNotFoundError: If the user with the specified ID is not found.
         """
         self.user_exist_validation(initiator_id)
-        user = self._get_by_id(user_id)
+        user = self.__get_by_id(user_id)
         if initiator_id != user_id:
             raise NotAllowedError()
         return user
@@ -88,9 +90,7 @@ class UserService(IUserService):
         result = self.__registry.read({"id": user_id})
         return len(result) > 0
 
-    def _get_by_id(
-        self, user_id: Annotated[str, AfterValidator(user_exist_validation)]
-    ) -> UserSchema:
+    def __get_by_id(self, user_id: str) -> UserSchema:
         """
         Get user information by ID.
 
