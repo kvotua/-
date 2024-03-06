@@ -34,3 +34,7 @@ class INodeService(ABC):
     @abstractmethod
     def exist(self, node_id: str) -> bool:
         pass
+
+    @abstractmethod
+    def delete(self, node_id: str) -> None:
+        pass

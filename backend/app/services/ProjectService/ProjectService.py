@@ -158,6 +158,7 @@ class ProjectService(IProjectService):
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         self.__delete(project_id)
+        self.__node_service.delete(project.core_node_id)
 
     def try_get_by_core_node_id(self, initiator_id: str, node_id: str) -> ProjectSchema:
         """

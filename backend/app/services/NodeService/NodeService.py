@@ -184,7 +184,7 @@ class NodeService(INodeService):
         if project.owner_id != initiator_id:
             raise NotAllowedError()
 
-        self.__delete(node_id)
+        self.delete(node_id)
 
     def create(self, initiator_id: str, new_node: NodeCreateSchema) -> str:
         """
@@ -307,7 +307,7 @@ class NodeService(INodeService):
             node_tree.children.append(child_node_tree)
         return node_tree
 
-    def __delete(self, node_id: str) -> None:
+    def delete(self, node_id: str) -> None:
         """
         Deletes node
 
@@ -318,10 +318,9 @@ class NodeService(INodeService):
             NodeNotFoundError: raised when node with given id does not exist
         """
 
-        node = self.__get(node_id)
-        for child in node.children:
-            self.__delete(child)
-
-        response = self.__registry.delete({"id": node.id})
-        if response.count < 1:
-            raise NodeNotFoundError()
+        children = [node_id]
+        while len(children) > 0:
+            node_id = children.pop()
+            node = self.__get(node_id)
+            children.extend(node.children)
+            self.__registry.delete({"id": node_id})
