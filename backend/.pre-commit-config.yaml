@@ -25,7 +25,8 @@ repos:
     -   id: flake8
         entry: flake8p
         additional_dependencies: [Flake8-pyproject]
-        args: [ --toml-config, ./backend/pyproject.toml, .]
+        args: [ --toml-config, ./backend/pyproject.toml, ./backend ]
+
 -   repo: https://github.com/PyCQA/isort
     rev: '5.13.2'
     hooks:

@@ -62,12 +62,7 @@ class NodeService(INodeService):
         """
 
         self.__user_service.user_exist_validation(initiator_id)
-
-        root_node_id = self.__get_root_node_id(node_id)
-        project = self.__project_service.get_by_root_node_id(root_node_id)
-        if project.owner_id != initiator_id:
-            raise NotAllowedError()
-
+        self.__check_initiator_permission(initiator_id, node_id)
         return self.__get(node_id)
 
     def try_update(
@@ -92,40 +87,10 @@ class NodeService(INodeService):
                 as a root node
         """
         self.__user_service.user_exist_validation(initiator_id)
-
-        root_node_id = self.__get_root_node_id(node_id)
-        project = self.__project_service.get_by_root_node_id(root_node_id)
-        if project.owner_id != initiator_id:
-            raise NotAllowedError()
+        self.__check_initiator_permission(initiator_id, node_id)
 
         if node_update.parent is not None:
             self.__reparent(node_id, node_update.parent)
-
-    def __reparent(self, node_id: str, new_parent_id: str) -> None:
-        """
-        change parent of node with new_parent_id
-
-        Args:
-            node_id (str): node to change parent id
-            new_parent_id (str): new parent id
-
-        Raises:
-            ValueError: raised when node has no parent
-            NodeNotFoundError: raised when node with given id does not exist
-        """
-        node = self.__get(node_id)
-        parent = self.__get(new_parent_id)
-        if node.parent is None:
-            raise ValueError()
-        old_parent = self.__get(node.parent)
-
-        old_parent.children.remove(node.id)
-        parent.children.append(node.id)
-        node.parent = parent.id
-
-        self.__registry.update({"id": node.id}, node.model_dump())
-        self.__registry.update({"id": parent.id}, parent.model_dump())
-        self.__registry.update({"id": old_parent.id}, old_parent.model_dump())
 
     def try_get_tree(self, initiator_id: str, node_id: str) -> NodeTreeSchema:
         """
@@ -149,13 +114,9 @@ class NodeService(INodeService):
 
         """
         self.__user_service.user_exist_validation(initiator_id)
+        self.__check_initiator_permission(initiator_id, node_id)
 
-        root_node_id = self.__get_root_node_id(node_id)
-        project = self.__project_service.get_by_root_node_id(root_node_id)
-        if project.owner_id != initiator_id:
-            raise NotAllowedError()
-
-        node_tree = self.__get_tree(node_id)
+        node_tree = self.__get_tree(self.__get_root_node_id(node_id))
         return node_tree
 
     def try_delete(self, initiator_id: str, node_id: str) -> None:
@@ -176,13 +137,11 @@ class NodeService(INodeService):
                 as a root node
         """
         self.__user_service.user_exist_validation(initiator_id)
+        self.__check_initiator_permission(initiator_id, node_id)
+
         node = self.__get(node_id)
         if node.parent is None:
             raise NodeCannotBeDeletedError()
-        root_node_id = self.__get_root_node_id(node_id)
-        project = self.__project_service.get_by_root_node_id(root_node_id)
-        if project.owner_id != initiator_id:
-            raise NotAllowedError()
 
         self.delete(node_id)
 
@@ -208,12 +167,7 @@ class NodeService(INodeService):
 
         """
         self.__user_service.user_exist_validation(initiator_id)
-        root_node_id = self.__get_root_node_id(new_node.parent)
-        project = self.__project_service.get_by_root_node_id(root_node_id)
-        if project.owner_id != initiator_id:
-            raise NotAllowedError()
-        if not self.exist(new_node.parent):
-            raise NodeNotFoundError()
+        self.__check_initiator_permission(initiator_id, new_node.parent)
 
         node = NodeSchema(**new_node.model_dump())
         parent = self.__get(new_node.parent)
@@ -283,28 +237,32 @@ class NodeService(INodeService):
             node = self.__get(node.parent)
         return node.id
 
+    # TODO: Move to ProjectsController
     def __get_tree(self, node_id: str) -> NodeTreeSchema:
         """
         get tree representation of project
 
         Args:
-            node_id (str): id of a ROOT node
+            node_id (str): id of a root node
 
         Returns:
             NodeTreeSchema: tree representaion of a project
 
         Raises:
             NodeNotFoundError: raised when node with given id does not exist
+            ValueError: raised when node_id does not points to root node
         """
-        node_id = self.__get_root_node_id(node_id)
         node = self.__get(node_id)
-        node_tree = NodeTreeSchema(id=node.id, children=list())
-        for child in node.children:
-            child_node = self.__get(child)
-            child_node_tree = NodeTreeSchema(id=child_node.id, children=list())
-            if len(child_node.children) > 0:
-                child_node_tree.children.append(self.__get_tree(child_node.id))
-            node_tree.children.append(child_node_tree)
+        if node.parent is not None:
+            raise ValueError()
+        node_tree = NodeTreeSchema(id=node.id, children=[])
+        trees = [node_tree]
+        while len(trees) > 0:
+            current = trees.pop()
+            node = self.__get(current.id)
+            for child_id in node.children:
+                current.children.append(NodeTreeSchema(id=child_id, children=[]))
+            trees.extend(current.children)
         return node_tree
 
     def delete(self, node_id: str) -> None:
@@ -321,6 +279,54 @@ class NodeService(INodeService):
         children = [node_id]
         while len(children) > 0:
             node_id = children.pop()
-            node = self.__get(node_id)
+            try:
+                node = self.__get(node_id)
+            except NodeNotFoundError:
+                continue
             children.extend(node.children)
             self.__registry.delete({"id": node_id})
+
+    def __reparent(self, node_id: str, new_parent_id: str) -> None:
+        """
+        change parent of node with new_parent_id
+
+        Args:
+            node_id (str): node to change parent id
+            new_parent_id (str): new parent id
+
+        Raises:
+            ValueError: raised when node has no parent
+            NodeNotFoundError: raised when node with given id does not exist
+        """
+        node = self.__get(node_id)
+        parent = self.__get(new_parent_id)
+        if node.parent is None:
+            raise ValueError()
+        old_parent = self.__get(node.parent)
+
+        old_parent.children.remove(node.id)
+        parent.children.append(node.id)
+        node.parent = parent.id
+
+        self.__registry.update({"id": node.id}, node.model_dump())
+        self.__registry.update({"id": parent.id}, parent.model_dump())
+        self.__registry.update({"id": old_parent.id}, old_parent.model_dump())
+
+    def __check_initiator_permission(self, initiator_id: str, node_id: str) -> None:
+        """
+        Check if initiator can manipulate with node pointed by node_id
+
+        Args:
+            initiator_id (str): id of user who initiates action
+            node_id (str): id of node which will be used
+
+        Raises:
+            NotAllowedError: raised when initiator can't performe actions with node
+            NodeNotFoundError: raised when node with given id does not exist
+            ProjectNotFoundError: raised when there is no project that has given node \
+                as a root node
+        """
+        root_node_id = self.__get_root_node_id(node_id)
+        project = self.__project_service.get_by_root_node_id(root_node_id)
+        if project.owner_id != initiator_id:
+            raise NotAllowedError()

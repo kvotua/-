@@ -111,7 +111,7 @@ def node_add(
 @router.patch(
     path="/{node_id}",
     status_code=status.HTTP_200_OK,
-    response_model=str,
+    response_model=None,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
         status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
@@ -141,7 +141,7 @@ def update_node(
 @router.delete(
     path="/{node_id}",
     status_code=status.HTTP_200_OK,
-    response_model=str,
+    response_model=None,
     responses={
         status.HTTP_400_BAD_REQUEST: {"model": HTTPExceptionSchema},
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
