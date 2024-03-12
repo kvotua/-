@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 interface IProject {
-  id: string;
+  parent: string;
   name: string;
 }
 interface IInitialState {

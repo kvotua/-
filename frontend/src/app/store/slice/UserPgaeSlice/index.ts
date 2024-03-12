@@ -2,24 +2,37 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface IInitialState {
   id: string;
-  children?: IInitialState[] | null;
+  children: IInitialState[];
 }
 
-const initialState: IInitialState[] = [];
+const initialState: IInitialState = {
+  id: "0",
+  children: [],
+};
 
 export const userPageSlice = createSlice({
   name: "projects",
   initialState,
   reducers: {
+    setCoreNewChild(state, action: PayloadAction<IInitialState>) {
+      state.children.push(action.payload);
+    },
+    setExistNewChild(state, action) {
+      const { newChild, id } = action.payload;
+      const existingItem = findIdInNestedObjects(state, id);
+      existingItem!.children = existingItem!.children
+        ? [...existingItem!.children, newChild]
+        : [newChild];
+    },
     setPage(state, action: PayloadAction<IInitialState>) {
       const { id } = action.payload;
       const existingItem = findIdInNestedObjects(state, id);
 
       if (!existingItem) {
-        state.push(action.payload);
+        state.children.push(action.payload);
       } else {
         const newChild: IInitialState = {
-          id: `${id}_${(existingItem.children?.length || 0) + 1}`,
+          id,
           children: [],
         };
         existingItem.children = existingItem.children
@@ -27,26 +40,28 @@ export const userPageSlice = createSlice({
           : [newChild];
       }
     },
+    setTree(_, action: PayloadAction<IInitialState>) {
+      return action.payload;
+    },
   },
 });
 
 const findIdInNestedObjects = (
-  obj: IInitialState[],
+  obj: IInitialState,
   targetId: string,
 ): IInitialState | null => {
-  for (const item of obj) {
-    if (item.id === targetId) {
-      return item;
-    }
-    if (item.children && item.children.length > 0) {
-      const result = findIdInNestedObjects(item.children, targetId);
-      if (result) {
-        return result;
-      }
+  if (obj.id === targetId) {
+    return obj;
+  }
+  for (const item of obj.children) {
+    const result = findIdInNestedObjects(item, targetId);
+    if (result) {
+      return result;
     }
   }
   return null;
 };
 
-export const { setPage } = userPageSlice.actions;
+export const { setPage, setTree, setCoreNewChild, setExistNewChild } =
+  userPageSlice.actions;
 export default userPageSlice.reducer;

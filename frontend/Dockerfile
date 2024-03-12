@@ -8,4 +8,4 @@ RUN echo "VITE_API_URL=$PROTOCOL://$SERVER_NAME" >> .env
 COPY ./package*.json .
 RUN npm install
 COPY . .
-RUN npm run build
+CMD [ "npm", "run", "build" ]

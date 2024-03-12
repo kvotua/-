@@ -1,5 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import { motion } from "framer-motion";
+
 import { CustomLink } from "src/shared/CustomLink/CustomLink";
 import style from "./menu.module.css";
 
@@ -14,11 +16,13 @@ interface IMenuItem {
 }
 
 const Menu: React.FC<IMenuItem> = ({ menuItem }) => {
+  console.log("render");
+
   return (
     <>
       <Outlet />
       <div className="container">
-        <nav className={style.menu}>
+        <motion.nav className={style.menu}>
           <ul className="flex justify-between gap-[8vw]">
             {menuItem.map(({ link, Image, handleClick }, i) => (
               <li key={i} onClick={handleClick}>
@@ -26,7 +30,7 @@ const Menu: React.FC<IMenuItem> = ({ menuItem }) => {
               </li>
             ))}
           </ul>
-        </nav>
+        </motion.nav>
       </div>
     </>
   );
