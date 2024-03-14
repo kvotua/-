@@ -94,29 +94,27 @@ class NodeService(INodeService):
 
     def try_get_tree(self, initiator_id: str, node_id: str) -> NodeTreeSchema:
         """
-        try get tree preresentation of a project
+        Try get subtree preresentation of a node and subnodes
 
         Args:
             initiator_id (str): user id
             node_id (str): node id
 
         Returns:
-            NodeTreeSchema: tree representation of a project
+            NodeTreeSchema: tree representation of a node and subnodes
 
         Raises:
             UserNotFoundError: raises when user with given id does not exist
             NotAllowedError: raised when user tries to update node from project \
-            they do not own
+                they do not own
             NodeNotFoundError: raised when node with given id does not exist
             ProjectNotFoundError: raised when there is no project that has given node \
                 as a root node
-
-
         """
         self.__user_service.user_exist_validation(initiator_id)
         self.__check_initiator_permission(initiator_id, node_id)
 
-        node_tree = self.__get_tree(self.__get_root_node_id(node_id))
+        node_tree = self.__get_tree(node_id)
         return node_tree
 
     def try_delete(self, initiator_id: str, node_id: str) -> None:
@@ -237,33 +235,30 @@ class NodeService(INodeService):
             node = self.__get(node.parent)
         return node.id
 
-    # TODO: Move to ProjectsController
     def __get_tree(self, node_id: str) -> NodeTreeSchema:
         """
-        get tree representation of project
+        Get tree representation of node and subnodes
 
         Args:
-            node_id (str): id of a root node
+            node_id (str): id of a node
 
         Returns:
-            NodeTreeSchema: tree representaion of a project
+            NodeTreeSchema: tree representaion of a node and subnodes
 
         Raises:
             NodeNotFoundError: raised when node with given id does not exist
-            ValueError: raised when node_id does not points to root node
         """
-        node = self.__get(node_id)
-        if node.parent is not None:
-            raise ValueError()
-        node_tree = NodeTreeSchema(id=node.id, children=[])
-        trees = [node_tree]
-        while len(trees) > 0:
-            current = trees.pop()
-            node = self.__get(current.id)
-            for child_id in node.children:
-                current.children.append(NodeTreeSchema(id=child_id, children=[]))
-            trees.extend(current.children)
-        return node_tree
+        tree_root = NodeTreeSchema(id=node_id, children=[])
+        nodes_to_process = [tree_root]
+        while len(nodes_to_process) > 0:
+            current_tree_node = nodes_to_process.pop()
+            current_node = self.__get(current_tree_node.id)
+            for child_node_id in current_node.children:
+                current_tree_node.children.append(
+                    NodeTreeSchema(id=child_node_id, children=[])
+                )
+            nodes_to_process.extend(current_tree_node.children)
+        return tree_root
 
     def delete(self, node_id: str) -> None:
         """
