@@ -15,7 +15,9 @@ class IProjectService(ABC):
         pass
 
     @abstractmethod
-    def create(self, initiator_id: str, new_project: ProjectCreateSchema) -> str:
+    def create(
+        self, initiator_id: str, new_project: ProjectCreateSchema
+    ) -> ProjectSchema:
         pass
 
     @abstractmethod

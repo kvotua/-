@@ -83,7 +83,7 @@ def project_get_user(
 @router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
-    response_model=str,
+    response_model=ProjectSchema,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
@@ -93,7 +93,7 @@ def project_add(
     initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
     project_create: ProjectCreateSchema,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
-) -> str:
+) -> ProjectSchema:
     try:
         return project_service.create(initiator_id, project_create)
     except WrongInitiatorError:
