@@ -5,6 +5,23 @@ from fastapi import status
 
 from .setup import client
 
+from dataclasses import dataclass
+
+
+@dataclass
+class Project:
+    """
+    name: str
+    id: str
+    core_node_id: str
+    owner_id: str
+    """
+
+    name: str
+    id: str
+    core_node_id: str
+    owner_id: str
+
 
 @pytest.fixture
 def create_user() -> Callable[[], tuple[dict[str, str], str]]:
@@ -22,18 +39,19 @@ def create_user() -> Callable[[], tuple[dict[str, str], str]]:
 
 
 @pytest.fixture
-def create_project() -> Callable[[str], tuple[str, str]]:
-    def _create_project(user_init_data: str) -> tuple[str, str]:
+def create_project() -> Callable[[str], Project]:
+    def _create_project(user_init_data: str) -> Project:
         name = client.get_random_project_name()
 
         response = client.create_project(
             project_name=name,
             user_init_data=user_init_data,
         )
-        _id = str(response.json())
+
+        project = Project(**response.json())
 
         assert response.status_code == status.HTTP_201_CREATED
 
-        return name, _id
+        return project
 
     return _create_project

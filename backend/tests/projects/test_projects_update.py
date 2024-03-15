@@ -34,13 +34,13 @@ project_id:
 # (1, 1)
 def test_update_project(create_user: Callable, create_project: Callable) -> None:
     """(1, 1) - 200 - имя проекта действительно обновилось"""
-    user, user_init_data = create_user()
-    name, _id = create_project(user_init_data=user_init_data)
+    _, user_init_data = create_user()
+    project = create_project(user_init_data=user_init_data)
 
     new_name = "new_name"
 
     response = client.update_project(
-        project_id=_id,
+        project_id=project.id,
         name=new_name,
         user_init_data=user_init_data,
     )
@@ -48,7 +48,7 @@ def test_update_project(create_user: Callable, create_project: Callable) -> None
     assert response.status_code == status.HTTP_200_OK
 
     response = client.get_project_by_id(
-        project_id=_id,
+        project_id=project.id,
         user_init_data=user_init_data,
     )
 
@@ -62,13 +62,13 @@ def test_try_update_another_project(
 ) -> None:
     """(1, 2) - 403"""
     _, user_init_data = create_user()
-    _, _id = create_project(user_init_data=user_init_data)
+    project = create_project(user_init_data=user_init_data)
     _, user_init_data = create_user()
 
     new_name = "new_name"
 
     response = client.update_project(
-        project_id=_id,
+        project_id=project.id,
         name=new_name,
         user_init_data=user_init_data,
     )
@@ -80,12 +80,12 @@ def test_try_update_another_project(
 def test_try_update_nonexistent_project(create_user: Callable) -> None:
     """(1, 3) - 404"""
     _, user_init_data = create_user()
-    _id = "0"
+    project_id = "0"
 
     new_name = "new_name"
 
     response = client.update_project(
-        project_id=_id,
+        project_id=project_id,
         name=new_name,
         user_init_data=user_init_data,
     )
@@ -99,13 +99,13 @@ def test_try_update_project_from_nonexistent_user(
 ) -> None:
     """(2, 1), (2, 2) - 401"""
     _, user_init_data = create_user()
-    _, _id = create_project(user_init_data=user_init_data)
+    project = create_project(user_init_data=user_init_data)
     _, user_init_data = client.get_random_user()
 
     new_name = "new_name"
 
     response = client.update_project(
-        project_id=_id,
+        project_id=project.id,
         name=new_name,
         user_init_data=user_init_data,
     )
@@ -119,12 +119,12 @@ def test_try_update_nonexistent_project_from_nonexistent_user(
 ) -> None:
     """(2, 3) - 401"""
     _, user_init_data = client.get_random_user()
-    _id = "0"
+    project_id = "0"
 
     new_name = "new_name"
 
     response = client.update_project(
-        project_id=_id,
+        project_id=project_id,
         name=new_name,
         user_init_data=user_init_data,
     )
@@ -138,14 +138,14 @@ def test_try_update_project_with_bad_token(
 ) -> None:
     """(3, 1), (3, 2) - 401"""
     _, user_init_data = create_user()
-    _, _id = create_project(user_init_data=user_init_data)
+    project = create_project(user_init_data=user_init_data)
 
     user_init_data = "bad-format"
 
     new_name = "new_name"
 
     response = client.update_project(
-        project_id=_id,
+        project_id=project.id,
         name=new_name,
         user_init_data=user_init_data,
     )
@@ -159,12 +159,12 @@ def test_try_update_nonexistent_project_with_bad_token(
 ) -> None:
     """(3, 3) - 401"""
     user_init_data = "bad-format"
-    _id = "0"
+    project_id = "0"
 
     new_name = "new_name"
 
     response = client.update_project(
-        project_id=_id,
+        project_id=project_id,
         name=new_name,
         user_init_data=user_init_data,
     )

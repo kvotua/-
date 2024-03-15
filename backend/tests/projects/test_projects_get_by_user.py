@@ -40,7 +40,7 @@ def test_get_projects_many(create_user: Callable, create_project: Callable) -> N
     projects = []
     for _ in range(amount):
         project = create_project(user_init_data=user_init_data)
-        projects.append({"owner_id": user["id"], "id": project[1], "name": project[0]})
+        projects.append(project)
 
     response = client.get_projects_by_user(
         user_id=user["id"],
@@ -51,12 +51,12 @@ def test_get_projects_many(create_user: Callable, create_project: Callable) -> N
     assert len(response.json()) == amount
 
     for project, project_get in zip(
-        sorted(projects, key=lambda project: project["id"]),
+        sorted(projects, key=lambda project: project.id),
         sorted(response.json(), key=lambda project: project["id"]),
     ):
-        assert project["owner_id"] == project_get["owner_id"]
-        assert project["id"] == project_get["id"]
-        assert project["name"] == project_get["name"]
+        assert project.owner_id == project_get["owner_id"]
+        assert project.id == project_get["id"]
+        assert project.name == project_get["name"]
 
 
 # (1, 1) - нет проектов

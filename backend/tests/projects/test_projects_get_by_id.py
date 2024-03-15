@@ -35,15 +35,15 @@ project_id:
 def test_get_project(create_user: Callable, create_project: Callable) -> None:
     """(1, 1) - 200 - имя проекта совпадает, владелец проекта - создатель"""
     _, user_init_data = create_user()
-    name, _id = create_project(user_init_data=user_init_data)
+    project = create_project(user_init_data=user_init_data)
 
     response = client.get_project_by_id(
-        project_id=_id,
+        project_id=project.id,
         user_init_data=user_init_data,
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["name"] == name
+    assert response.json()["name"] == project.name
 
 
 # (1, 2)
@@ -52,11 +52,11 @@ def test_try_get_another_project(
 ) -> None:
     """(1, 2) - 403"""
     _, user_init_data = create_user()
-    _, _id = create_project(user_init_data=user_init_data)
+    project = create_project(user_init_data=user_init_data)
     _, user_init_data = create_user()
 
     response = client.get_project_by_id(
-        project_id=_id,
+        project_id=project.id,
         user_init_data=user_init_data,
     )
 
@@ -67,10 +67,10 @@ def test_try_get_another_project(
 def test_try_get_nonexistent_project(create_user: Callable) -> None:
     """(1, 3) - 404"""
     _, user_init_data = create_user()
-    _id = "0"
+    project_id = "0"
 
     response = client.get_project_by_id(
-        project_id=_id,
+        project_id=project_id,
         user_init_data=user_init_data,
     )
 
@@ -83,11 +83,11 @@ def test_try_get_project_from_nonexistent_user(
 ) -> None:
     """(2, 1), (2, 2) - 401"""
     _, user_init_data = create_user()
-    _, _id = create_project(user_init_data=user_init_data)
+    project = create_project(user_init_data=user_init_data)
     _, user_init_data = client.get_random_user()
 
     response = client.get_project_by_id(
-        project_id=_id,
+        project_id=project.id,
         user_init_data=user_init_data,
     )
 
@@ -116,11 +116,11 @@ def test_try_get_project_with_bad_token(
 ) -> None:
     """(3, 1), (3, 2) - 401"""
     _, user_init_data = create_user()
-    _, _id = create_project(user_init_data=user_init_data)
+    project = create_project(user_init_data=user_init_data)
     user_init_data = "bad-format"
 
     response = client.get_project_by_id(
-        project_id=_id,
+        project_id=project.id,
         user_init_data=user_init_data,
     )
 
