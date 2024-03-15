@@ -1,9 +1,21 @@
+from uuid import uuid4
+
 import httpx
 
 from .base import ApiBase
 
 
 class ApiProjects(ApiBase):
+
+    def get_random_project_name(self) -> str:
+        """
+        Generates a random project name with a prefix and truncated UUID4.
+
+        Returns:
+            str: A string representing a random project name, \
+                e.g., "project-e427ab1234".
+        """
+        return f"project-{str(uuid4())[:10]}"
 
     def create_project(
         self,

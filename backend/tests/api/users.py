@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import httpx
 
 from .base import ApiBase
@@ -9,6 +11,19 @@ class ApiUsers(ApiBase):
 
     Inherits from `ApiBase` to provide common API interaction functionalities.
     """
+
+    def get_random_user(self) -> tuple[dict[str, str], str]:
+        """
+        Generates a random user object and corresponding user-specific data string.
+
+        Returns:
+            tuple[dict, str]: A tuple containing two elements:
+            - A dict representing a random user with an ID generated using UUID4.
+            - A string in the format `user={"id": "..."}` containing the user ID.
+        """
+
+        _id = str(uuid4())
+        return {"id": _id}, f'user={{"id": "{_id}"}}'
 
     def create_user(
         self,
