@@ -34,7 +34,7 @@ def test_create_project(create_user: Callable) -> None:
 
 
 # (2)
-def test_try_create_project_for_unexistent_user() -> None:
+def test_try_create_project_from_unexistent_user() -> None:
     """(2) - 401 - пользователь не существует"""
     _, user_init_data = client.get_random_user()
     name = client.get_random_project_name()
