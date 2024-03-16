@@ -1,11 +1,10 @@
+from dataclasses import dataclass
 from typing import Callable
 
 import pytest
 from fastapi import status
 
 from .setup import client
-
-from dataclasses import dataclass
 
 
 @dataclass
@@ -55,3 +54,18 @@ def create_project() -> Callable[[str], Project]:
         return project
 
     return _create_project
+
+
+@pytest.fixture
+def create_node() -> Callable[[str, str], str]:
+    def _create_node(parent_id: str, user_init_data: str) -> str:
+        response = client.create_node(
+            parent_id=parent_id,
+            user_init_data=user_init_data,
+        )
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+        return str(response.json())
+
+    return _create_node
