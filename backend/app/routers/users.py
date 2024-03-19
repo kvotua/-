@@ -48,18 +48,6 @@ def user_get(
         )
 
 
-@router.get(
-    path="/{user_id}/exist",
-    response_model=bool,
-    status_code=status.HTTP_200_OK,
-)
-def user_exist(
-    user_id: UserId,
-    user_service: Annotated[UserService, Depends(get_user_service)],
-) -> bool:
-    return user_service.exist(user_id)
-
-
 @router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
