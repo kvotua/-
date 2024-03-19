@@ -7,7 +7,7 @@ from ..exceptions import (
     WrongInitiatorError,
 )
 from .IUserService import IUserService
-from .schemas import UserCreateSchema, UserSchema
+from .schemas import UserCreateSchema, UserId, UserSchema
 
 
 class UserService(IUserService):
@@ -26,7 +26,7 @@ class UserService(IUserService):
         """
         self.__registry = registry
 
-    def user_exist_validation(self, user_id: str) -> None:
+    def user_exist_validation(self, user_id: UserId) -> None:
         """
         Checks the existence of the user by his ID.
 
@@ -39,7 +39,7 @@ class UserService(IUserService):
         if not self.exist(user_id):
             raise WrongInitiatorError()
 
-    def try_get_by_id(self, initiator_id: str, user_id: str) -> UserSchema:
+    def try_get_by_id(self, initiator_id: UserId, user_id: UserId) -> UserSchema:
         """
         Attempt to retrieve user information by user ID.
 
@@ -77,7 +77,7 @@ class UserService(IUserService):
         user = UserSchema(**new_user.model_dump())
         self.__registry.create(user.model_dump())
 
-    def exist(self, user_id: str) -> bool:
+    def exist(self, user_id: UserId) -> bool:
         """
         Check if a user exists based on the provided ID.
 
@@ -90,7 +90,7 @@ class UserService(IUserService):
         result = self.__registry.read({"id": user_id})
         return len(result) > 0
 
-    def __get_by_id(self, user_id: str) -> UserSchema:
+    def __get_by_id(self, user_id: UserId) -> UserSchema:
         """
         Get user information by ID.
 

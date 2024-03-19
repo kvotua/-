@@ -12,6 +12,7 @@ from app.services import service_mediator
 from app.services.NodeService import INodeService
 from app.services.ProjectService import IProjectService
 from app.services.UserService import IUserService
+from app.services.UserService.schemas import UserId
 
 secret_key = hmac.new(
     "WebAppData".encode("utf-8"), settings.bot_key.encode("utf-8"), hashlib.sha256
@@ -30,7 +31,7 @@ def get_node_service() -> INodeService:
     return service_mediator.get_node_service()
 
 
-def get_user_id_by_init_data(user_init_data: Annotated[str, Header()]) -> str:
+def get_user_id_by_init_data(user_init_data: Annotated[str, Header()]) -> UserId:
     init_data_dict = parse_to_dict(user_init_data)
     if settings.mode != "local" and not verify(init_data_dict):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid Telegram token")
@@ -40,7 +41,7 @@ def get_user_id_by_init_data(user_init_data: Annotated[str, Header()]) -> str:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, "Invalid Telegram token format"
         )
-    return str(user_id)
+    return UserId(user_id)
 
 
 def parse_to_dict(init_data: str) -> dict[str, str]:

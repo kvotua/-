@@ -9,7 +9,7 @@ from app.services.exceptions import (
     UserNotFoundError,
     WrongInitiatorError,
 )
-from app.services.UserService.schemas import UserCreateSchema, UserSchema
+from app.services.UserService.schemas import UserCreateSchema, UserId, UserSchema
 
 from .dependencies import get_user_id_by_init_data, get_user_service
 from .exceptions import HTTPExceptionSchema
@@ -28,8 +28,8 @@ router = APIRouter(prefix="/users", tags=["Users"])
     },
 )
 def user_get(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
-    user_id: str,
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
+    user_id: UserId,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserSchema:
     try:
@@ -54,7 +54,7 @@ def user_get(
     status_code=status.HTTP_200_OK,
 )
 def user_exist(
-    user_id: str,
+    user_id: UserId,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> bool:
     return user_service.exist(user_id)

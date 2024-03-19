@@ -11,9 +11,11 @@ from app.services.exceptions import (
 )
 from app.services.ProjectService.schemas import (
     ProjectCreateSchema,
+    ProjectId,
     ProjectSchema,
     ProjectUpdateSchema,
 )
+from app.services.UserService.schemas import UserId
 
 from .dependencies import get_project_service, get_user_id_by_init_data
 from .exceptions import HTTPExceptionSchema
@@ -32,8 +34,8 @@ router = APIRouter(prefix="/projects", tags=["Projects"])
     },
 )
 def project_get(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
-    project_id: str,
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
+    project_id: ProjectId,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> ProjectSchema:
     try:
@@ -61,8 +63,8 @@ def project_get(
     },
 )
 def project_get_user(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
-    user_id: str,
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
+    user_id: UserId,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> list[ProjectSchema]:
     try:
@@ -90,7 +92,7 @@ def project_get_user(
     },
 )
 def project_add(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     project_create: ProjectCreateSchema,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> ProjectSchema:
@@ -114,9 +116,9 @@ def project_add(
     },
 )
 def update_project(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     project_update: ProjectUpdateSchema,
-    project_id: str,
+    project_id: ProjectId,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> None:
     try:
@@ -144,8 +146,8 @@ def update_project(
     },
 )
 def project_delete(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
-    project_id: str,
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
+    project_id: ProjectId,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> None:
     try:

@@ -11,10 +11,12 @@ from app.services.exceptions import (
 )
 from app.services.NodeService.schemas import (
     NodeCreateSchema,
+    NodeId,
     NodeSchema,
     NodeTreeSchema,
     NodeUpdateSchema,
 )
+from app.services.UserService.schemas import UserId
 
 from .dependencies import get_node_service, get_user_id_by_init_data
 from .exceptions import HTTPExceptionSchema
@@ -33,9 +35,9 @@ router = APIRouter(prefix="/nodes", tags=["Nodes"])
     },
 )
 def node_get(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
-    node_id: str,
+    node_id: NodeId,
 ) -> NodeSchema:
     try:
         return node_service.try_get(initiator_id, node_id)
@@ -61,9 +63,9 @@ def node_get(
     },
 )
 def node_get_tree(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
-    node_id: str,
+    node_id: NodeId,
 ) -> NodeTreeSchema:
     try:
         return node_service.try_get_tree(initiator_id, node_id)
@@ -90,7 +92,7 @@ def node_get_tree(
     },
 )
 def node_add(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
     node_create: NodeCreateSchema,
 ) -> str:
@@ -119,10 +121,10 @@ def node_add(
     },
 )
 def update_node(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
     node_update: NodeUpdateSchema,
-    node_id: str,
+    node_id: NodeId,
 ) -> None:
     try:
         node_service.try_update(initiator_id, node_id, node_update)
@@ -150,9 +152,9 @@ def update_node(
     },
 )
 def delete_node(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
-    node_id: str,
+    node_id: NodeId,
 ) -> None:
     try:
         node_service.try_delete(initiator_id, node_id)

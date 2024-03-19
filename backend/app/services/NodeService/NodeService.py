@@ -2,9 +2,16 @@ from app.registry import IRegistry
 
 from ..exceptions import NodeCannotBeDeletedError, NodeNotFoundError, NotAllowedError
 from ..ProjectService.ProjectService import IProjectService
+from ..UserService.schemas import UserId
 from ..UserService.UserService import IUserService
 from .INodeService import INodeService
-from .schemas import NodeCreateSchema, NodeSchema, NodeTreeSchema, NodeUpdateSchema
+from .schemas import (
+    NodeCreateSchema,
+    NodeId,
+    NodeSchema,
+    NodeTreeSchema,
+    NodeUpdateSchema,
+)
 
 
 class NodeService(INodeService):
@@ -41,7 +48,7 @@ class NodeService(INodeService):
         self.__user_service = user_service
         self.__project_service = project_service
 
-    def try_get(self, initiator_id: str, node_id: str) -> NodeSchema:
+    def try_get(self, initiator_id: UserId, node_id: NodeId) -> NodeSchema:
         """
         try get node
 
@@ -66,7 +73,7 @@ class NodeService(INodeService):
         return self.__get(node_id)
 
     def try_update(
-        self, initiator_id: str, node_id: str, node_update: NodeUpdateSchema
+        self, initiator_id: UserId, node_id: NodeId, node_update: NodeUpdateSchema
     ) -> None:
         """
         update node
@@ -92,7 +99,7 @@ class NodeService(INodeService):
         if node_update.parent is not None:
             self.__reparent(node_id, node_update.parent)
 
-    def try_get_tree(self, initiator_id: str, node_id: str) -> NodeTreeSchema:
+    def try_get_tree(self, initiator_id: UserId, node_id: NodeId) -> NodeTreeSchema:
         """
         Try get subtree preresentation of a node and subnodes
 
@@ -117,7 +124,7 @@ class NodeService(INodeService):
         node_tree = self.__get_tree(node_id)
         return node_tree
 
-    def try_delete(self, initiator_id: str, node_id: str) -> None:
+    def try_delete(self, initiator_id: UserId, node_id: NodeId) -> None:
         """
         try delete
 
@@ -143,7 +150,7 @@ class NodeService(INodeService):
 
         self.delete(node_id)
 
-    def create(self, initiator_id: str, new_node: NodeCreateSchema) -> str:
+    def create(self, initiator_id: UserId, new_node: NodeCreateSchema) -> str:
         """
         create node
 
@@ -176,7 +183,7 @@ class NodeService(INodeService):
 
         return node.id
 
-    def create_root(self) -> str:
+    def create_root(self) -> NodeId:
         """create root node for project
 
         Returns:
@@ -186,7 +193,7 @@ class NodeService(INodeService):
         self.__registry.create(node.model_dump())
         return node.id
 
-    def exist(self, node_id: str) -> bool:
+    def exist(self, node_id: NodeId) -> bool:
         """
         check if node exist
 
@@ -199,7 +206,7 @@ class NodeService(INodeService):
         nodes = self.__registry.read({"id": node_id})
         return len(nodes) > 0
 
-    def __get(self, node_id: str) -> NodeSchema:
+    def __get(self, node_id: NodeId) -> NodeSchema:
         """
         get node directly from database
 
@@ -217,7 +224,7 @@ class NodeService(INodeService):
             raise NodeNotFoundError()
         return NodeSchema(**nodes[0])
 
-    def __get_root_node_id(self, node_id: str) -> str:
+    def __get_root_node_id(self, node_id: NodeId) -> NodeId:
         """
         get root node id of a given node
 
@@ -235,7 +242,7 @@ class NodeService(INodeService):
             node = self.__get(node.parent)
         return node.id
 
-    def __get_tree(self, node_id: str) -> NodeTreeSchema:
+    def __get_tree(self, node_id: NodeId) -> NodeTreeSchema:
         """
         Get tree representation of node and subnodes
 
@@ -260,7 +267,7 @@ class NodeService(INodeService):
             nodes_to_process.extend(current_tree_node.children)
         return tree_root
 
-    def delete(self, node_id: str) -> None:
+    def delete(self, node_id: NodeId) -> None:
         """
         Deletes node
 
@@ -281,7 +288,7 @@ class NodeService(INodeService):
             children.extend(node.children)
             self.__registry.delete({"id": node_id})
 
-    def __reparent(self, node_id: str, new_parent_id: str) -> None:
+    def __reparent(self, node_id: NodeId, new_parent_id: NodeId) -> None:
         """
         change parent of node with new_parent_id
 
@@ -307,7 +314,9 @@ class NodeService(INodeService):
         self.__registry.update({"id": parent.id}, parent.model_dump())
         self.__registry.update({"id": old_parent.id}, old_parent.model_dump())
 
-    def __check_initiator_permission(self, initiator_id: str, node_id: str) -> None:
+    def __check_initiator_permission(
+        self, initiator_id: UserId, node_id: NodeId
+    ) -> None:
         """
         Check if initiator can manipulate with node pointed by node_id
 

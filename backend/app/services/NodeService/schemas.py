@@ -1,23 +1,25 @@
-from typing import Optional
+from typing import NewType, Optional
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
+NodeId = NewType("NodeId", str)
+
 
 class NodeCreateSchema(BaseModel):
-    parent: str
+    parent: NodeId
 
 
 class NodeUpdateSchema(BaseModel):
-    parent: Optional[str] = None
+    parent: Optional[NodeId] = None
 
 
 class NodeSchema(BaseModel):
-    parent: str | None
-    id: str = Field(default_factory=lambda: str(uuid4()))
-    children: list[str] = []
+    parent: NodeId | None
+    id: NodeId = Field(default_factory=lambda: NodeId(str(uuid4())))
+    children: list[NodeId] = []
 
 
 class NodeTreeSchema(BaseModel):
-    id: str
+    id: NodeId
     children: list["NodeTreeSchema"]

@@ -1,7 +1,12 @@
-from typing import Optional
+from typing import NewType, Optional
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
+
+from ..NodeService.schemas import NodeId
+from ..UserService.schemas import UserId
+
+ProjectId = NewType("ProjectId", str)
 
 
 class ProjectCreateSchema(BaseModel):
@@ -13,6 +18,6 @@ class ProjectUpdateSchema(BaseModel):
 
 
 class ProjectSchema(ProjectCreateSchema):
-    id: str = Field(default_factory=lambda: str(uuid4()))
-    core_node_id: str
-    owner_id: str
+    id: ProjectId = Field(default_factory=lambda: ProjectId(str(uuid4())))
+    core_node_id: NodeId
+    owner_id: UserId

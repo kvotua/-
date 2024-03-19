@@ -7,9 +7,11 @@ from ..exceptions import (
     UserNotFoundError,
 )
 from ..NodeService import INodeService
+from ..NodeService.schemas import NodeId
 from ..UserService import IUserService
+from ..UserService.schemas import UserId
 from .IProjectService import IProjectService
-from .schemas import ProjectCreateSchema, ProjectSchema, ProjectUpdateSchema
+from .schemas import ProjectCreateSchema, ProjectId, ProjectSchema, ProjectUpdateSchema
 
 
 class ProjectService(IProjectService):
@@ -46,11 +48,11 @@ class ProjectService(IProjectService):
         self.__user_service = user_service
         self.__node_service = node_service
 
-    def user_exist_validation(self, user_id: str) -> None:
+    def user_exist_validation(self, user_id: UserId) -> None:
         self.__user_service.user_exist_validation(user_id)
 
     def try_get_by_user_id(
-        self, initiator_id: str, user_id: str
+        self, initiator_id: UserId, user_id: UserId
     ) -> list[ProjectSchema]:
         """
         Attempt to retrieve projects associated with a user.
@@ -74,7 +76,7 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         return project
 
-    def try_get(self, initiator_id: str, project_id: str) -> ProjectSchema:
+    def try_get(self, initiator_id: UserId, project_id: ProjectId) -> ProjectSchema:
         """
         Attempt to retrieve a specific project.
 
@@ -98,7 +100,7 @@ class ProjectService(IProjectService):
         return project
 
     def create(
-        self, initiator_id: str, new_project: ProjectCreateSchema
+        self, initiator_id: UserId, new_project: ProjectCreateSchema
     ) -> ProjectSchema:
         """
         Create a new project.
@@ -120,7 +122,10 @@ class ProjectService(IProjectService):
         return project
 
     def try_update(
-        self, initiator_id: str, project_id: str, project_update: ProjectUpdateSchema
+        self,
+        initiator_id: UserId,
+        project_id: ProjectId,
+        project_update: ProjectUpdateSchema,
     ) -> None:
         """
         Attempt to update a project.
@@ -142,7 +147,7 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         self.__update(project_id, project_update)
 
-    def try_delete(self, initiator_id: str, project_id: str) -> None:
+    def try_delete(self, initiator_id: UserId, project_id: ProjectId) -> None:
         """
         Attempt to delete a project.
 
@@ -162,7 +167,9 @@ class ProjectService(IProjectService):
         self.__delete(project_id)
         self.__node_service.delete(project.core_node_id)
 
-    def try_get_by_core_node_id(self, initiator_id: str, node_id: str) -> ProjectSchema:
+    def try_get_by_core_node_id(
+        self, initiator_id: UserId, node_id: NodeId
+    ) -> ProjectSchema:
         """
         Get project info by core node ID.
 
@@ -188,7 +195,7 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         return project_schema
 
-    def get_by_root_node_id(self, node_id: str) -> ProjectSchema:
+    def get_by_root_node_id(self, node_id: NodeId) -> ProjectSchema:
         """
         get project using it's root node
 
@@ -211,7 +218,7 @@ class ProjectService(IProjectService):
         project_schema = ProjectSchema(**project[0])
         return project_schema
 
-    def __delete(self, project_id: str) -> None:
+    def __delete(self, project_id: ProjectId) -> None:
         """
         Delete a project.
 
@@ -225,7 +232,9 @@ class ProjectService(IProjectService):
         if response.count < 1:
             raise ProjectNotFoundError()
 
-    def __update(self, project_id: str, project_update: ProjectUpdateSchema) -> None:
+    def __update(
+        self, project_id: ProjectId, project_update: ProjectUpdateSchema
+    ) -> None:
         """
         Update a project.
 
@@ -244,7 +253,7 @@ class ProjectService(IProjectService):
         if response.count < 1:
             raise ProjectNotFoundError()
 
-    def __get(self, project_id: str) -> ProjectSchema:
+    def __get(self, project_id: ProjectId) -> ProjectSchema:
         """
         Retrieve a project.
 
@@ -262,7 +271,7 @@ class ProjectService(IProjectService):
             raise ProjectNotFoundError()
         return ProjectSchema(**projects[0])
 
-    def __get_by_user_id(self, user_id: str) -> list[ProjectSchema]:
+    def __get_by_user_id(self, user_id: UserId) -> list[ProjectSchema]:
         """
         Retrieve projects associated with a user.
 
