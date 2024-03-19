@@ -147,7 +147,6 @@ class NodeService(INodeService):
         node = self.__get(node_id)
         if node.parent is None:
             raise NodeCannotBeDeletedError()
-
         self.delete(node_id)
 
     def create(self, initiator_id: UserId, new_node: NodeCreateSchema) -> str:
@@ -277,6 +276,11 @@ class NodeService(INodeService):
         Raises:
             NodeNotFoundError: raised when node with given id does not exist
         """
+        node = self.__get(node_id)
+        if node.parent is not None:
+            parent = self.__get(node.parent)
+            parent.children.remove(node_id)
+            self.__registry.update({"id": parent.id}, parent.model_dump())
 
         children = [node_id]
         while len(children) > 0:

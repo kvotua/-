@@ -1,11 +1,10 @@
+from dataclasses import dataclass
 from typing import Callable
 
 import pytest
 from fastapi import status
 
 from .setup import client
-
-from dataclasses import dataclass
 
 
 @dataclass
