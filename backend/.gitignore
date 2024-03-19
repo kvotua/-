@@ -1,7 +1,7 @@
 __pycache__/
 .pytest_chache/
 .git
-venv
+*venv
 *env
 *.idea/
 *.vscode/
