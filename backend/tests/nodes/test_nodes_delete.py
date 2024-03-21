@@ -88,9 +88,7 @@ def test_delete_node(
 
 
 # (1, 1b)
-def test_try_delete_root_node(
-    create_user: Callable, create_project: Callable, create_node: Callable
-):
+def test_try_delete_root_node(create_user: Callable, create_project: Callable):
     """(1, 1b) - 400"""
     user, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -123,9 +121,7 @@ def test_try_delete_another_node(
 
 
 # (1, 2b)
-def test_try_delete_another_root_node(
-    create_user: Callable, create_project: Callable, create_node: Callable
-):
+def test_try_delete_another_root_node(create_user: Callable, create_project: Callable):
     """(1, 2b) - 403"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -175,7 +171,7 @@ def test_try_delete_node_from_nonexistent_user(
 
 # (2, 1b), (2, 2b)
 def test_try_delete_root_node_from_nonexistent_user(
-    create_user: Callable, create_project: Callable, create_node: Callable
+    create_user: Callable, create_project: Callable
 ):
     """(2, 1b), (2, 2b) - 401"""
     _, user_init_data = create_user()
@@ -226,7 +222,7 @@ def test_try_delete_node_with_bad_token(
 
 # (3, 1b), (3, 2b)
 def test_try_delete_root_node_with_bad_token(
-    create_user: Callable, create_project: Callable, create_node: Callable
+    create_user: Callable, create_project: Callable
 ):
     """(3, 1b), (3, 2b) - 401"""
     _, user_init_data = create_user()
@@ -236,25 +232,6 @@ def test_try_delete_root_node_with_bad_token(
 
     response = client.delete_node(
         node_id=project.core_node_id,
-        user_init_data=user_init_data,
-    )
-
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-
-# (3, 2a), (3, 2b)
-def test_try_delete_another_node_with_bad_token(
-    create_user: Callable, create_project: Callable, create_node: Callable
-):
-    """(3, 2a), (3, 2b) - 401"""
-    _, user_init_data = create_user()
-    project = create_project(user_init_data=user_init_data)
-    node_id = create_node(parent_id=project.core_node_id, user_init_data=user_init_data)
-
-    user_init_data = "bad-token"
-
-    response = client.delete_node(
-        node_id=node_id,
         user_init_data=user_init_data,
     )
 
