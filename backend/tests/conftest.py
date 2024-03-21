@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from typing import Callable
 
 import pytest
+from dataclass_wizard import JSONWizard
 from fastapi import status
 
 from .setup import client
 
 
 @dataclass
-class Project:
+class Project(JSONWizard):
     """
     name: str
     id: str
@@ -20,6 +21,13 @@ class Project:
     id: str
     core_node_id: str
     owner_id: str
+
+
+@dataclass
+class Node(JSONWizard):
+    id: str
+    parent_node: str | None
+    children: list["Node"]
 
 
 @pytest.fixture
@@ -47,7 +55,7 @@ def create_project() -> Callable[[str], Project]:
             user_init_data=user_init_data,
         )
 
-        project = Project(**response.json())
+        project = Project.from_dict(response.json())
 
         assert response.status_code == status.HTTP_201_CREATED
 
