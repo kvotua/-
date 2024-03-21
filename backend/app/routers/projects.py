@@ -33,13 +33,13 @@ router = APIRouter(prefix="/projects", tags=["Projects"])
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def project_get(
+async def project_get(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     project_id: ProjectId,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> ProjectSchema:
     try:
-        return project_service.try_get(initiator_id, project_id)
+        return await project_service.try_get(initiator_id, project_id)
     except WrongInitiatorError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong initiator")
     except ProjectNotFoundError:
@@ -62,13 +62,13 @@ def project_get(
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def project_get_user(
+async def project_get_user(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     user_id: UserId,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> list[ProjectSchema]:
     try:
-        return project_service.try_get_by_user_id(initiator_id, user_id)
+        return await project_service.try_get_by_user_id(initiator_id, user_id)
     except WrongInitiatorError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong initiator")
     except UserNotFoundError:
@@ -91,13 +91,13 @@ def project_get_user(
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def project_add(
+async def project_add(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     project_create: ProjectCreateSchema,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> ProjectSchema:
     try:
-        return project_service.create(initiator_id, project_create)
+        return await project_service.create(initiator_id, project_create)
     except WrongInitiatorError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong initiator")
     except UserNotFoundError:
@@ -115,14 +115,14 @@ def project_add(
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def update_project(
+async def update_project(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     project_update: ProjectUpdateSchema,
     project_id: ProjectId,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> None:
     try:
-        project_service.try_update(initiator_id, project_id, project_update)
+        await project_service.try_update(initiator_id, project_id, project_update)
     except WrongInitiatorError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong initiator")
     except NotAllowedError:
@@ -145,13 +145,13 @@ def update_project(
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def project_delete(
+async def project_delete(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     project_id: ProjectId,
     project_service: Annotated[ProjectService, Depends(get_project_service)],
 ) -> None:
     try:
-        project_service.try_delete(initiator_id, project_id)
+        await project_service.try_delete(initiator_id, project_id)
     except NotAllowedError:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,

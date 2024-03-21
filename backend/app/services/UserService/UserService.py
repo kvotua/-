@@ -26,7 +26,7 @@ class UserService(IUserService):
         """
         self.__registry = registry
 
-    def user_exist_validation(self, user_id: UserId) -> None:
+    async def user_exist_validation(self, user_id: UserId) -> None:
         """
         Checks the existence of the user by his ID.
 
@@ -36,10 +36,10 @@ class UserService(IUserService):
         Raises:
             WrongInitiatorError: if the user does not exist.
         """
-        if not self.exist(user_id):
+        if not await self.exist(user_id):
             raise WrongInitiatorError()
 
-    def try_get_by_id(self, initiator_id: UserId, user_id: UserId) -> UserSchema:
+    async def try_get_by_id(self, initiator_id: UserId, user_id: UserId) -> UserSchema:
         """
         Attempt to retrieve user information by user ID.
 
@@ -55,13 +55,13 @@ class UserService(IUserService):
             NotAllowedError: If the initiator is not allowed to perform the operation.
             UserNotFoundError: If the user with the specified ID is not found.
         """
-        self.user_exist_validation(initiator_id)
-        user = self.__get_by_id(user_id)
+        await self.user_exist_validation(initiator_id)
+        user = await self.__get_by_id(user_id)
         if initiator_id != user_id:
             raise NotAllowedError()
         return user
 
-    def create(self, new_user: UserCreateSchema) -> None:
+    async def create(self, new_user: UserCreateSchema) -> None:
         """
         Create a new user.
 
@@ -72,12 +72,12 @@ class UserService(IUserService):
         Raises:
             UserExistError: If a user with the same ID already exists.
         """
-        if self.exist(new_user.id):
+        if await self.exist(new_user.id):
             raise UserExistError()
         user = UserSchema(**new_user.model_dump())
         self.__registry.create(user.model_dump())
 
-    def exist(self, user_id: UserId) -> bool:
+    async def exist(self, user_id: UserId) -> bool:
         """
         Check if a user exists based on the provided ID.
 
@@ -90,7 +90,7 @@ class UserService(IUserService):
         result = self.__registry.read({"id": user_id})
         return len(result) > 0
 
-    def __get_by_id(self, user_id: UserId) -> UserSchema:
+    async def __get_by_id(self, user_id: UserId) -> UserSchema:
         """
         Get user information by ID.
 

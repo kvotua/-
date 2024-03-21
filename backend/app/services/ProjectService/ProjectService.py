@@ -48,10 +48,10 @@ class ProjectService(IProjectService):
         self.__user_service = user_service
         self.__node_service = node_service
 
-    def user_exist_validation(self, user_id: UserId) -> None:
-        self.__user_service.user_exist_validation(user_id)
+    async def user_exist_validation(self, user_id: UserId) -> None:
+        await self.__user_service.user_exist_validation(user_id)
 
-    def try_get_by_user_id(
+    async def try_get_by_user_id(
         self, initiator_id: UserId, user_id: UserId
     ) -> list[ProjectSchema]:
         """
@@ -70,13 +70,15 @@ class ProjectService(IProjectService):
             NotAllowedError: If the initiator is not allowed to perform the operation.
             WrongInitiatorError: if the initiator does not exist.
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        project = self.__get_by_user_id(user_id)
+        await self.__user_service.user_exist_validation(initiator_id)
+        project = await self.__get_by_user_id(user_id)
         if initiator_id != user_id:
             raise NotAllowedError()
         return project
 
-    def try_get(self, initiator_id: UserId, project_id: ProjectId) -> ProjectSchema:
+    async def try_get(
+        self, initiator_id: UserId, project_id: ProjectId
+    ) -> ProjectSchema:
         """
         Attempt to retrieve a specific project.
 
@@ -93,13 +95,13 @@ class ProjectService(IProjectService):
             NotAllowedError: If the initiator is not allowed to perform the operation.
             WrongInitiatorError: if the initiator does not exist.
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        project = self.__get(project_id)
+        await self.__user_service.user_exist_validation(initiator_id)
+        project = await self.__get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         return project
 
-    def create(
+    async def create(
         self, initiator_id: UserId, new_project: ProjectCreateSchema
     ) -> ProjectSchema:
         """
@@ -113,15 +115,15 @@ class ProjectService(IProjectService):
         Raises:
             WrongInitiatorError: if the initiator does not exist.
         """
-        self.user_exist_validation(initiator_id)
-        node_id = self.__node_service.create_root()
+        await self.user_exist_validation(initiator_id)
+        node_id = await self.__node_service.create_root()
         project = ProjectSchema(
             **new_project.model_dump(), owner_id=initiator_id, core_node_id=node_id
         )
         self.__registry.create(project.model_dump())
         return project
 
-    def try_update(
+    async def try_update(
         self,
         initiator_id: UserId,
         project_id: ProjectId,
@@ -141,13 +143,13 @@ class ProjectService(IProjectService):
             NotAllowedError: If the initiator is not allowed to perform the operation.
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        project = self.__get(project_id)
+        await self.__user_service.user_exist_validation(initiator_id)
+        project = await self.__get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
-        self.__update(project_id, project_update)
+        await self.__update(project_id, project_update)
 
-    def try_delete(self, initiator_id: UserId, project_id: ProjectId) -> None:
+    async def try_delete(self, initiator_id: UserId, project_id: ProjectId) -> None:
         """
         Attempt to delete a project.
 
@@ -160,14 +162,14 @@ class ProjectService(IProjectService):
             NotAllowedError: If the initiator is not allowed to perform the operation.
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        project = self.__get(project_id)
+        await self.__user_service.user_exist_validation(initiator_id)
+        project = await self.__get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
-        self.__delete(project_id)
-        self.__node_service.delete(project.core_node_id)
+        await self.__delete(project_id)
+        await self.__node_service.delete(project.core_node_id)
 
-    def try_get_by_core_node_id(
+    async def try_get_by_core_node_id(
         self, initiator_id: UserId, node_id: NodeId
     ) -> ProjectSchema:
         """
@@ -185,7 +187,7 @@ class ProjectService(IProjectService):
         Returns:
             ProjectSchema: _description_
         """
-        if not self.__node_service.exist(node_id):
+        if not await self.__node_service.exist(node_id):
             raise NodeNotFoundError()
         project = self.__registry.read({"core_node_id": node_id})
         if len(project) < 1:
@@ -195,7 +197,7 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         return project_schema
 
-    def get_by_root_node_id(self, node_id: NodeId) -> ProjectSchema:
+    async def get_by_root_node_id(self, node_id: NodeId) -> ProjectSchema:
         """
         get project using it's root node
 
@@ -210,7 +212,7 @@ class ProjectService(IProjectService):
             ProjectNotFoundError: raised when there is no project that has given node \
                 as a root node
         """
-        if not self.__node_service.exist(node_id):
+        if not await self.__node_service.exist(node_id):
             raise NodeNotFoundError()
         project = self.__registry.read({"core_node_id": node_id})
         if len(project) < 1:
@@ -218,7 +220,7 @@ class ProjectService(IProjectService):
         project_schema = ProjectSchema(**project[0])
         return project_schema
 
-    def __delete(self, project_id: ProjectId) -> None:
+    async def __delete(self, project_id: ProjectId) -> None:
         """
         Delete a project.
 
@@ -232,7 +234,7 @@ class ProjectService(IProjectService):
         if response.count < 1:
             raise ProjectNotFoundError()
 
-    def __update(
+    async def __update(
         self, project_id: ProjectId, project_update: ProjectUpdateSchema
     ) -> None:
         """
@@ -253,7 +255,7 @@ class ProjectService(IProjectService):
         if response.count < 1:
             raise ProjectNotFoundError()
 
-    def __get(self, project_id: ProjectId) -> ProjectSchema:
+    async def __get(self, project_id: ProjectId) -> ProjectSchema:
         """
         Retrieve a project.
 
@@ -271,7 +273,7 @@ class ProjectService(IProjectService):
             raise ProjectNotFoundError()
         return ProjectSchema(**projects[0])
 
-    def __get_by_user_id(self, user_id: UserId) -> list[ProjectSchema]:
+    async def __get_by_user_id(self, user_id: UserId) -> list[ProjectSchema]:
         """
         Retrieve projects associated with a user.
 
@@ -284,7 +286,7 @@ class ProjectService(IProjectService):
         Raises:
             UserNotFoundError: If the user with the specified ID is not found.
         """
-        if not self.__user_service.exist(user_id):
+        if not await self.__user_service.exist(user_id):
             raise UserNotFoundError()
         projects = self.__registry.read({"owner_id": user_id})
         return [ProjectSchema(**project) for project in projects]

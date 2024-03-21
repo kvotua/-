@@ -48,7 +48,7 @@ class NodeService(INodeService):
         self.__user_service = user_service
         self.__project_service = project_service
 
-    def try_get(self, initiator_id: UserId, node_id: NodeId) -> NodeSchema:
+    async def try_get(self, initiator_id: UserId, node_id: NodeId) -> NodeSchema:
         """
         try get node
 
@@ -68,11 +68,11 @@ class NodeService(INodeService):
                 as a root node
         """
 
-        self.__user_service.user_exist_validation(initiator_id)
-        self.__check_initiator_permission(initiator_id, node_id)
-        return self.__get(node_id)
+        await self.__user_service.user_exist_validation(initiator_id)
+        await self.__check_initiator_permission(initiator_id, node_id)
+        return await self.__get(node_id)
 
-    def try_update(
+    async def try_update(
         self, initiator_id: UserId, node_id: NodeId, node_update: NodeUpdateSchema
     ) -> None:
         """
@@ -93,13 +93,15 @@ class NodeService(INodeService):
             ProjectNotFoundError: raised when there is no project that has given node \
                 as a root node
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        self.__check_initiator_permission(initiator_id, node_id)
+        await self.__user_service.user_exist_validation(initiator_id)
+        await self.__check_initiator_permission(initiator_id, node_id)
 
         if node_update.parent is not None:
-            self.__reparent(node_id, node_update.parent)
+            await self.__reparent(node_id, node_update.parent)
 
-    def try_get_tree(self, initiator_id: UserId, node_id: NodeId) -> NodeTreeSchema:
+    async def try_get_tree(
+        self, initiator_id: UserId, node_id: NodeId
+    ) -> NodeTreeSchema:
         """
         Try get subtree preresentation of a node and subnodes
 
@@ -118,13 +120,13 @@ class NodeService(INodeService):
             ProjectNotFoundError: raised when there is no project that has given node \
                 as a root node
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        self.__check_initiator_permission(initiator_id, node_id)
+        await self.__user_service.user_exist_validation(initiator_id)
+        await self.__check_initiator_permission(initiator_id, node_id)
 
-        node_tree = self.__get_tree(node_id)
+        node_tree = await self.__get_tree(node_id)
         return node_tree
 
-    def try_delete(self, initiator_id: UserId, node_id: NodeId) -> None:
+    async def try_delete(self, initiator_id: UserId, node_id: NodeId) -> None:
         """
         try delete
 
@@ -141,15 +143,15 @@ class NodeService(INodeService):
             ProjectNotFoundError: raised when there is no project that has given node \
                 as a root node
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        self.__check_initiator_permission(initiator_id, node_id)
+        await self.__user_service.user_exist_validation(initiator_id)
+        await self.__check_initiator_permission(initiator_id, node_id)
 
-        node = self.__get(node_id)
+        node = await self.__get(node_id)
         if node.parent is None:
             raise NodeCannotBeDeletedError()
-        self.delete(node_id)
+        await self.delete(node_id)
 
-    def create(self, initiator_id: UserId, new_node: NodeCreateSchema) -> str:
+    async def create(self, initiator_id: UserId, new_node: NodeCreateSchema) -> str:
         """
         create node
 
@@ -170,11 +172,11 @@ class NodeService(INodeService):
                 as a root node
 
         """
-        self.__user_service.user_exist_validation(initiator_id)
-        self.__check_initiator_permission(initiator_id, new_node.parent)
+        await self.__user_service.user_exist_validation(initiator_id)
+        await self.__check_initiator_permission(initiator_id, new_node.parent)
 
         node = NodeSchema(**new_node.model_dump())
-        parent = self.__get(new_node.parent)
+        parent = await self.__get(new_node.parent)
         parent.children.append(node.id)
 
         self.__registry.create(node.model_dump())
@@ -182,7 +184,7 @@ class NodeService(INodeService):
 
         return node.id
 
-    def create_root(self) -> NodeId:
+    async def create_root(self) -> NodeId:
         """create root node for project
 
         Returns:
@@ -192,7 +194,7 @@ class NodeService(INodeService):
         self.__registry.create(node.model_dump())
         return node.id
 
-    def exist(self, node_id: NodeId) -> bool:
+    async def exist(self, node_id: NodeId) -> bool:
         """
         check if node exist
 
@@ -205,7 +207,7 @@ class NodeService(INodeService):
         nodes = self.__registry.read({"id": node_id})
         return len(nodes) > 0
 
-    def __get(self, node_id: NodeId) -> NodeSchema:
+    async def __get(self, node_id: NodeId) -> NodeSchema:
         """
         get node directly from database
 
@@ -223,7 +225,7 @@ class NodeService(INodeService):
             raise NodeNotFoundError()
         return NodeSchema(**nodes[0])
 
-    def __get_root_node_id(self, node_id: NodeId) -> NodeId:
+    async def __get_root_node_id(self, node_id: NodeId) -> NodeId:
         """
         get root node id of a given node
 
@@ -236,12 +238,12 @@ class NodeService(INodeService):
         Raises:
             NodeNotFoundError: raised when node with given id does not exist
         """
-        node = self.__get(node_id)
+        node = await self.__get(node_id)
         while node.parent is not None:
-            node = self.__get(node.parent)
+            node = await self.__get(node.parent)
         return node.id
 
-    def __get_tree(self, node_id: NodeId) -> NodeTreeSchema:
+    async def __get_tree(self, node_id: NodeId) -> NodeTreeSchema:
         """
         Get tree representation of node and subnodes
 
@@ -258,7 +260,7 @@ class NodeService(INodeService):
         nodes_to_process = [tree_root]
         while len(nodes_to_process) > 0:
             current_tree_node = nodes_to_process.pop()
-            current_node = self.__get(current_tree_node.id)
+            current_node = await self.__get(current_tree_node.id)
             for child_node_id in current_node.children:
                 current_tree_node.children.append(
                     NodeTreeSchema(id=child_node_id, children=[])
@@ -266,7 +268,7 @@ class NodeService(INodeService):
             nodes_to_process.extend(current_tree_node.children)
         return tree_root
 
-    def delete(self, node_id: NodeId) -> None:
+    async def delete(self, node_id: NodeId) -> None:
         """
         Deletes node
 
@@ -276,9 +278,9 @@ class NodeService(INodeService):
         Raises:
             NodeNotFoundError: raised when node with given id does not exist
         """
-        node = self.__get(node_id)
+        node = await self.__get(node_id)
         if node.parent is not None:
-            parent = self.__get(node.parent)
+            parent = await self.__get(node.parent)
             parent.children.remove(node_id)
             self.__registry.update({"id": parent.id}, parent.model_dump())
 
@@ -286,13 +288,13 @@ class NodeService(INodeService):
         while len(children) > 0:
             node_id = children.pop()
             try:
-                node = self.__get(node_id)
+                node = await self.__get(node_id)
             except NodeNotFoundError:
                 continue
             children.extend(node.children)
             self.__registry.delete({"id": node_id})
 
-    def __reparent(self, node_id: NodeId, new_parent_id: NodeId) -> None:
+    async def __reparent(self, node_id: NodeId, new_parent_id: NodeId) -> None:
         """
         change parent of node with new_parent_id
 
@@ -304,11 +306,11 @@ class NodeService(INodeService):
             ValueError: raised when node has no parent
             NodeNotFoundError: raised when node with given id does not exist
         """
-        node = self.__get(node_id)
-        parent = self.__get(new_parent_id)
+        node = await self.__get(node_id)
+        parent = await self.__get(new_parent_id)
         if node.parent is None:
             raise ValueError()
-        old_parent = self.__get(node.parent)
+        old_parent = await self.__get(node.parent)
 
         old_parent.children.remove(node.id)
         parent.children.append(node.id)
@@ -318,7 +320,7 @@ class NodeService(INodeService):
         self.__registry.update({"id": parent.id}, parent.model_dump())
         self.__registry.update({"id": old_parent.id}, old_parent.model_dump())
 
-    def __check_initiator_permission(
+    async def __check_initiator_permission(
         self, initiator_id: UserId, node_id: NodeId
     ) -> None:
         """
@@ -334,7 +336,7 @@ class NodeService(INodeService):
             ProjectNotFoundError: raised when there is no project that has given node \
                 as a root node
         """
-        root_node_id = self.__get_root_node_id(node_id)
-        project = self.__project_service.get_by_root_node_id(root_node_id)
+        root_node_id = await self.__get_root_node_id(node_id)
+        project = await self.__project_service.get_by_root_node_id(root_node_id)
         if project.owner_id != initiator_id:
             raise NotAllowedError()

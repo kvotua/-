@@ -7,23 +7,25 @@ from .schemas import ProjectCreateSchema, ProjectId, ProjectSchema, ProjectUpdat
 
 class IProjectService(ABC):
     @abstractmethod
-    def try_get_by_user_id(
+    async def try_get_by_user_id(
         self, initiator_id: UserId, user_id: UserId
     ) -> list[ProjectSchema]:
         pass
 
     @abstractmethod
-    def try_get(self, initiator_id: UserId, project_id: ProjectId) -> ProjectSchema:
+    async def try_get(
+        self, initiator_id: UserId, project_id: ProjectId
+    ) -> ProjectSchema:
         pass
 
     @abstractmethod
-    def create(
+    async def create(
         self, initiator_id: UserId, new_project: ProjectCreateSchema
     ) -> ProjectSchema:
         pass
 
     @abstractmethod
-    def try_update(
+    async def try_update(
         self,
         initiator_id: UserId,
         project_id: ProjectId,
@@ -32,9 +34,9 @@ class IProjectService(ABC):
         pass
 
     @abstractmethod
-    def try_delete(self, initiator_id: UserId, project_id: ProjectId) -> None:
+    async def try_delete(self, initiator_id: UserId, project_id: ProjectId) -> None:
         pass
 
     @abstractmethod
-    def get_by_root_node_id(self, node_id: NodeId) -> ProjectSchema:
+    async def get_by_root_node_id(self, node_id: NodeId) -> ProjectSchema:
         pass

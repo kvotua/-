@@ -27,13 +27,13 @@ router = APIRouter(prefix="/users", tags=["Users"])
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def user_get(
+async def user_get(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     user_id: UserId,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserSchema:
     try:
-        return user_service.try_get_by_id(initiator_id, user_id)
+        return await user_service.try_get_by_id(initiator_id, user_id)
     except WrongInitiatorError:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, "The user with this ID was not found"
@@ -55,11 +55,11 @@ def user_get(
         status.HTTP_409_CONFLICT: {"model": HTTPExceptionSchema},
     },
 )
-def user_add(
+async def user_add(
     user: UserCreateSchema,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> None:
     try:
-        user_service.create(user)
+        await user_service.create(user)
     except UserExistError:
         raise HTTPException(status.HTTP_409_CONFLICT, "User already exist")
