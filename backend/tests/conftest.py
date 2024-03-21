@@ -26,8 +26,8 @@ class Project(JSONWizard):
 @dataclass
 class Node(JSONWizard):
     id: str
-    parent_node: str | None
-    children: list["Node"]
+    parent: str | None
+    children: list
 
 
 @pytest.fixture
