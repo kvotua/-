@@ -1,11 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ITreeNode } from "src/app/types/nodes.types";
 
-interface IInitialState {
-  id: string;
-  children: IInitialState[];
-}
-
-const initialState: IInitialState = {
+const initialState: ITreeNode = {
   id: "0",
   children: [],
 };
@@ -14,7 +10,7 @@ export const userPageSlice = createSlice({
   name: "projects",
   initialState,
   reducers: {
-    setCoreNewChild(state, action: PayloadAction<IInitialState>) {
+    setCoreNewChild(state, action: PayloadAction<ITreeNode>) {
       state.children.push(action.payload);
     },
     setExistNewChild(state, action) {
@@ -24,14 +20,14 @@ export const userPageSlice = createSlice({
         ? [...existingItem!.children, newChild]
         : [newChild];
     },
-    setPage(state, action: PayloadAction<IInitialState>) {
+    setPage(state, action: PayloadAction<ITreeNode>) {
       const { id } = action.payload;
       const existingItem = findIdInNestedObjects(state, id);
 
       if (!existingItem) {
         state.children.push(action.payload);
       } else {
-        const newChild: IInitialState = {
+        const newChild: ITreeNode = {
           id,
           children: [],
         };
@@ -40,28 +36,71 @@ export const userPageSlice = createSlice({
           : [newChild];
       }
     },
-    setTree(_, action: PayloadAction<IInitialState>) {
+    setTree(_, action: PayloadAction<ITreeNode>) {
       return action.payload;
+    },
+    deleteNode(state, action: PayloadAction<string>) {
+      const targetId = action.payload;
+      const parent = findParentNode(state, targetId);
+
+      if (parent) {
+        parent.children = parent.children.filter(
+          (child) => child.id !== targetId,
+        );
+      } else {
+        state.children = state.children.filter(
+          (child) => child.id !== targetId,
+        );
+      }
     },
   },
 });
 
 const findIdInNestedObjects = (
-  obj: IInitialState,
+  obj: ITreeNode,
   targetId: string,
-): IInitialState | null => {
-  if (obj.id === targetId) {
-    return obj;
-  }
-  for (const item of obj.children) {
-    const result = findIdInNestedObjects(item, targetId);
-    if (result) {
-      return result;
+): ITreeNode | null => {
+  const stack: ITreeNode[] = [obj];
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (!node) continue;
+
+    if (node.id === targetId) {
+      return node;
     }
+
+    stack.push(...node.children);
   }
+
   return null;
 };
 
-export const { setPage, setTree, setCoreNewChild, setExistNewChild } =
-  userPageSlice.actions;
+const findParentNode = (obj: ITreeNode, targetId: string): ITreeNode | null => {
+  const stack: { node: ITreeNode; parent: ITreeNode | null }[] = [
+    { node: obj, parent: null },
+  ];
+
+  while (stack.length > 0) {
+    const { node, parent } = stack.pop()!;
+
+    if (node.id === targetId) {
+      return parent;
+    }
+
+    for (const child of node.children) {
+      stack.push({ node: child, parent: node });
+    }
+  }
+
+  return null;
+};
+
+export const {
+  setPage,
+  setTree,
+  setCoreNewChild,
+  setExistNewChild,
+  deleteNode,
+} = userPageSlice.actions;
 export default userPageSlice.reducer;

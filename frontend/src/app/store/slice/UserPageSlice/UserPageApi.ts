@@ -8,9 +8,9 @@ interface INewNode {
 export const nodesApi = createApi({
   reducerPath: "nodesApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}/api/v1/`,
+    baseUrl: "http://localhost/api/v1/",
     headers: {
-      "user-init-data": 'user={"id":"0"}',
+      "user-init-data": 'user={"id":0}',
     },
   }),
   endpoints: (builder) => ({

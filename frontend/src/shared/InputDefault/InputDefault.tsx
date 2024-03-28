@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { IInputDefaultProps } from "./InputDefaultInterface";
+import { IInputDefaultProps } from "./InputDefaultModel";
 
 const InputDefault: FC<IInputDefaultProps> = ({
   name,

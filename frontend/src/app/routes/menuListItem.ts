@@ -22,3 +22,14 @@ export const menuItem = [
     Image: Profile,
   },
 ];
+
+export const menuItem2 = [
+  {
+    link: RoutesList.Home,
+    Image: Home,
+  },
+  {
+    link: RoutesList.Gallery,
+    Image: Gallery,
+  },
+];

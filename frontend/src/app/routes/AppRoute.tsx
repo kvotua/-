@@ -1,5 +1,5 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useContext } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 import {
   appRoutes,
   galleryRoutes,
@@ -9,13 +9,15 @@ import {
 import { Menu } from "src/widgets/Menu/Menu";
 import { ProfileHeader } from "src/widgets/ProfileHeader/ProfileHeader";
 import { GalleryHeader } from "src/widgets/GalleryHeader/GalleryHeader";
-import { menuItem } from "./menuListItem";
+import { menuContext } from "../context";
 
 const AppRoute: React.FC = () => {
+  const { menuItems } = useContext(menuContext);
   return (
     <>
       <Routes>
-        <Route element={<Menu menuItem={menuItem} />}>
+        <Route path="/" element={<Navigate to={"/home"} />} />
+        <Route element={<Menu menuItem={menuItems} />}>
           {appRoutes.map(({ Component, path }) => (
             <Route key={path} path={path} element={<Component />} />
           ))}
@@ -29,10 +31,10 @@ const AppRoute: React.FC = () => {
               <Route key={path} path={path} element={<Component />} />
             ))}
           </Route>
+          {projectRoutes.map(({ Component, path }) => (
+            <Route key={path} path={path} element={<Component />} />
+          ))}
         </Route>
-        {projectRoutes.map(({ Component, path }) => (
-          <Route key={path} path={path} element={<Component />} />
-        ))}
       </Routes>
     </>
   );

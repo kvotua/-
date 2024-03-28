@@ -1,16 +1,15 @@
 import React from "react";
+import { type IAddButton } from "./AddButtonModel";
+import { motion } from "framer-motion";
 
-interface IAddButton {
-  handleClick?: (event: unknown) => void;
-}
 const AddButton: React.FC<IAddButton> = ({ handleClick }) => {
   return (
-    <button
+    <motion.button
       onClick={handleClick}
       className="px-4 py-8 border-2 border-dashed border-black w-full h-full text-4xl rounded-20 duration-200"
     >
       +
-    </button>
+    </motion.button>
   );
 };
 

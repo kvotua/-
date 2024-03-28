@@ -1,21 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  useDeleteProjectMutation,
-  useUpdateProjectMutation,
-} from "src/app/store/slice/ProjectsSlice/projectsApi";
-import { updateProject } from "./editApi";
+
 import Back from "src/assets/back.svg?react";
 import Save from "src/assets/save.svg?react";
 import { InputDefault } from "src/shared/InputDefault/InputDefault";
-import { Menu } from "src/widgets/Menu/Menu";
-
+import { useChangeMenu } from "src/app/hooks/useChangeMenu";
+import { useFetchMutation } from "src/app/hooks/useFetchMutation";
+import { IProject } from "src/app/types/project.types";
+import { useFetchQuery } from "src/app/hooks/useFetchQuery";
 const Edit: React.FC = () => {
   const navigate = useNavigate();
   const [projectName, setProjectName] = useState<string>("");
   const { projectId } = useParams();
-  const [updateProjectMutation] = useUpdateProjectMutation();
-  const [deleteProjectMutation] = useDeleteProjectMutation();
+  const { mutate } = useFetchMutation({
+    index: "editProfect",
+    onSuccess: () => navigate(-1),
+    body: { name: projectName },
+    refetchKey: "getProjectsByUserId",
+  });
+  const { data: project } = useFetchQuery<IProject>({
+    url: `projects/${projectId}`,
+    index: "getProjectById",
+  });
+  useEffect(() => {
+    if (project) {
+      setProjectName(project.name);
+    }
+  }, [project]);
 
   const menuItem = [
     {
@@ -24,25 +35,15 @@ const Edit: React.FC = () => {
     },
     {
       handleClick: () =>
-        updateProject(
-          updateProjectMutation,
-          navigate,
-          { name: projectName },
-          projectId!,
-        ),
+        mutate({
+          url: `projects/${projectId}`,
+          method: "PATCH",
+        }),
       Image: Save,
     },
   ];
+  useChangeMenu(menuItem);
 
-  const deleteProject = () => {
-    deleteProjectMutation(projectId!)
-      .then((data) =>
-        "error" in data ? console.log(data.error) : navigate(-1),
-      )
-      .catch((err) => {
-        console.log(err);
-      });
-  };
   return (
     <div className="container pt-[4vh] min-h-[100dvh] transition-[height]">
       <div className="w-full h-[70dvh] rounded-20 flex flex-col items-center relative z-20 gap-[20px]">
@@ -56,14 +57,18 @@ const Edit: React.FC = () => {
           valueInp={projectName}
           placeholder="Мой проект"
         />
-        <span
-          onClick={deleteProject}
-          className="text-[practice20px] font-bold uppercase text-red-600"
+        <button
+          onClick={() =>
+            mutate({
+              url: `projects/${projectId}`,
+              method: "DELETE",
+            })
+          }
+          className="text-[20px] font-bold uppercase text-red-600"
         >
           Удалить сайт
-        </span>
+        </button>
       </div>
-      <Menu menuItem={menuItem} />
     </div>
   );
 };

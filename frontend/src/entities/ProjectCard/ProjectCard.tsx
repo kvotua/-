@@ -1,14 +1,11 @@
 import React from "react";
 import Edit from "../../assets/icons/edit.svg?react";
 import LinkIcon from "../../assets/icons/link.svg?react";
-import { Link } from "react-router-dom";
-
-interface IProjectCard {
-  title: string;
-  id: string;
-}
+import { Link, useNavigate } from "react-router-dom";
+import { type IProjectCard } from "./projectCardModel";
 
 const ProjectCard: React.FC<IProjectCard> = ({ title, id }) => {
+  const navigate = useNavigate();
   return (
     <Link
       to={`/project/${id}`}
@@ -16,9 +13,14 @@ const ProjectCard: React.FC<IProjectCard> = ({ title, id }) => {
     >
       <h2 className="text-[practice20px] font-bold">{title}</h2>
       <div className="flex justify-between">
-        <Link to={`/project/${id}/edit`}>
+        <div
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(`/project/${id}/edit`);
+          }}
+        >
           <Edit stroke="black" />
-        </Link>
+        </div>
         <LinkIcon fill="black" />
       </div>
     </Link>
