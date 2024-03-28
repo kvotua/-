@@ -36,12 +36,12 @@ async def get_user_id_by_init_data(user_init_data: Annotated[str, Header()]) -> 
     if settings.mode != "local" and not await verify(init_data_dict):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid Telegram token")
     try:
-        user_id = json.loads(init_data_dict["user"])["id"]
+        user_id: int = json.loads(init_data_dict["user"])["id"]
     except JSONDecodeError:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, "Invalid Telegram token format"
         )
-    return UserId(user_id)
+    return UserId(str(user_id))
 
 
 async def parse_to_dict(init_data: str) -> dict[str, str]:
