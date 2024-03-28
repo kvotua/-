@@ -2,19 +2,19 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { responseContext } from "../context";
-import Loader from "src/assets/loader.svg?react";
+import Loader from "src/app/assets/loader.svg?react";
 
 const ResposeProvider = ({ children }: { children: React.ReactNode }) => {
   const [response, setResponse] = useState<{
     errorMessage?: string;
     refetchFunc?: () => void;
     isLoading?: boolean;
-    isSuccess?: boolean;
+    // isSuccess?: boolean;
   }>({
     errorMessage: "",
     refetchFunc: () => {},
     isLoading: false,
-    isSuccess: false,
+    // isSuccess: false,
   });
 
   if (response.errorMessage) {

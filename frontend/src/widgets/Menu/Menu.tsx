@@ -49,7 +49,7 @@ const Menu: React.FC<IMenuItem> = ({ menuItem }) => {
                   key={i}
                   onClick={handleClick}
                 >
-                  <CustomLink to={link} Image={Image} />
+                  <CustomLink to={link} Image={Image!} />
                 </motion.li>
               );
             })}

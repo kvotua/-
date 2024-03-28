@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import Back from "src/assets/back.svg?react";
-import Save from "src/assets/save.svg?react";
+import Back from "src/app/assets/icons/back.svg?react";
+import Save from "src/app/assets/icons/save.svg?react";
 import { InputDefault } from "src/shared/InputDefault/InputDefault";
 import { useChangeMenu } from "src/app/hooks/useChangeMenu";
 import { useFetchMutation } from "src/app/hooks/useFetchMutation";

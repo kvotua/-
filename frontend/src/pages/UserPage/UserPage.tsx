@@ -13,8 +13,8 @@ import {
   usePostNodesMutation,
 } from "src/app/store/slice/UserPgaeSlice/UserPageApi";
 import { AddButton } from "src/shared/AddButton/AddButton";
-import Back from "src/assets/back.svg?react";
-import Trash from "src/assets/icons/trash.svg?react";
+import Back from "src/app/assets/icons/back.svg?react";
+import Trash from "src/app/assets/icons/trash.svg?react";
 import { useNavigate } from "react-router-dom";
 import { menuContext } from "src/app/context";
 import { ITreeNode } from "src/app/types/nodes.types";

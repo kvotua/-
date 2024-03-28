@@ -4,6 +4,20 @@ import { responseContext } from "../context";
 import { useContext } from "react";
 import { axiosBase } from "../http";
 
+/** useFetchMutation - это кастомный хук, для всех запросов, кроме GET.
+ *
+ * **index** - это параметр по которому можно повторить этот запрос (refetch).
+ *
+ * **onSuccess** - это callback фугкция, которая срабатывает только, если запрос прошел успешно.
+ *
+ * **isModalLoading** - это параметр, который отвечает за отображение стандартного экрана загрузки или нет.
+ *
+ * **refetchKey** - это ключ (index) по которому будет проводится инвалидация кеша и обновление данных.
+ *
+ * Возвращаемые значения:
+ *
+ * **mutate** - это функция, которая вызывает запрос на сервер, она принимает параматры, описанные ниже.
+ */
 export const useFetchMutation = <AxiosMutate>({
   index,
   onSuccess,

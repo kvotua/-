@@ -1,7 +1,7 @@
-import Gallery from "src/assets/gallery.svg?react";
-import Home from "src/assets/home.svg?react";
-import Profile from "src/assets/profile.svg?react";
-import Info from "src/assets/info.svg?react";
+import Gallery from "src/app/assets/icons/gallery.svg?react";
+import Home from "src/app/assets/icons/home.svg?react";
+import Profile from "src/app/assets/icons/profile.svg?react";
+import Info from "src/app/assets/icons/info.svg?react";
 import { RoutesList } from "src/app/types/routes/types";
 
 export const menuItem = [

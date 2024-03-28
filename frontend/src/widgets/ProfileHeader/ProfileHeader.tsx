@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import { InternalMenu } from "../InternalMenu/InternalMenu";
-import Settings from "src/assets/settings.svg?react";
+import Settings from "src/app/assets/icons/settings.svg?react";
 import { RoutesList } from "src/app/types/routes/types";
 
 const ProfileHeader: React.FC = () => {

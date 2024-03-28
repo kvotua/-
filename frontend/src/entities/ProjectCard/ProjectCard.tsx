@@ -1,6 +1,6 @@
 import React from "react";
-import Edit from "../../assets/icons/edit.svg?react";
-import LinkIcon from "../../assets/icons/link.svg?react";
+import Edit from "src/app/assets/icons/edit.svg?react";
+import LinkIcon from "src/app/assets/icons/link.svg?react";
 import { Link, useNavigate } from "react-router-dom";
 import { type IProjectCard } from "./projectCardModel";
 

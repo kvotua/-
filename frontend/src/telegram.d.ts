@@ -1,1 +1,5 @@
-declare let Telegram: unknown;
+declare global {
+  interface Window {
+    Telegram: unknown;
+  }
+}

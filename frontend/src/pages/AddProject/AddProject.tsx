@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { InputDefault } from "src/shared/InputDefault/InputDefault";
-import Back from "src/assets/back.svg?react";
-import Save from "src/assets/save.svg?react";
+import Back from "src/app/assets/icons/back.svg?react";
+import Save from "src/app/assets/icons/save.svg?react";
 import { useNavigate } from "react-router-dom";
 import { useChangeMenu } from "src/app/hooks/useChangeMenu";
 import { useFetchMutation } from "src/app/hooks/useFetchMutation";
@@ -14,6 +14,7 @@ const AddProject: React.FC = () => {
     index: "addProject",
     onSuccess: () => navigate(-1),
     body: { name: projectName },
+    refetchKey: "getProjectsByUserId",
   });
   const menuItem = [
     {

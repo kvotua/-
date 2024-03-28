@@ -10,11 +10,16 @@ import { useFetchQuery } from "src/app/hooks/useFetchQuery";
 import { IProject } from "src/app/types/project.types";
 
 const Home: React.FC = () => {
-  const { data: projects = [], isLoading } = useFetchQuery<IProject[]>({
+  const {
+    data: projects = [],
+    isLoading,
+    isRefetching,
+  } = useFetchQuery<IProject[]>({
     url: `projects/by/user/${0}`,
     index: "getProjectsByUserId",
     isModalLoading: false,
   });
+
   return (
     <div className="pt-[4vh] min-h-[100dvh]">
       <h1 className="title">Мои проекты</h1>
@@ -34,7 +39,7 @@ const Home: React.FC = () => {
         pagination={true}
         className="h-full pt-[4dvh]"
       >
-        {isLoading
+        {isLoading || isRefetching
           ? [...Array(10)].map((_, i) => (
               <SwiperSlide key={i}>
                 <SkeletonProjectCard />

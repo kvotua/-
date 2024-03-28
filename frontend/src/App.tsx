@@ -8,7 +8,7 @@ import { MenuProvider } from "./app/providers/MenuProvider";
 import { ResposeProvider } from "./app/providers/ResponseProvider";
 
 function App() {
-  const tgUser: IUser = tg.initDataUnsafe.user;
+  const tgUser: IUser = tg.initDataUnsafe.user; // tgUser - это данные о пользователе, которые беруться с телеграма
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -16,13 +16,13 @@ function App() {
     tg.expand();
     tg.enableClosingConfirmation();
     if (tgUser && tgUser.id) {
-      dispatch(getUser(tgUser.id));
+      dispatch(getUser(tgUser.id)); // Если tgUser есть - используем его данные, если нет - используются моковые данные
     }
-    // Локальные данные
+    // Моковые данные
     else {
       dispatch(getUser("0"));
     }
-  }, [tgUser, dispatch]);
+  }, [tgUser]);
   return (
     <>
       <ResposeProvider>
