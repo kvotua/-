@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useAppDispatch } from "src/app/hooks/useAppDispatch";
 import { useAppSelector } from "src/app/hooks/useAppSelector";
 import useGetTree from "src/app/hooks/useGetTree";
@@ -54,7 +54,7 @@ const UserPage: React.FC = () => {
     };
     dispatch(setExistNewChild({ newChild: newChild, id: id }));
   };
-
+  const [clickedNodeId, setClickedNodeId] = useState<string | null>(null);
   const handleDeleteNode = (id: string) => {
     deleteNodes(id);
     dispatch(deleteNode(id));
@@ -64,6 +64,8 @@ const UserPage: React.FC = () => {
     if (isTreeSuccess && tree && id === tree.id) {
       return children?.map((child) => renderNode(child));
     }
+    // console.log(id, clickedNodeId);
+
     return (
       <motion.div
         key={id}
@@ -80,6 +82,7 @@ const UserPage: React.FC = () => {
           duration: 0.3,
         }}
         onClick={(event) => {
+          setClickedNodeId(id);
           if (event.target === event.currentTarget) {
             setMenuItems([
               {
@@ -101,7 +104,7 @@ const UserPage: React.FC = () => {
             ]);
           }
         }}
-        className="px-4 py-8 border-2 border-black w-full grid  text-4xl gap-4 rounded-20"
+        className={`px-4 py-8 border-2 border-black w-full grid  text-4xl gap-4 rounded-20 ${clickedNodeId === id ? "scale-110 border-2" : ""}`}
       >
         {children?.map((child) => renderNode(child))}
         <AddButton
