@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.services import NodeService
 from app.services.exceptions import (
     NodeCannotBeDeletedError,
+    NodeInDifferentTreeError,
     NodeNotFoundError,
     NotAllowedError,
     UserNotFoundError,
@@ -138,6 +139,10 @@ async def update_node(
         )
     except NotAllowedError:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "You cant update this node")
+    except NodeInDifferentTreeError:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "Nodes can be reparented only in same tree"
+        )
 
 
 @router.delete(

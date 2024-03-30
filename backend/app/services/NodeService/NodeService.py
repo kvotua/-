@@ -1,6 +1,11 @@
 from app.registry import IRegistry
 
-from ..exceptions import NodeCannotBeDeletedError, NodeNotFoundError, NotAllowedError
+from ..exceptions import (
+    NodeCannotBeDeletedError,
+    NodeInDifferentTreeError,
+    NodeNotFoundError,
+    NotAllowedError,
+)
 from ..ProjectService.ProjectService import IProjectService
 from ..UserService.schemas import UserId
 from ..UserService.UserService import IUserService
@@ -92,11 +97,14 @@ class NodeService(INodeService):
             ValueError: raised when node has no parent
             ProjectNotFoundError: raised when there is no project that has given node \
                 as a root node
+            NodeInDifferentTreeError: raised when trying reparent node to different tree
         """
         await self.__user_service.user_exist_validation(initiator_id)
         await self.__check_initiator_permission(initiator_id, node_id)
 
         if node_update.parent is not None:
+            if not await self.__in_same_tree(node_id, node_update.parent):
+                raise NodeInDifferentTreeError()
             await self.__reparent(node_id, node_update.parent)
 
     async def try_get_tree(
@@ -340,3 +348,26 @@ class NodeService(INodeService):
         project = await self.__project_service.get_by_root_node_id(root_node_id)
         if project.owner_id != initiator_id:
             raise NotAllowedError()
+
+    async def __in_same_tree(self, *node_ids: NodeId) -> bool:
+        """
+        Check if all node_id located in same tree.
+
+        Args:
+            node_ids (tuple[NodeId]): ids of nodes to check
+
+        Returns:
+            bool: True if node_ids is empty or contains only 1 node_id \
+                or all nodes located is same tree, False overwhise
+
+        Raises:
+            NodeNotFoundError: raised if some node_id not exist
+        """
+        if len(node_ids) == 0:
+            return True
+        first_parent_id = await self.__get_root_node_id(node_ids[0])
+        for node_id in node_ids[1:]:
+            current_parent_id = await self.__get_root_node_id(node_id)
+            if current_parent_id != first_parent_id:
+                return False
+        return True

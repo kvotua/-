@@ -34,3 +34,7 @@ class NodeCannotBeDeletedError(ServiceError):
     """Raised when node is cannot be deleted"""
 
     pass
+
+
+class NodeInDifferentTreeError(ServiceError):
+    """Raised when trying reparent node to another tree"""
