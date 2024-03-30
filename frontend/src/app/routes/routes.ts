@@ -1,78 +1,66 @@
-import { Awards } from "src/pages/Awards/Awards";
-import { Edit } from "src/pages/Edit/Edit";
-import Following from "src/pages/Gallery/Following";
-import New from "src/pages/Gallery/New";
-import Personal from "src/pages/Gallery/Personal";
-import Popular from "src/pages/Gallery/Popular";
-import { Home } from "src/pages/Home/Home";
-import { Info } from "src/pages/Info/Info";
-import { Profile } from "src/pages/Profile/Profile";
-import { ProfileSettings } from "src/pages/ProfileSettings/ProfileSettings";
-import { Quests } from "src/pages/Quests/Quests";
 import { RoutesList } from "../types/routes/types";
-import { AddProject } from "src/pages/AddProject/AddProject";
-import { UserPage } from "src/pages/UserPage/UserPage";
+import { lazy } from "react";
 
 export const appRoutes = [
   {
     path: RoutesList.Home,
-    Component: Home,
+    Component: lazy(() => import("src/pages/Home/Home")),
   },
   {
     path: RoutesList.Info,
-    Component: Info,
+    Component: lazy(() => import("src/pages/Info/Info")),
   },
 ];
 
 export const projectRoutes = [
   {
     path: RoutesList.ProjectAdd,
-    Component: AddProject,
+    Component: lazy(() => import("src/pages/AddProject/AddProject")),
   },
   {
     path: RoutesList.Project,
-    Component: UserPage,
+    Component: lazy(() => import("src/pages/UserPage/UserPage")),
   },
   {
     path: RoutesList.ProjectEdit,
-    Component: Edit,
+    Component: lazy(() => import("src/pages/Edit/Edit")),
   },
 ];
 
 export const profileRoutes = [
   {
     path: RoutesList.Profile,
-    Component: Profile,
+    Component: lazy(() => import("src/pages/Profile/Profile")),
   },
   {
     path: "/profile/awards/",
-    Component: Awards,
+    Component: lazy(() => import("src/pages/Awards/Awards")),
   },
   {
     path: "/profile/quests/",
-    Component: Quests,
+    Component: lazy(() => import("src/pages/Quests/Quests")),
   },
   {
     path: "/profile/settings/",
-    Component: ProfileSettings,
+    Component: lazy(() => import("src/pages/ProfileSettings/ProfileSettings")),
   },
 ];
 
 export const galleryRoutes = [
   {
     path: RoutesList.Gallery,
-    Component: Popular,
+    Component: lazy(() => import("src/pages/Gallery/Popular")),
   },
   {
     path: "/gallery/following/",
-    Component: Following,
+    Component: lazy(() => import("src/pages/Gallery/Following")),
   },
   {
     path: "/gallery/new/",
-    Component: New,
+    Component: lazy(() => import("src/pages/Gallery/New")),
   },
   {
     path: "/gallery/personal/",
-    Component: Personal,
+    Component: lazy(() => import("src/pages/Gallery/Personal")),
   },
 ];

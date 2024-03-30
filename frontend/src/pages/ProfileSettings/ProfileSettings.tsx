@@ -4,4 +4,4 @@ const ProfileSettings: React.FC = () => {
   return <div>ProfileSettings</div>;
 };
 
-export { ProfileSettings };
+export default ProfileSettings;

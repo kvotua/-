@@ -73,4 +73,4 @@ const Edit: React.FC = () => {
   );
 };
 
-export { Edit };
+export default Edit;

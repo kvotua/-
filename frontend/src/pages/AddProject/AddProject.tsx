@@ -55,4 +55,4 @@ const AddProject: React.FC = () => {
   );
 };
 
-export { AddProject };
+export default AddProject;

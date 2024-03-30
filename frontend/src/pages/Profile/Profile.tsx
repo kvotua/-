@@ -29,4 +29,4 @@ const Profile: React.FC = () => {
   );
 };
 
-export { Profile };
+export default Profile;
