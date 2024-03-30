@@ -1,27 +1,25 @@
-from abc import ABC, abstractproperty
+from abc import ABC, abstractmethod
 
-from .IRegistryCreate import IRegistryCreate
-from .IRegistryDelete import IRegistryDelete
-from .IRegistryRead import IRegistryRead
-from .IRegistryUpdate import IRegistryUpdate
+from ..RegistryResponse import RegistryResponse
+from ..RegistryTypes import RegistryData, RegistryQuery
 
 
 class IRegistry(ABC):
     def __init__(self) -> None:
         super().__init__()
 
-    @abstractproperty
-    def create(self) -> IRegistryCreate:
+    @abstractmethod
+    def create(self, data: RegistryData) -> None:
         pass
 
-    @abstractproperty
-    def read(self) -> IRegistryRead:
+    @abstractmethod
+    def read(self, query: RegistryQuery) -> list[RegistryData]:
         pass
 
-    @abstractproperty
-    def update(self) -> IRegistryUpdate:
+    @abstractmethod
+    def update(self, query: RegistryQuery, data: RegistryData) -> RegistryResponse:
         pass
 
-    @abstractproperty
-    def delete(self) -> IRegistryDelete:
+    @abstractmethod
+    def delete(self, query: RegistryQuery) -> RegistryResponse:
         pass
