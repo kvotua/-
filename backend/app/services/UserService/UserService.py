@@ -7,7 +7,9 @@ from ..exceptions import (
     WrongInitiatorError,
 )
 from .IUserService import IUserService
-from .schemas import UserCreateSchema, UserId, UserSchema
+from .schemas.UserCreateSchema import UserCreateSchema
+from .schemas.UserId import UserId
+from .schemas.UserSchema import UserSchema
 
 
 class UserService(IUserService):

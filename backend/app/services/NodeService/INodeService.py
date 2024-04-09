@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ..UserService.schemas import UserId
+from ..UserService.schemas.UserId import UserId
 from .schemas import (
     NodeCreateSchema,
     NodeId,
@@ -32,15 +32,21 @@ class INodeService(ABC):
         pass
 
     @abstractmethod
-    async def create(self, initiator_id: UserId, new_node: NodeCreateSchema) -> str:
+    async def try_create(
+        self, initiator_id: UserId, new_node: NodeCreateSchema
+    ) -> NodeId:
         pass
 
     @abstractmethod
-    async def create_root(self) -> str:
+    async def create(self, parent_id: NodeId | None) -> NodeId:
         pass
 
     @abstractmethod
     async def exist(self, node_id: NodeId) -> bool:
+        pass
+
+    @abstractmethod
+    async def get_tree(self, node_id: NodeId) -> NodeTreeSchema:
         pass
 
     @abstractmethod

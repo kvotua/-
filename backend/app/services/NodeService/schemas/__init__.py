@@ -1,13 +1,15 @@
-from typing import NewType, Optional
+from typing import Optional
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
-NodeId = NewType("NodeId", str)
+from ...TemplateService.schemas.TemplateId import TemplateId
+from .NodeId import NodeId
 
 
 class NodeCreateSchema(BaseModel):
     parent: NodeId
+    template_id: TemplateId
 
 
 class NodeUpdateSchema(BaseModel):

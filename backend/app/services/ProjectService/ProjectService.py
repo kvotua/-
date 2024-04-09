@@ -9,9 +9,12 @@ from ..exceptions import (
 from ..NodeService import INodeService
 from ..NodeService.schemas import NodeId
 from ..UserService import IUserService
-from ..UserService.schemas import UserId
+from ..UserService.schemas.UserId import UserId
 from .IProjectService import IProjectService
-from .schemas import ProjectCreateSchema, ProjectId, ProjectSchema, ProjectUpdateSchema
+from .schemas.ProjectCreateSchema import ProjectCreateSchema
+from .schemas.ProjectId import ProjectId
+from .schemas.ProjectSchema import ProjectSchema
+from .schemas.ProjectUpdateSchema import ProjectUpdateSchema
 
 
 class ProjectService(IProjectService):
@@ -35,7 +38,7 @@ class ProjectService(IProjectService):
         """
         self.__registry = registry
 
-    def inject_dependencies(
+    async def inject_dependencies(
         self, user_service: IUserService, node_service: INodeService
     ) -> None:
         """
@@ -116,7 +119,7 @@ class ProjectService(IProjectService):
             WrongInitiatorError: if the initiator does not exist.
         """
         await self.user_exist_validation(initiator_id)
-        node_id = await self.__node_service.create_root()
+        node_id = await self.__node_service.create(parent_id=None)
         project = ProjectSchema(
             **new_project.model_dump(), owner_id=initiator_id, core_node_id=node_id
         )

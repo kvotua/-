@@ -1,3 +1,5 @@
 from .DynamoRegistryFactory import DynamoRegistryFactory
 
-registry_factory = DynamoRegistryFactory()
+__all__ = [
+    "DynamoRegistryFactory",
+]

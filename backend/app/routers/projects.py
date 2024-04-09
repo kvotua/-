@@ -9,13 +9,11 @@ from app.services.exceptions import (
     UserNotFoundError,
     WrongInitiatorError,
 )
-from app.services.ProjectService.schemas import (
-    ProjectCreateSchema,
-    ProjectId,
-    ProjectSchema,
-    ProjectUpdateSchema,
-)
-from app.services.UserService.schemas import UserId
+from app.services.ProjectService.schemas.ProjectCreateSchema import ProjectCreateSchema
+from app.services.ProjectService.schemas.ProjectId import ProjectId
+from app.services.ProjectService.schemas.ProjectSchema import ProjectSchema
+from app.services.ProjectService.schemas.ProjectUpdateSchema import ProjectUpdateSchema
+from app.services.UserService.schemas.UserId import UserId
 
 from .dependencies import get_project_service, get_user_id_by_init_data
 from .exceptions import HTTPExceptionSchema

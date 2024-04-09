@@ -9,7 +9,9 @@ from app.services.exceptions import (
     UserNotFoundError,
     WrongInitiatorError,
 )
-from app.services.UserService.schemas import UserCreateSchema, UserId, UserSchema
+from app.services.UserService.schemas.UserCreateSchema import UserCreateSchema
+from app.services.UserService.schemas.UserId import UserId
+from app.services.UserService.schemas.UserSchema import UserSchema
 
 from .dependencies import get_user_id_by_init_data, get_user_service
 from .exceptions import HTTPExceptionSchema

@@ -17,7 +17,7 @@ from app.services.NodeService.schemas import (
     NodeTreeSchema,
     NodeUpdateSchema,
 )
-from app.services.UserService.schemas import UserId
+from app.services.UserService.schemas.UserId import UserId
 
 from .dependencies import get_node_service, get_user_id_by_init_data
 from .exceptions import HTTPExceptionSchema
@@ -98,7 +98,7 @@ async def node_add(
     node_create: NodeCreateSchema,
 ) -> str:
     try:
-        return await node_service.create(initiator_id, node_create)
+        return await node_service.try_create(initiator_id, node_create)
     except UserNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A user with this ID does not exist"

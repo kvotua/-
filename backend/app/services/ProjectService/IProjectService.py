@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 
 from ..NodeService.schemas import NodeId
-from ..UserService.schemas import UserId
-from .schemas import ProjectCreateSchema, ProjectId, ProjectSchema, ProjectUpdateSchema
+from ..UserService.schemas.UserId import UserId
+from .schemas.ProjectCreateSchema import ProjectCreateSchema
+from .schemas.ProjectId import ProjectId
+from .schemas.ProjectSchema import ProjectSchema
+from .schemas.ProjectUpdateSchema import ProjectUpdateSchema
 
 
 class IProjectService(ABC):

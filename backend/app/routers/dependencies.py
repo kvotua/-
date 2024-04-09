@@ -5,30 +5,62 @@ from json import JSONDecodeError
 from typing import Annotated
 from urllib.parse import unquote
 
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 
 from app.config import settings
-from app.services import service_mediator
+from app.registry import IRegistryFactory, RegistryFactory
+from app.services import ServiceMediator
 from app.services.NodeService import INodeService
 from app.services.ProjectService import IProjectService
+from app.services.TemplateService.ITemplateService import ITemplateService
 from app.services.UserService import IUserService
-from app.services.UserService.schemas import UserId
+from app.services.UserService.schemas.UserId import UserId
 
 secret_key = hmac.new(
     "WebAppData".encode("utf-8"), settings.bot_key.encode("utf-8"), hashlib.sha256
 ).digest()
+service_mediator: ServiceMediator | None = None
+registry_factory: IRegistryFactory | None = None
 
 
-async def get_user_service() -> IUserService:
-    return service_mediator.get_user_service()
+async def get_registry_factory() -> IRegistryFactory:
+    global registry_factory
+    if registry_factory is None:
+        registry_factory = RegistryFactory()
+    return registry_factory
 
 
-async def get_project_service() -> IProjectService:
-    return service_mediator.get_project_service()
+async def get_service_mediator(
+    registry_factory: Annotated[IRegistryFactory, Depends(get_registry_factory)]
+) -> ServiceMediator:
+    global service_mediator
+    if service_mediator is None:
+        service_mediator = ServiceMediator(registry_factory)
+    return service_mediator
 
 
-async def get_node_service() -> INodeService:
-    return service_mediator.get_node_service()
+async def get_user_service(
+    service_mediator: Annotated[ServiceMediator, Depends(get_service_mediator)]
+) -> IUserService:
+    return await service_mediator.get_user_service()
+
+
+async def get_project_service(
+    service_mediator: Annotated[ServiceMediator, Depends(get_service_mediator)]
+) -> IProjectService:
+    return await service_mediator.get_project_service()
+
+
+async def get_node_service(
+    service_mediator: Annotated[ServiceMediator, Depends(get_service_mediator)]
+) -> INodeService:
+    return await service_mediator.get_node_service()
+
+
+async def get_template_service(
+    service_mediator: Annotated[ServiceMediator, Depends(get_service_mediator)]
+) -> ITemplateService:
+    return await service_mediator.get_template_service()
 
 
 async def get_user_id_by_init_data(user_init_data: Annotated[str, Header()]) -> UserId:
