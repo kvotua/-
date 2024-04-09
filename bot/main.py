@@ -1,28 +1,29 @@
-import asyncio
+import json
 import logging
 import sys
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums.parse_mode import ParseMode
+from aiogram.types.update import Update
 
 from config_reader import config
 from handlers import setup_message_routers
-from middlewares import ThrottlingMiddleware
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+bot = Bot(config.TELEGRAM_TOKEN.get_secret_value(), parse_mode=ParseMode.HTML)
+
+dp = Dispatcher()
+message_routers = setup_message_routers()
+dp.include_router(message_routers)
 
 
-async def main() -> None:
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    bot = Bot(config.TELEGRAM_TOKEN.get_secret_value(), parse_mode=ParseMode.HTML)
-    dp = Dispatcher()
+async def handler(event: dict, _: dict) -> dict:
+    body = json.loads(event["body"])
+    update_id = body["update_id"]
+    message = body["message"]
 
-    dp.message.middleware(ThrottlingMiddleware())
+    update = Update(update_id=update_id, message=message)
 
-    message_routers = setup_message_routers()
-    dp.include_router(message_routers)
+    await dp.feed_update(bot=bot, update=update)
 
-    await bot.delete_webhook(True)
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    return {"statusCode": 200, "body": "ok"}
