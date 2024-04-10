@@ -1,5 +1,5 @@
 import React from "react";
-import practiceLogo from "src/app/assets/icons/practiceLogo.png";
+import practiceLogo from "src/app/assets/practiceLogo.png";
 import style from "./loader.module.css";
 const Loader: React.FC = () => {
   return (

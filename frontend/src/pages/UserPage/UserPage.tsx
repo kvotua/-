@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useAppDispatch } from "src/app/hooks/useAppDispatch";
 import { useAppSelector } from "src/app/hooks/useAppSelector";
 import useGetTree from "src/app/hooks/useGetTree";
@@ -7,6 +7,7 @@ import {
   setCoreNewChild,
   setExistNewChild,
   setTree,
+  setChildrens,
 } from "src/app/store/slice/UserPgaeSlice";
 import {
   useDeleteNodesMutation,
@@ -15,27 +16,36 @@ import {
 import { AddButton } from "src/shared/AddButton/AddButton";
 import Back from "src/app/assets/icons/back.svg?react";
 import Trash from "src/app/assets/icons/trash.svg?react";
-import { useNavigate } from "react-router-dom";
+import Exit from "src/app/assets/icons/exit.svg?react";
+import { useNavigate, useParams } from "react-router-dom";
 import { menuContext } from "src/app/context";
 import { ITreeNode } from "src/app/types/nodes.types";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, Reorder, motion } from "framer-motion";
 
 const UserPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { projectId } = useParams();
+
   const nodes = useAppSelector((state) => state.userPage);
-  const { tree, isTreeSuccess } = useGetTree<ITreeNode>();
+  const setNodes = (node_id: string, new_nodes: Array<string>) =>
+    dispatch(setChildrens({ id: node_id, children: new_nodes }));
+  const { tree, isTreeSuccess, templates } = useGetTree<ITreeNode>(projectId!);
   const { setMenuItems } = useContext(menuContext);
   const [deleteNodes] = useDeleteNodesMutation();
 
-  useEffect(() => {
+  const setBaseMenu = () => {
     const menuItem = [
       {
         handleClick: () => navigate(-1),
-        Image: Back,
+        Image: Exit,
       },
     ];
     setMenuItems(menuItem);
+  };
+
+  useEffect(() => {
+    setBaseMenu();
     if (isTreeSuccess && tree) {
       dispatch(setTree(tree));
     }
@@ -46,7 +56,7 @@ const UserPage: React.FC = () => {
   const addNode = async (id: string) => {
     const { data: newId } = (await postNodes({
       parent: id,
-      children: [],
+      template_id: templates![0],
     })) as { data: string };
     const newChild: ITreeNode = {
       id: newId,
@@ -54,12 +64,10 @@ const UserPage: React.FC = () => {
     };
     dispatch(setExistNewChild({ newChild: newChild, id: id }));
   };
-  const [clickedNodeId, setClickedNodeId] = useState<string | null>(null);
   const handleDeleteNode = (id: string) => {
     deleteNodes(id);
     dispatch(deleteNode(id));
   };
-
   const renderNode = ({ id, children }: ITreeNode): React.ReactNode => {
     if (isTreeSuccess && tree && id === tree.id) {
       return children?.map((child) => renderNode(child));
@@ -67,65 +75,72 @@ const UserPage: React.FC = () => {
     // console.log(id, clickedNodeId);
 
     return (
-      <motion.div
-        key={id}
-        initial={{
-          scale: 0,
-        }}
-        animate={{
-          scale: 1,
-        }}
-        exit={{
-          scale: 0,
-        }}
-        transition={{
-          duration: 0.3,
-        }}
-        onClick={(event) => {
-          setClickedNodeId(id);
-          if (event.target === event.currentTarget) {
-            setMenuItems([
-              {
-                handleClick: () => navigate(-1),
-                Image: Back,
-              },
-              {
-                handleClick: () => {
-                  handleDeleteNode(id);
-                  setMenuItems([
-                    {
-                      handleClick: () => navigate(-1),
-                      Image: Back,
-                    },
-                  ]);
-                },
-                Image: Trash,
-              },
-            ]);
-          }
-        }}
-        className={`px-4 py-8 border-2 border-black w-full grid  text-4xl gap-4 rounded-20 ${clickedNodeId === id ? "scale-110 border-2" : ""}`}
-      >
-        {children?.map((child) => renderNode(child))}
-        <AddButton
-          handleClick={() => {
-            addNode(id);
+      <Reorder.Item value={id} key={id}>
+        <motion.div
+          initial={{
+            scale: 0,
           }}
-        />
-      </motion.div>
+          animate={{
+            scale: 1,
+          }}
+          exit={{
+            scale: 0,
+          }}
+          transition={{
+            duration: 0.3,
+          }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setMenuItems([
+                {
+                  handleClick: () => setBaseMenu(),
+                  Image: Back,
+                },
+                {
+                  handleClick: () => {
+                    handleDeleteNode(id);
+                    setBaseMenu();
+                  },
+                  Image: Trash,
+                },
+              ]);
+            }
+          }}
+          className="px-4 py-8 border-2 border-black w-full grid  text-4xl gap-4 rounded-20"
+        >
+          <Reorder.Group
+            values={children.map((node) => node.id)}
+            onReorder={(newOrder: Array<string>) => setNodes(id, newOrder)}
+            className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-4 "
+          >
+            {children?.map((child) => renderNode(child))}
+          </Reorder.Group>
+          <AddButton
+            handleClick={() => {
+              addNode(id);
+            }}
+          />
+        </motion.div>
+      </Reorder.Item>
     );
   };
 
   return (
-    <div className="h-full min-h-screen bg-white grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-4 p-4">
+    <div className="h-fit min-h-screen bg-white p-4">
       <AnimatePresence mode="popLayout" initial={false}>
-        {renderNode(nodes)}
+        <Reorder.Group
+          values={nodes.children.map((node) => node.id)}
+          onReorder={(newOrder: Array<string>) => setNodes(nodes.id, newOrder)}
+          className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-4 "
+        >
+          {renderNode(nodes)}
+        </Reorder.Group>
       </AnimatePresence>
       <AddButton
         handleClick={async () => {
           const { data: newId } = (await postNodes({
             parent: tree ? tree.id : "",
-            children: [],
+            template_id: templates![0],
           })) as { data: string };
 
           dispatch(setCoreNewChild({ id: newId, children: [] }));

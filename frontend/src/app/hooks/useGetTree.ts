@@ -1,13 +1,10 @@
-import { useParams } from "react-router-dom";
 import { useFetchQuery } from "./useFetchQuery";
 import { IProject } from "../types/project.types";
 
-const useGetTree = <T>() => {
-  const { projectId } = useParams();
-
+const useGetTree = <T>(projectId: string) => {
   const { data: project, isSuccess: isProjectSuccess } =
     useFetchQuery<IProject>({
-      index: "getProject",
+      index: ["getProject", projectId],
       url: `projects/${projectId}`,
       isModalLoading: false,
     });
@@ -18,7 +15,14 @@ const useGetTree = <T>() => {
     isModalLoading: false,
     enabled: isProjectSuccess,
   });
-  return { tree, isTreeSuccess };
+
+  const { data: templates } = useFetchQuery<string[]>({
+    index: "getAllTemplates",
+    url: `templates/`,
+    isModalLoading: false,
+    enabled: isTreeSuccess,
+  });
+  return { tree, isTreeSuccess, templates };
 };
 
 export default useGetTree;

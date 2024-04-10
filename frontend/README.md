@@ -23,7 +23,7 @@
 
 Хоть весь проект и запускается через docker-compose, но там он не обновляется при каждом изменении в коде.
 
-1. Чтобы запустить npm run dev нужно создать в корне frontend .env файл и прописать переменную окружения: `VITE_API_URL=http://$SERVER_NAME` ($PROTOCOL = http, $SERVER_NAME = localhost)
+1. Чтобы запустить npm run dev нужно создать в корне frontend .env файл и прописать переменную окружения: `VITE_API_URL=https://$SERVER_NAME` ($PROTOCOL = https, $SERVER_NAME = localhost)
 
 2. Как задать переменную окружения в windows:
 

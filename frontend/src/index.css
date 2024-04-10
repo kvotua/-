@@ -11,6 +11,10 @@ body {
     background: linear-gradient(#7942D1, #E74EEA);
     min-height: 100%;    
 }
+body, html, #root {
+    height: 100%;
+    width: 100%;
+}
 
 .title {
     @apply font-bold text-24 text-main text-center

@@ -36,6 +36,28 @@ export const userPageSlice = createSlice({
           : [newChild];
       }
     },
+    setChildrens(
+      state,
+      action: PayloadAction<{ id: string; children: Array<string> }>,
+    ) {
+      const node = findIdInNestedObjects(state, action.payload.id);
+      if (node === null) {
+        console.error(
+          `Can't update children: node with ID ${action.payload.id} not found`,
+        );
+        return;
+      }
+      const tmp = [...node.children];
+      node.children = new Array<ITreeNode>();
+      for (const child_id of action.payload.children) {
+        const new_node = tmp.find((value) => value.id == child_id);
+        if (new_node === undefined) {
+          console.error(`Can't find node with ID ${child_id}`);
+          return;
+        }
+        node.children.push(new_node);
+      }
+    },
     setTree(_, action: PayloadAction<ITreeNode>) {
       return action.payload;
     },
@@ -102,5 +124,6 @@ export const {
   setCoreNewChild,
   setExistNewChild,
   deleteNode,
+  setChildrens,
 } = userPageSlice.actions;
 export default userPageSlice.reducer;
