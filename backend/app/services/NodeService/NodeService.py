@@ -201,12 +201,12 @@ class NodeService(INodeService):
     async def create(self, parent_id: NodeId | None) -> NodeId:
         # TODO: docstring
         new_node = NodeSchema(parent=parent_id)
-        self.__registry.create(new_node.model_dump())
+        self.__registry.create(new_node.id, new_node.model_dump(exclude={"id"}))
 
         if parent_id is not None:
             parent = await self.__get(parent_id)
             parent.children.append(new_node.id)
-            self.__registry.update({"id": parent.id}, parent.model_dump())
+            self.__registry.update(parent.id, parent.model_dump(exclude={"id"}))
         return new_node.id
 
     async def exist(self, node_id: NodeId) -> bool:
@@ -219,8 +219,8 @@ class NodeService(INodeService):
         Returns:
             bool: bool result depicting existence of a node
         """
-        nodes = self.__registry.read({"id": node_id})
-        return len(nodes) > 0
+        node = self.__registry.get(node_id)
+        return node is not None
 
     async def get_tree(self, node_id: NodeId) -> NodeTreeSchema:
         """
@@ -260,10 +260,10 @@ class NodeService(INodeService):
         Returns:
             NodeSchema: dict representation of node
         """
-        nodes = self.__registry.read({"id": node_id})
-        if len(nodes) < 1:
+        node = self.__registry.get(node_id)
+        if node is None:
             raise NodeNotFoundError()
-        return NodeSchema(**nodes[0])
+        return NodeSchema(**node)
 
     async def __get_root_node_id(self, node_id: NodeId) -> NodeId:
         """
@@ -297,7 +297,7 @@ class NodeService(INodeService):
         if node.parent is not None:
             parent = await self.__get(node.parent)
             parent.children.remove(node_id)
-            self.__registry.update({"id": parent.id}, parent.model_dump())
+            self.__registry.update(parent.id, parent.model_dump(exclude={"id"}))
 
         children = [node_id]
         while len(children) > 0:
@@ -307,7 +307,7 @@ class NodeService(INodeService):
             except NodeNotFoundError:
                 continue
             children.extend(node.children)
-            self.__registry.delete({"id": node_id})
+            self.__registry.delete(node_id)
 
     async def __reparent(self, node_id: NodeId, new_parent_id: NodeId) -> None:
         """
@@ -326,13 +326,13 @@ class NodeService(INodeService):
         if node.parent is not None:
             old_parent = await self.__get(node.parent)
             old_parent.children.remove(node.id)
-            self.__registry.update({"id": old_parent.id}, old_parent.model_dump())
+            self.__registry.update(old_parent.id, old_parent.model_dump(exclude={"id"}))
 
         parent.children.append(node.id)
         node.parent = parent.id
 
-        self.__registry.update({"id": node.id}, node.model_dump())
-        self.__registry.update({"id": parent.id}, parent.model_dump())
+        self.__registry.update(node.id, node.model_dump(exclude={"id"}))
+        self.__registry.update(parent.id, parent.model_dump(exclude={"id"}))
 
     async def __check_initiator_permission(
         self, initiator_id: UserId, node_id: NodeId

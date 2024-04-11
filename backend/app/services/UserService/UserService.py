@@ -77,7 +77,7 @@ class UserService(IUserService):
         if await self.exist(new_user.id):
             raise UserExistError()
         user = UserSchema(**new_user.model_dump())
-        self.__registry.create(user.model_dump())
+        self.__registry.create(user.id, user.model_dump(exclude={"id"}))
 
     async def exist(self, user_id: UserId) -> bool:
         """
@@ -89,8 +89,8 @@ class UserService(IUserService):
         Returns:
             bool: True if the user exists, False otherwise.
         """
-        result = self.__registry.read({"id": user_id})
-        return len(result) > 0
+        result = self.__registry.get(user_id)
+        return result is not None
 
     async def __get_by_id(self, user_id: UserId) -> UserSchema:
         """
@@ -105,7 +105,7 @@ class UserService(IUserService):
         Raises:
             UserNotFoundError: If the user with the specified ID is not found.
         """
-        result = self.__registry.read({"id": user_id})
-        if len(result) < 1:
+        result = self.__registry.get(user_id)
+        if result is None:
             raise UserNotFoundError()
-        return UserSchema(**result[0])
+        return UserSchema(**result)

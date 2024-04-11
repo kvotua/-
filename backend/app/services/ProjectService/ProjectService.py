@@ -123,7 +123,7 @@ class ProjectService(IProjectService):
         project = ProjectSchema(
             **new_project.model_dump(), owner_id=initiator_id, core_node_id=node_id
         )
-        self.__registry.create(project.model_dump())
+        self.__registry.create(project.id, project.model_dump(exclude={"id"}))
         return project
 
     async def try_update(
@@ -233,8 +233,7 @@ class ProjectService(IProjectService):
         Raises:
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
-        response = self.__registry.delete({"id": project_id})
-        if response.count < 1:
+        if not self.__registry.delete(project_id):
             raise ProjectNotFoundError()
 
     async def __update(
@@ -251,11 +250,9 @@ class ProjectService(IProjectService):
         Raises:
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
-        response = self.__registry.update(
-            {"id": project_id},
-            project_update.model_dump(exclude_none=True),
-        )
-        if response.count < 1:
+        if not self.__registry.update(
+            project_id, project_update.model_dump(exclude_none=True, exclude={"id"})
+        ):
             raise ProjectNotFoundError()
 
     async def __get(self, project_id: ProjectId) -> ProjectSchema:
@@ -271,10 +268,10 @@ class ProjectService(IProjectService):
         Raises:
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
-        projects = self.__registry.read({"id": project_id})
-        if len(projects) < 1:
+        project = self.__registry.get(project_id)
+        if project is None:
             raise ProjectNotFoundError()
-        return ProjectSchema(**projects[0])
+        return ProjectSchema(**project)
 
     async def __get_by_user_id(self, user_id: UserId) -> list[ProjectSchema]:
         """

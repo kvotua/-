@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
-from ..RegistryResponse import RegistryResponse
 from ..RegistryTypes import RegistryData, RegistryQuery
 
 
@@ -9,7 +9,7 @@ class IRegistry(ABC):
         super().__init__()
 
     @abstractmethod
-    def create(self, data: RegistryData) -> None:
+    def create(self, id: str, data: RegistryData) -> None:
         pass
 
     @abstractmethod
@@ -17,9 +17,13 @@ class IRegistry(ABC):
         pass
 
     @abstractmethod
-    def update(self, query: RegistryQuery, data: RegistryData) -> RegistryResponse:
+    def update(self, id: str, data: RegistryData) -> bool:
         pass
 
     @abstractmethod
-    def delete(self, query: RegistryQuery) -> RegistryResponse:
+    def delete(self, id: str) -> bool:
+        pass
+
+    @abstractmethod
+    def get(self, id: str) -> Optional[RegistryData]:
         pass

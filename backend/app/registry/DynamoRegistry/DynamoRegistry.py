@@ -1,26 +1,20 @@
-from typing import Any
+from typing import Any, Optional
 
 from ..IRegistry import IRegistry
-from ..RegistryResponse import RegistryResponse
 from ..RegistryTypes import RegistryData, RegistryQuery
 
 
 class DynamoRegistry(IRegistry):
     __table: Any
-    __pkeys: list[str]
 
     def __init__(self, table: Any) -> None:
         super().__init__()
         self.__table = table
-        self.__pkeys = []
 
-    @property
-    def __primary_keys(self) -> list[str]:
-        if len(self.__pkeys) == 0:
-            self.__pkeys = [key["AttributeName"] for key in self.__table.key_schema]
-        return self.__pkeys
-
-    def create(self, data: RegistryData) -> None:
+    def create(self, id: str, data: RegistryData) -> None:
+        if "id" in data:
+            raise AttributeError("Key 'id' can not be in data attribute")
+        data["id"] = id
         self.__table.put_item(Item=data)
 
     def read(self, query: RegistryQuery) -> list[RegistryData]:
@@ -32,23 +26,26 @@ class DynamoRegistry(IRegistry):
         )
         return response["Items"]
 
-    def update(self, query: RegistryQuery, data: RegistryData) -> RegistryResponse:
-        records = self.read(query)
-        for record in records:
-            self.__table.update_item(
-                Key={key: record[key] for key in self.__primary_keys},
-                AttributeUpdates={
-                    key: {"Value": value, "Action": "PUT"}
-                    for key, value in data.items()
-                    if key not in self.__primary_keys
-                },
-            )
-        return RegistryResponse(count=len(records))
+    def update(self, id: str, data: RegistryData) -> bool:
+        if "id" in data:
+            raise AttributeError("Key 'id' can not be in data attribute")
+        response = self.__table.update_item(
+            Key={"id": id},
+            AttributeUpdates={
+                key: {"Value": value, "Action": "PUT"} for key, value in data.items()
+            },
+            ReturnValues="ALL_OLD",
+        )
+        return "id" in response["Attributes"]
 
-    def delete(self, query: RegistryQuery) -> RegistryResponse:
-        records = self.read(query)
-        for record in records:
-            self.__table.delete_item(
-                Key={key: record[key] for key in self.__primary_keys},
-            )
-        return RegistryResponse(count=len(records))
+    def delete(self, id: str) -> bool:
+        response = self.__table.delete_item(
+            Key={"id": id},
+            ReturnValues="ALL_OLD",
+        )
+        return "id" in response["Attributes"]
+
+    def get(self, id: str) -> Optional[RegistryData]:
+        response: dict[str, Any] = self.__table.get_item(Key={"id": id})
+        # raise ValueError(response)
+        return response.get("Item", None)

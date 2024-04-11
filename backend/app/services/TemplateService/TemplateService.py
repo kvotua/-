@@ -26,10 +26,10 @@ class TemplateService(ITemplateService):
 
     async def get(self, template_id: TemplateId) -> TemplateView:
         # TODO: docstring
-        result = self.__registry.read({"id": template_id})
-        if len(result) < 1:
+        result = self.__registry.get(template_id)
+        if result is None:
             raise ValueError("Wrong template id")
-        template = TemplateSchema(**result[0])
+        template = TemplateSchema(**result)
         tree = await self.__node_service.get_tree(template.root_node_id)
         return TemplateView(id=template.id, tree=tree)
 
@@ -38,7 +38,7 @@ class TemplateService(ITemplateService):
         tree = await self.__node_service.get_tree(node_id)
         copied_tree = await self.__deep_copy(tree)
         template = TemplateSchema(root_node_id=copied_tree.id)
-        self.__registry.create(template.model_dump())
+        self.__registry.create(template.id, template.model_dump(exclude={"id"}))
         return template.id
 
     async def instantiate(self, template_id: TemplateId) -> NodeTreeSchema:
@@ -62,10 +62,10 @@ class TemplateService(ITemplateService):
 
     async def __get_root_node_id(self, templte_id: TemplateId) -> NodeId:
         # TODO: docstring
-        result = self.__registry.read({"id": templte_id})
-        if len(result) < 1:
+        result = self.__registry.get(templte_id)
+        if result is None:
             raise ValueError("Wrong template id")
-        template = TemplateSchema(**result[0])
+        template = TemplateSchema(**result)
         return template.root_node_id
 
     async def __prepopulate(self) -> None:
