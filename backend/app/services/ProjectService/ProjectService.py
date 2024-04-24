@@ -1,5 +1,8 @@
 from app.registry import IRegistry
 
+from ..AttributeService.schemas.NodeAttributeExternalSchema import (
+    NodeAttributeExternalSchema,
+)
 from ..exceptions import (
     NodeNotFoundError,
     NotAllowedError,
@@ -7,7 +10,7 @@ from ..exceptions import (
     UserNotFoundError,
 )
 from ..NodeService import INodeService
-from ..NodeService.schemas import NodeId
+from ..NodeService.schemas.NodeId import NodeId
 from ..UserService import IUserService
 from ..UserService.schemas.UserId import UserId
 from .IProjectService import IProjectService
@@ -119,7 +122,13 @@ class ProjectService(IProjectService):
             WrongInitiatorError: if the initiator does not exist.
         """
         await self.user_exist_validation(initiator_id)
-        node_id = await self.__node_service.create(parent_id=None)
+        node_id = await self.__node_service.create(
+            parent_id=None,
+            node_attributes=NodeAttributeExternalSchema(
+                type_id="container",
+                attrs={"direction": "flex-col", "background": "#ffffff"},
+            ),
+        )
         project = ProjectSchema(
             **new_project.model_dump(), owner_id=initiator_id, core_node_id=node_id
         )

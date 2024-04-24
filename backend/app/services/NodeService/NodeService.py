@@ -1,5 +1,9 @@
 from app.registry import IRegistry
 
+from ..AttributeService import IAttributeService
+from ..AttributeService.schemas.NodeAttributeExternalSchema import (
+    NodeAttributeExternalSchema,
+)
 from ..exceptions import (
     NodeCannotBeDeletedError,
     NodeInDifferentTreeError,
@@ -11,13 +15,12 @@ from ..TemplateService.ITemplateService import ITemplateService
 from ..UserService.IUserService import IUserService
 from ..UserService.schemas.UserId import UserId
 from .INodeService import INodeService
-from .schemas import (
-    NodeCreateSchema,
-    NodeId,
-    NodeSchema,
-    NodeTreeSchema,
-    NodeUpdateSchema,
-)
+from .schemas.NodeCreateSchema import NodeCreateSchema
+from .schemas.NodeExtendedSchema import NodeExtendedSchema
+from .schemas.NodeId import NodeId
+from .schemas.NodeSchema import NodeSchema
+from .schemas.NodeTreeSchema import NodeTreeSchema
+from .schemas.NodeUpdateSchema import NodeUpdateSchema
 
 
 class NodeService(INodeService):
@@ -28,6 +31,7 @@ class NodeService(INodeService):
     __registry: IRegistry
     __user_service: IUserService
     __project_service: IProjectService
+    __attribute_service: IAttributeService
     __template_service: ITemplateService
 
     def __init__(
@@ -47,6 +51,7 @@ class NodeService(INodeService):
         user_service: IUserService,
         project_service: IProjectService,
         template_service: ITemplateService,
+        attribute_service: IAttributeService,
     ) -> None:
         """
         injects dependencies
@@ -59,8 +64,11 @@ class NodeService(INodeService):
         self.__user_service = user_service
         self.__project_service = project_service
         self.__template_service = template_service
+        self.__attribute_service = attribute_service
 
-    async def try_get(self, initiator_id: UserId, node_id: NodeId) -> NodeSchema:
+    async def try_get(
+        self, initiator_id: UserId, node_id: NodeId
+    ) -> NodeExtendedSchema:
         """
         try get node
 
@@ -82,7 +90,9 @@ class NodeService(INodeService):
 
         await self.__user_service.user_exist_validation(initiator_id)
         await self.__check_initiator_permission(initiator_id, node_id)
-        return await self.__get(node_id)
+        node = await self.__get(node_id)
+        attributes = await self.__attribute_service.get_attribute(node.id)
+        return NodeExtendedSchema(**node.model_dump(), **attributes.model_dump())
 
     async def try_update(
         self, initiator_id: UserId, node_id: NodeId, node_update: NodeUpdateSchema
@@ -198,10 +208,13 @@ class NodeService(INodeService):
         # TODO: return NodeTreeSchema
         return instantiated_tree.id
 
-    async def create(self, parent_id: NodeId | None) -> NodeId:
+    async def create(
+        self, parent_id: NodeId | None, node_attributes: NodeAttributeExternalSchema
+    ) -> NodeId:
         # TODO: docstring
         new_node = NodeSchema(parent=parent_id)
         self.__registry.create(new_node.id, new_node.model_dump(exclude={"id"}))
+        await self.__attribute_service.create_attribute(new_node.id, node_attributes)
 
         if parent_id is not None:
             parent = await self.__get(parent_id)
@@ -235,14 +248,25 @@ class NodeService(INodeService):
         Raises:
             NodeNotFoundError: raised when node with given id does not exist
         """
-        tree_root = NodeTreeSchema(id=node_id, children=[])
+        attributes = await self.__attribute_service.get_attribute(node_id)
+        tree_root = NodeTreeSchema(
+            id=node_id, type_id=attributes.type_id, attrs=attributes.attrs, children=[]
+        )
         nodes_to_process = [tree_root]
         while len(nodes_to_process) > 0:
             current_tree_node = nodes_to_process.pop()
             current_node = await self.__get(current_tree_node.id)
             for child_node_id in current_node.children:
+                child_attributes = await self.__attribute_service.get_attribute(
+                    child_node_id
+                )
                 current_tree_node.children.append(
-                    NodeTreeSchema(id=child_node_id, children=[])
+                    NodeTreeSchema(
+                        id=child_node_id,
+                        type_id=child_attributes.type_id,
+                        attrs=child_attributes.attrs,
+                        children=[],
+                    )
                 )
             nodes_to_process.extend(current_tree_node.children)
         return tree_root
@@ -308,6 +332,7 @@ class NodeService(INodeService):
                 continue
             children.extend(node.children)
             self.__registry.delete(node_id)
+            await self.__attribute_service.delete_attribute(node_id)
 
     async def __reparent(self, node_id: NodeId, new_parent_id: NodeId) -> None:
         """

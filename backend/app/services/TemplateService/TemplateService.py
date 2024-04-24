@@ -1,8 +1,11 @@
 from app.registry import IRegistry
 
+from ..AttributeService.schemas.NodeAttributeExternalSchema import (
+    NodeAttributeExternalSchema,
+)
 from ..NodeService.INodeService import INodeService
-from ..NodeService.schemas import NodeTreeSchema
 from ..NodeService.schemas.NodeId import NodeId
+from ..NodeService.schemas.NodeTreeSchema import NodeTreeSchema
 from .ITemplateService import ITemplateService
 from .schemas.TemplateId import TemplateId
 from .schemas.TemplateSchema import TemplateSchema
@@ -51,12 +54,23 @@ class TemplateService(ITemplateService):
     async def __deep_copy(self, tree: NodeTreeSchema) -> NodeTreeSchema:
         # TODO: docstring
         copied_tree = tree.model_copy(deep=True)
-        root_id = await self.__node_service.create(parent_id=None)
+        root_id = await self.__node_service.create(
+            parent_id=None,
+            node_attributes=NodeAttributeExternalSchema(
+                type_id=copied_tree.type_id,
+                attrs=copied_tree.attrs,
+            ),
+        )
         copied_tree.id = root_id
         stack = [(root_id, child) for child in copied_tree.children]
         while len(stack) > 0:
             parent_id, current = stack.pop()
-            current.id = await self.__node_service.create(parent_id)
+            current.id = await self.__node_service.create(
+                parent_id,
+                NodeAttributeExternalSchema(
+                    type_id=current.type_id, attrs=current.attrs
+                ),
+            )
             stack.extend([(current.id, child) for child in current.children])
         return copied_tree
 
@@ -70,5 +84,23 @@ class TemplateService(ITemplateService):
 
     async def __prepopulate(self) -> None:
         # TODO: docstring
-        root_id = await self.__node_service.create(parent_id=None)
-        await self.create(root_id)
+        container_id = await self.__node_service.create(
+            parent_id=None,
+            node_attributes=NodeAttributeExternalSchema(
+                type_id="container",
+                attrs={"direction": "flex-col", "background": "#ffffff"},
+            ),
+        )
+        text_id = await self.__node_service.create(
+            parent_id=None,
+            node_attributes=NodeAttributeExternalSchema(
+                type_id="text",
+                attrs={
+                    "position": "text-left",
+                    "color": "#000000",
+                    "text": "Text goes here",
+                },
+            ),
+        )
+        await self.create(container_id)
+        await self.create(text_id)

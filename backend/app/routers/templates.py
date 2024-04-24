@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 
-from app.services.NodeService.schemas import NodeId
+from app.services.NodeService.schemas.NodeId import NodeId
 from app.services.TemplateService.schemas.TemplateId import TemplateId
 from app.services.TemplateService.schemas.TemplateView import TemplateView
 from app.services.TemplateService.TemplateService import TemplateService

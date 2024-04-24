@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from ...NodeService.schemas import NodeTreeSchema
+from ...NodeService.schemas.NodeTreeSchema import NodeTreeSchema
 from .TemplateId import TemplateId
 
 

@@ -10,6 +10,7 @@ from fastapi import Depends, Header, HTTPException, status
 from app.config import settings
 from app.registry import IRegistryFactory, RegistryFactory
 from app.services import ServiceMediator
+from app.services.AttributeService.IAttributeService import IAttributeService
 from app.services.NodeService import INodeService
 from app.services.ProjectService import IProjectService
 from app.services.TemplateService.ITemplateService import ITemplateService
@@ -61,6 +62,12 @@ async def get_template_service(
     service_mediator: Annotated[ServiceMediator, Depends(get_service_mediator)]
 ) -> ITemplateService:
     return await service_mediator.get_template_service()
+
+
+async def get_attributes_service(
+    service_mediator: Annotated[ServiceMediator, Depends(get_service_mediator)]
+) -> IAttributeService:
+    return await service_mediator.get_attribute_service()
 
 
 async def get_user_id_by_init_data(user_init_data: Annotated[str, Header()]) -> UserId:

@@ -1,5 +1,7 @@
 from app.registry import IRegistryFactory
 
+from .AttributeService import IAttributeService
+from .AttributeService.AttributeService import AttributeService
 from .NodeService import INodeService
 from .NodeService.NodeService import NodeService
 from .ProjectService import IProjectService
@@ -16,6 +18,7 @@ class ServiceMediator:
     __project_service: ProjectService
     __node_service: NodeService
     __template_service: TemplateService
+    __attribute_service: AttributeService
     __dependencies_injected: bool = False
 
     def __init__(self, registry_factory: IRegistryFactory) -> None:
@@ -24,6 +27,7 @@ class ServiceMediator:
         self.__instantiate_project_service()
         self.__instantiate_node_service()
         self.__instantiate_template_service()
+        self.__instantiate_attribute_service()
 
     async def get_user_service(self) -> IUserService:
         if not self.__dependencies_injected:
@@ -49,6 +53,12 @@ class ServiceMediator:
             self.__dependencies_injected = True
         return self.__template_service
 
+    async def get_attribute_service(self) -> IAttributeService:
+        if not self.__dependencies_injected:
+            await self.__inject_dependencies()
+            self.__dependencies_injected = True
+        return self.__attribute_service
+
     async def __inject_dependencies(self) -> None:
         await self.__project_service.inject_dependencies(
             self.__user_service,
@@ -58,7 +68,9 @@ class ServiceMediator:
             self.__user_service,
             self.__project_service,
             self.__template_service,
+            self.__attribute_service,
         )
+        await self.__attribute_service.inject_dependencies()
         await self.__template_service.inject_dependencies(
             self.__node_service,
         )
@@ -78,3 +90,8 @@ class ServiceMediator:
     def __instantiate_template_service(self) -> None:
         template_registry = self.__registry_factory.get("templates")
         self.__template_service = TemplateService(template_registry)
+
+    def __instantiate_attribute_service(self) -> None:
+        attribute_registry = self.__registry_factory.get("attributes")
+        type_registry = self.__registry_factory.get("types")
+        self.__attribute_service = AttributeService(type_registry, attribute_registry)

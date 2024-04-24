@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from ..NodeService.schemas import NodeId, NodeTreeSchema
+from ..NodeService.schemas.NodeId import NodeId
+from ..NodeService.schemas.NodeTreeSchema import NodeTreeSchema
 from .schemas.TemplateId import TemplateId
 from .schemas.TemplateView import TemplateView
 

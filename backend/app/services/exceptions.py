@@ -38,3 +38,35 @@ class NodeCannotBeDeletedError(ServiceError):
 
 class NodeInDifferentTreeError(ServiceError):
     """Raised when trying reparent node to another tree"""
+
+    pass
+
+
+class AttributeTypeNotFoundError(ServiceError):
+    """Raised when attribute type does not exist"""
+
+    pass
+
+
+class NodeAttributeNotFoundError(ServiceError):
+    """Raised when node attribute does not exist"""
+
+    pass
+
+
+class AttributeDoesNotExistError(ServiceError):
+    """Raised when type does not contain given attribute"""
+
+    pass
+
+
+class AttributeTypeAlreadyExists(ServiceError):
+    """Raised when attribute type already exist exist"""
+
+    pass
+
+
+class InvalidAttributeValueError(ServiceError):
+    """Raised when attribute is being passed with wrong value"""
+
+    pass

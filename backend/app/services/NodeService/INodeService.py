@@ -1,18 +1,21 @@
 from abc import ABC, abstractmethod
 
-from ..UserService.schemas.UserId import UserId
-from .schemas import (
-    NodeCreateSchema,
-    NodeId,
-    NodeSchema,
-    NodeTreeSchema,
-    NodeUpdateSchema,
+from ..AttributeService.schemas.NodeAttributeExternalSchema import (
+    NodeAttributeExternalSchema,
 )
+from ..UserService.schemas.UserId import UserId
+from .schemas.NodeCreateSchema import NodeCreateSchema
+from .schemas.NodeExtendedSchema import NodeExtendedSchema
+from .schemas.NodeId import NodeId
+from .schemas.NodeTreeSchema import NodeTreeSchema
+from .schemas.NodeUpdateSchema import NodeUpdateSchema
 
 
 class INodeService(ABC):
     @abstractmethod
-    async def try_get(self, initiator_id: UserId, node_id: NodeId) -> NodeSchema:
+    async def try_get(
+        self, initiator_id: UserId, node_id: NodeId
+    ) -> NodeExtendedSchema:
         pass
 
     @abstractmethod
@@ -38,7 +41,9 @@ class INodeService(ABC):
         pass
 
     @abstractmethod
-    async def create(self, parent_id: NodeId | None) -> NodeId:
+    async def create(
+        self, parent_id: NodeId | None, node_attributes: NodeAttributeExternalSchema
+    ) -> NodeId:
         pass
 
     @abstractmethod

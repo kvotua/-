@@ -10,13 +10,11 @@ from app.services.exceptions import (
     NotAllowedError,
     UserNotFoundError,
 )
-from app.services.NodeService.schemas import (
-    NodeCreateSchema,
-    NodeId,
-    NodeSchema,
-    NodeTreeSchema,
-    NodeUpdateSchema,
-)
+from app.services.NodeService.schemas.NodeCreateSchema import NodeCreateSchema
+from app.services.NodeService.schemas.NodeExtendedSchema import NodeExtendedSchema
+from app.services.NodeService.schemas.NodeId import NodeId
+from app.services.NodeService.schemas.NodeTreeSchema import NodeTreeSchema
+from app.services.NodeService.schemas.NodeUpdateSchema import NodeUpdateSchema
 from app.services.UserService.schemas.UserId import UserId
 
 from .dependencies import get_node_service, get_user_id_by_init_data
@@ -27,7 +25,7 @@ router = APIRouter(prefix="/nodes", tags=["Nodes"])
 
 @router.get(
     "/{node_id}",
-    response_model=NodeSchema,
+    response_model=NodeExtendedSchema,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
@@ -39,7 +37,7 @@ async def node_get(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
     node_id: NodeId,
-) -> NodeSchema:
+) -> NodeExtendedSchema:
     try:
         return await node_service.try_get(initiator_id, node_id)
     except UserNotFoundError:
