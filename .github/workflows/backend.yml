@@ -96,21 +96,5 @@ jobs:
       - name: Get full code
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        run: pip install poetry
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: |
-          cd ${{ env.path }}
-          poetry install
-
-      - name: Run tests
-        run: |
-          cd ${{ env.path }}
-          poetry run pytest .
+      - name: Run tests in docker
+        run: ./scripts/test ${{ matrix.python-veresion }}
