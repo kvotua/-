@@ -97,4 +97,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run tests in docker
-        run: ./scripts/test ${{ matrix.python-veresion }}
+        run: ./scripts/test.sh ${{ matrix.python-veresion }}
