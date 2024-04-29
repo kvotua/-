@@ -70,3 +70,23 @@ class InvalidAttributeValueError(ServiceError):
     """Raised when attribute is being passed with wrong value"""
 
     pass
+
+
+class ImmutableAttributeValueError(ServiceError):
+    pass
+
+
+class FileDoesNotExistError(ServiceError):
+    pass
+
+
+class InvalidFileFormatError(ServiceError):
+    pass
+
+
+class IncompatibleNodeError(ServiceError):
+    pass
+
+
+class FileTooBigError(ServiceError):
+    pass

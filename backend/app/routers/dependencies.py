@@ -11,6 +11,7 @@ from app.config import settings
 from app.registry import IRegistryFactory, RegistryFactory
 from app.services import ServiceMediator
 from app.services.AttributeService.IAttributeService import IAttributeService
+from app.services.ImageService import IImageService
 from app.services.NodeService import INodeService
 from app.services.ProjectService import IProjectService
 from app.services.TemplateService.ITemplateService import ITemplateService
@@ -68,6 +69,12 @@ async def get_attributes_service(
     service_mediator: Annotated[ServiceMediator, Depends(get_service_mediator)]
 ) -> IAttributeService:
     return await service_mediator.get_attribute_service()
+
+
+async def get_image_service(
+    service_mediator: Annotated[ServiceMediator, Depends(get_service_mediator)]
+) -> IImageService:
+    return await service_mediator.get_image_service()
 
 
 async def get_user_id_by_init_data(user_init_data: Annotated[str, Header()]) -> UserId:

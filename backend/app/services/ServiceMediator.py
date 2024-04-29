@@ -2,6 +2,9 @@ from app.registry import IRegistryFactory
 
 from .AttributeService import IAttributeService
 from .AttributeService.AttributeService import AttributeService
+from .FileService.FileService import FileService
+from .ImageService import IImageService
+from .ImageService.ImageService import ImageService
 from .NodeService import INodeService
 from .NodeService.NodeService import NodeService
 from .ProjectService import IProjectService
@@ -19,15 +22,19 @@ class ServiceMediator:
     __node_service: NodeService
     __template_service: TemplateService
     __attribute_service: AttributeService
+    __file_service: FileService
+    __image_service: ImageService
     __dependencies_injected: bool = False
 
     def __init__(self, registry_factory: IRegistryFactory) -> None:
         self.__registry_factory = registry_factory
         self.__instantiate_user_service()
+        self.__instantiate_file_service()
         self.__instantiate_project_service()
         self.__instantiate_node_service()
         self.__instantiate_template_service()
         self.__instantiate_attribute_service()
+        self.__instantiate_image_service()
 
     async def get_user_service(self) -> IUserService:
         if not self.__dependencies_injected:
@@ -59,6 +66,12 @@ class ServiceMediator:
             self.__dependencies_injected = True
         return self.__attribute_service
 
+    async def get_image_service(self) -> IImageService:
+        if not self.__dependencies_injected:
+            await self.__inject_dependencies()
+            self.__dependencies_injected = True
+        return self.__image_service
+
     async def __inject_dependencies(self) -> None:
         await self.__project_service.inject_dependencies(
             self.__user_service,
@@ -70,9 +83,13 @@ class ServiceMediator:
             self.__template_service,
             self.__attribute_service,
         )
-        await self.__attribute_service.inject_dependencies()
+        await self.__attribute_service.inject_dependencies(self.__file_service)
         await self.__template_service.inject_dependencies(
             self.__node_service,
+        )
+
+        await self.__image_service.inject_dependencies(
+            self.__attribute_service, self.__file_service
         )
 
     def __instantiate_user_service(self) -> None:
@@ -95,3 +112,9 @@ class ServiceMediator:
         attribute_registry = self.__registry_factory.get("attributes")
         type_registry = self.__registry_factory.get("types")
         self.__attribute_service = AttributeService(type_registry, attribute_registry)
+
+    def __instantiate_file_service(self) -> None:
+        self.__file_service = FileService()
+
+    def __instantiate_image_service(self) -> None:
+        self.__image_service = ImageService()

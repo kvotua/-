@@ -102,5 +102,13 @@ class TemplateService(ITemplateService):
                 },
             ),
         )
+        image_id = await self.__node_service.create(
+            parent_id=None,
+            node_attributes=NodeAttributeExternalSchema(
+                type_id="image",
+                attrs={"rounded": ""},
+            ),
+        )
         await self.create(container_id)
         await self.create(text_id)
+        await self.create(image_id)

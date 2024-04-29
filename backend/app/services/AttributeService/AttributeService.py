@@ -9,6 +9,7 @@ from ..exceptions import (
     InvalidAttributeValueError,
     NodeAttributeNotFoundError,
 )
+from ..FileService import IFileService
 from ..NodeService.schemas.NodeId import NodeId
 from .IAttributeService import IAttributeService
 from .schemas.AttributeTypeSchema import AttributeTypeSchema
@@ -23,6 +24,8 @@ class AttributeService(IAttributeService):
 
     __type_registry: IRegistry
     __attribute_registry: IRegistry
+    __file_service: IFileService
+    __file_based_attribute_types = "image"
 
     def __init__(self, type_registry: IRegistry, attribute_service: IRegistry) -> None:
         """
@@ -35,12 +38,11 @@ class AttributeService(IAttributeService):
         self.__type_registry = type_registry
         self.__attribute_registry = attribute_service
 
-    async def inject_dependencies(
-        self,
-    ) -> None:
+    async def inject_dependencies(self, file_service: IFileService) -> None:
         """
         injects dependencies and prepopulates table
         """
+        self.__file_service = file_service
         await self.__prepopulate_type()
 
     async def get_type(self, attribute_type: AttributeTypeId) -> AttributeTypeSchema:
@@ -145,8 +147,10 @@ class AttributeService(IAttributeService):
             NodeAttributeNotFoundError: raised when node-attribute with given id does \
             not exist
         """
-        if not self.__attribute_registry.delete(attribute_id):
-            raise NodeAttributeNotFoundError()
+        attr = await self.get_attribute(attribute_id)
+        if attr.type_id in self.__file_based_attribute_types:
+            await self.__file_service.remove_file(attribute_id)
+        self.__attribute_registry.delete(attribute_id)
 
     async def delete_type(self, attribute_id: AttributeTypeId) -> None:
         """
@@ -199,6 +203,9 @@ class AttributeService(IAttributeService):
         attr_type = self.__type_registry.get(attribute_id)
         return attr_type is not None
 
+    async def is_file_type(self, type: AttributeTypeId) -> bool:
+        return type in self.__file_based_attribute_types
+
     async def __validate_attribute(
         self, key: str, value: str, node_type: AttributeTypeSchema
     ) -> None:
@@ -229,6 +236,14 @@ class AttributeService(IAttributeService):
                     "position": "^text-(left|right|center)$",
                     "color": "^#(?:[0-9a-fA-F]{3}){1,2}$",
                     "text": "^.{1,50}$",
+                },
+            )
+        )
+        await self.create_type(
+            AttributeTypeSchema(
+                id="image",
+                attrs={
+                    "rounded": "^(rounded){0,1}(-md|-lg|-full){0,1}$",
                 },
             )
         )
