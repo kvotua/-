@@ -72,21 +72,25 @@ class InvalidAttributeValueError(ServiceError):
     pass
 
 
-class ImmutableAttributeValueError(ServiceError):
-    pass
-
-
 class FileDoesNotExistError(ServiceError):
+    """Raised when given file does not exist"""
+
     pass
 
 
 class InvalidFileFormatError(ServiceError):
+    """Raised when given file with incompatible format"""
+
     pass
 
 
 class IncompatibleNodeError(ServiceError):
+    """Raised when target node does not support addition of a file"""
+
     pass
 
 
 class FileTooBigError(ServiceError):
+    """Raised when given file is too big"""
+
     pass

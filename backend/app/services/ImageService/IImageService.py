@@ -16,5 +16,5 @@ class IImageService(ABC):
         pass
 
     @abstractmethod
-    async def validate_image_response(self, node_id: NodeId) -> str:
+    async def get_image_response(self, node_id: NodeId) -> str:
         pass

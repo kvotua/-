@@ -29,7 +29,7 @@ class AttributeService(IAttributeService):
 
     def __init__(self, type_registry: IRegistry, attribute_service: IRegistry) -> None:
         """
-        initialize the AttributeService wit two registries
+        initialize the AttributeService with two registries
 
         Args:
             type_registry (IRegistry): registry used for types of attributes
@@ -147,8 +147,7 @@ class AttributeService(IAttributeService):
             NodeAttributeNotFoundError: raised when node-attribute with given id does \
             not exist
         """
-        attr = await self.get_attribute(attribute_id)
-        if attr.type_id in self.__file_based_attribute_types:
+        if await self.is_file_type(attribute_id):
             await self.__file_service.remove_file(attribute_id)
         self.__attribute_registry.delete(attribute_id)
 
@@ -203,12 +202,51 @@ class AttributeService(IAttributeService):
         attr_type = self.__type_registry.get(attribute_id)
         return attr_type is not None
 
-    async def is_file_type(self, type: AttributeTypeId) -> bool:
+    async def __is_file_type(self, type: AttributeTypeId) -> bool:
+        """
+        checks if given node attribute type belongs to file types
+
+        Args:
+            type (AttributeTypeId): attribute type id
+
+        Returns:
+            bool: returns true if attribute type belongs to file types, \
+            returns false if attribute type does not belongs to file types
+        """
         return type in self.__file_based_attribute_types
+
+    async def is_file_type(self, node_id: NodeId) -> bool:
+        """
+        checks if given node has node attribute type that belongs to a file types \
+
+        Args:
+            type (AttributeTypeId): attribute type id
+
+        Returns:
+            bool: returns true if attribute type belongs to file types, \
+            returns false if attribute type does not belongs to file types
+        """
+
+        attrs = await self.get_attribute(node_id)
+        return await self.__is_file_type(attrs.type_id)
 
     async def __validate_attribute(
         self, key: str, value: str, node_type: AttributeTypeSchema
     ) -> None:
+        """
+        validates attribute
+
+        Args:
+            key (str): attribute name
+            value (str): new attribute value
+            node_type (AttributeTypeSchema): object representation \
+                of an node attribute type.
+
+        Raises:
+            AttributeDoesNotExistError: raised when attribute type does not contain \
+                given attribute name
+            InvalidAttributeValueError: raised when attribute new value is invalid
+        """
         regex = node_type.attrs.get(key)
         if regex is None:
             raise AttributeDoesNotExistError()

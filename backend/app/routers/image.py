@@ -58,7 +58,7 @@ async def receive_image(
     node_id: NodeId,
 ) -> FileResponse:
     try:
-        path = await image_service.validate_image_response(node_id)
+        path = await image_service.get_image_response(node_id)
         return FileResponse(path=path, media_type="image/*")
     except FileDoesNotExistError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "File does not exist")

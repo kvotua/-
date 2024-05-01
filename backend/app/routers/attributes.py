@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.services.AttributeService.AttributeService import AttributeService
 from app.services.exceptions import (
     AttributeDoesNotExistError,
-    ImmutableAttributeValueError,
     InvalidAttributeValueError,
     NodeAttributeNotFoundError,
 )
@@ -45,7 +44,3 @@ async def node_attribute_update(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Attribute does not exist")
     except NodeAttributeNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "NodeAttribute does not exist")
-    except ImmutableAttributeValueError:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST, "Given attribute can't be changed this way"
-        )
