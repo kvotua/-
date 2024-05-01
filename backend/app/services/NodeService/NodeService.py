@@ -111,7 +111,6 @@ class NodeService(INodeService):
             NotAllowedError: raised when user tries to update node from project \
             they do not own
             NodeNotFoundError: raised when node with given id does not exist
-            ValueError: raised when node has no parent
             ProjectNotFoundError: raised when there is no project that has given node \
                 as a root node
             NodeInDifferentTreeError: raised when trying reparent node to different tree
@@ -343,7 +342,6 @@ class NodeService(INodeService):
             new_parent_id (str): new parent id
 
         Raises:
-            ValueError: raised when node has no parent
             NodeNotFoundError: raised when node with given id does not exist
         """
         node = await self.__get(node_id)

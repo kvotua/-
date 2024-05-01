@@ -42,6 +42,14 @@ class NodeInDifferentTreeError(ServiceError):
     pass
 
 
+class OrphanNodeError(ServiceError):
+    """Raised when when trying to reparent an orphan node"""
+
+
+class TemplateDoesNotExistError(ServiceError):
+    """Raised when given node template does not exist"""
+
+
 class AttributeTypeNotFoundError(ServiceError):
     """Raised when attribute type does not exist"""
 

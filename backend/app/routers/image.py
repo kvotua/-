@@ -5,10 +5,11 @@ from fastapi.responses import FileResponse
 
 from app.services.exceptions import (
     FileDoesNotExistError,
+    IncompatibleNodeError,
     InvalidFileFormatError,
     NodeAttributeNotFoundError,
 )
-from app.services.ImageService import IImageService
+from app.services.ImageService.ImageService import ImageService
 from app.services.NodeService.schemas.NodeId import NodeId
 from app.services.UserService.schemas.UserId import UserId
 
@@ -30,7 +31,7 @@ router = APIRouter(prefix="/images", tags=["Images"])
 )
 async def add_image_to_node(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
-    image_service: Annotated[IImageService, Depends(get_image_service)],
+    image_service: Annotated[ImageService, Depends(get_image_service)],
     node_id: Annotated[NodeId, Form()],
     file: UploadFile,
 ) -> None:
@@ -40,6 +41,8 @@ async def add_image_to_node(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid file format")
     except NodeAttributeNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Node does not exist")
+    except IncompatibleNodeError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Node does not support images")
 
 
 @router.get(
@@ -54,7 +57,7 @@ async def add_image_to_node(
     },
 )
 async def receive_image(
-    image_service: Annotated[IImageService, Depends(get_image_service)],
+    image_service: Annotated[ImageService, Depends(get_image_service)],
     node_id: NodeId,
 ) -> FileResponse:
     try:
@@ -75,7 +78,7 @@ async def receive_image(
 )
 async def delete_image(
     initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
-    image_service: Annotated[IImageService, Depends(get_image_service)],
+    image_service: Annotated[ImageService, Depends(get_image_service)],
     node_id: NodeId,
 ) -> None:
     try:
