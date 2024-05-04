@@ -46,7 +46,7 @@ async def add_image_to_node(
 
 
 @router.get(
-    "/",
+    "/{node_id}/",
     response_class=FileResponse,
     status_code=status.HTTP_200_OK,
     responses={

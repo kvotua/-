@@ -22,6 +22,10 @@ class IProjectService(ABC):
         pass
 
     @abstractmethod
+    async def get(self, project_id: ProjectId) -> ProjectSchema:
+        pass
+
+    @abstractmethod
     async def create(
         self, initiator_id: UserId, new_project: ProjectCreateSchema
     ) -> ProjectSchema:

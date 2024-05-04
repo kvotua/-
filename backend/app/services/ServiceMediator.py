@@ -3,6 +3,8 @@ from app.registry import IRegistryFactory
 from .AttributeService import IAttributeService
 from .AttributeService.AttributeService import AttributeService
 from .FileService.FileService import FileService
+from .HTMLService import IHTMLService
+from .HTMLService.HTMLService import HTMLService
 from .ImageService import IImageService
 from .ImageService.ImageService import ImageService
 from .NodeService import INodeService
@@ -24,6 +26,7 @@ class ServiceMediator:
     __attribute_service: AttributeService
     __file_service: FileService
     __image_service: ImageService
+    __html_service: HTMLService
     __dependencies_injected: bool = False
 
     def __init__(self, registry_factory: IRegistryFactory) -> None:
@@ -35,6 +38,7 @@ class ServiceMediator:
         self.__instantiate_template_service()
         self.__instantiate_attribute_service()
         self.__instantiate_image_service()
+        self.__instantiate_html_service()
 
     async def get_user_service(self) -> IUserService:
         if not self.__dependencies_injected:
@@ -72,6 +76,12 @@ class ServiceMediator:
             self.__dependencies_injected = True
         return self.__image_service
 
+    async def get_html_service(self) -> IHTMLService:
+        if not self.__dependencies_injected:
+            await self.__inject_dependencies()
+            self.__dependencies_injected = True
+        return self.__html_service
+
     async def __inject_dependencies(self) -> None:
         await self.__project_service.inject_dependencies(
             self.__user_service,
@@ -90,6 +100,10 @@ class ServiceMediator:
 
         await self.__image_service.inject_dependencies(
             self.__attribute_service, self.__file_service
+        )
+
+        await self.__html_service.inject_dependencies(
+            self.__project_service, self.__node_service
         )
 
     def __instantiate_user_service(self) -> None:
@@ -118,3 +132,6 @@ class ServiceMediator:
 
     def __instantiate_image_service(self) -> None:
         self.__image_service = ImageService()
+
+    def __instantiate_html_service(self) -> None:
+        self.__html_service = HTMLService()

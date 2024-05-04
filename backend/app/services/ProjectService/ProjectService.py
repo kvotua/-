@@ -282,6 +282,18 @@ class ProjectService(IProjectService):
             raise ProjectNotFoundError()
         return ProjectSchema(**project)
 
+    async def get(self, project_id: ProjectId) -> ProjectSchema:
+        """
+        Get project by id without any validation
+
+        Args:
+            project_id (ProjectId): project ID
+
+        Returns:
+            ProjectSchema: dictionary representation of a Project
+        """
+        return await self.__get(project_id)
+
     async def __get_by_user_id(self, user_id: UserId) -> list[ProjectSchema]:
         """
         Retrieve projects associated with a user.
