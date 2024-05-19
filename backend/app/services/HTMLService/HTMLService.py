@@ -39,7 +39,7 @@ class HTMLService(IHTMLService):
         self.__project_service = project_service
         self.__node_service = node_service
 
-    async def return_index_page(self, request: Request, project_id: ProjectId) -> str:
+    async def render_index_page(self, request: Request, project_id: ProjectId) -> str:
         """
         returns index page of a project
 

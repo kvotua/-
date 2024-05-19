@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from fastapi import UploadFile
+from re import Pattern
 
 
 class IFileService(ABC):
@@ -9,7 +10,7 @@ class IFileService(ABC):
     async def add_file(
         self,
         file: UploadFile,
-        allowed_formats: tuple,
+        allowed_formats: Pattern,
         file_name: str,
     ) -> None:
         pass

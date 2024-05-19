@@ -18,9 +18,7 @@ router = APIRouter(prefix="/pages", tags=["Pages"])
     response_class=HTMLResponse,
     status_code=status.HTTP_200_OK,
     responses={
-        status.HTTP_400_BAD_REQUEST: {"model": HTTPExceptionSchema},
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
-        status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
     },
 )
 async def get_index_page(
@@ -30,7 +28,7 @@ async def get_index_page(
 ) -> HTMLResponse:
     try:
         return HTMLResponse(
-            content=await html_service.return_index_page(
+            content=await html_service.render_index_page(
                 request=request, project_id=project_id
             )
         )

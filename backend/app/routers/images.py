@@ -8,6 +8,7 @@ from app.services.exceptions import (
     IncompatibleNodeError,
     InvalidFileFormatError,
     NodeAttributeNotFoundError,
+    FileTooBigError,
 )
 from app.services.ImageService.ImageService import ImageService
 from app.services.NodeService.schemas.NodeId import NodeId
@@ -43,6 +44,8 @@ async def add_image_to_node(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Node does not exist")
     except IncompatibleNodeError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Node does not support images")
+    except FileTooBigError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "File too big")
 
 
 @router.get(
@@ -50,10 +53,8 @@ async def add_image_to_node(
     response_class=FileResponse,
     status_code=status.HTTP_200_OK,
     responses={
-        200: {"content": {"image/*": {}}},
-        status.HTTP_400_BAD_REQUEST: {"model": HTTPExceptionSchema},
+        status.HTTP_200_OK: {"content": {"image/*": {}}},
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
-        status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
     },
 )
 async def receive_image(
@@ -68,7 +69,7 @@ async def receive_image(
 
 
 @router.delete(
-    "/",
+    "/{node_id}/",
     response_model=None,
     status_code=status.HTTP_200_OK,
     responses={

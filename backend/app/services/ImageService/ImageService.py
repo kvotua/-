@@ -3,6 +3,7 @@ from os import path
 from fastapi import UploadFile
 
 from app.config import settings
+from re import compile
 
 from ..AttributeService import IAttributeService
 from ..exceptions import FileDoesNotExistError, IncompatibleNodeError
@@ -18,19 +19,9 @@ class ImageService(IImageService):
 
     __attribute_service: IAttributeService
     __file_service: IFileService
-    __allowed_file_types = (
-        "image/png",
-        "image/jpeg",
-        "image/jpg",
-        "image/heic",
-        "image/heif",
-        "image/heics",
-        "png",
-        "jpeg",
-        "jpg",
-        "heic",
-        "heif",
-        "heics",
+    # TODO make a prettier (and optionaly shorter) regex
+    __allowed_file_types = compile(
+        "^(image\\/(png|jpeg|jpg|heics|heif|heic))$|^(png|jpeg|jpg|heics|heif|heic)$"
     )
 
     async def inject_dependencies(
