@@ -1,9 +1,9 @@
 from os import path
+from re import compile
 
 from fastapi import UploadFile
 
 from app.config import settings
-from re import compile
 
 from ..AttributeService import IAttributeService
 from ..exceptions import FileDoesNotExistError, IncompatibleNodeError

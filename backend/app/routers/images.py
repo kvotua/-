@@ -5,10 +5,10 @@ from fastapi.responses import FileResponse
 
 from app.services.exceptions import (
     FileDoesNotExistError,
+    FileTooBigError,
     IncompatibleNodeError,
     InvalidFileFormatError,
     NodeAttributeNotFoundError,
-    FileTooBigError,
 )
 from app.services.ImageService.ImageService import ImageService
 from app.services.NodeService.schemas.NodeId import NodeId

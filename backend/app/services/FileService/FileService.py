@@ -1,4 +1,5 @@
 from os import path, remove
+from re import Pattern
 
 import filetype  # type: ignore
 from fastapi import UploadFile
@@ -7,7 +8,6 @@ from app.config import settings
 
 from ..exceptions import FileDoesNotExistError, FileTooBigError, InvalidFileFormatError
 from .IFileService import IFileService
-from re import Pattern
 
 
 class FileService(IFileService):

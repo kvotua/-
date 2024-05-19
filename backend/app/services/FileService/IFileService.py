@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
+from re import Pattern
 
 from fastapi import UploadFile
-from re import Pattern
 
 
 class IFileService(ABC):
