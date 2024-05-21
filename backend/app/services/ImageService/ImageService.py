@@ -19,10 +19,7 @@ class ImageService(IImageService):
 
     __attribute_service: IAttributeService
     __file_service: IFileService
-    # TODO make a prettier (and optionaly shorter) regex
-    __allowed_file_types = compile(
-        "^(image\\/(png|jpeg|jpg|heics|heif|heic))$|^(png|jpeg|jpg|heics|heif|heic)$"
-    )
+    __allowed_file_types = compile("^(?:image\\/)?(?:png|jpe?g|heics?|heif)$")
 
     async def inject_dependencies(
         self,
