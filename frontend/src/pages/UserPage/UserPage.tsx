@@ -28,19 +28,20 @@ import {
   DrawerTrigger,
 } from "src/shared/ui/ui/drawer";
 import { ITreeNode } from "src/app/types/nodes";
+import { axiosBase } from "src/app/http";
+import { useQueryClient } from "react-query";
 
 const UserPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { projectId } = useParams();
-
   const nodes = useAppSelector((state) => state.userPage);
   const setNodes = (node_id: string, new_nodes: Array<string>) =>
     dispatch(setChildrens({ id: node_id, children: new_nodes }));
   const { tree, isTreeSuccess, templates } = useGetTree<ITreeNode>(projectId!);
   const { setMenuItems } = useContext(menuContext);
   const [deleteNodes] = useDeleteNodesMutation();
-
+  const queryClient = useQueryClient();
   const setBaseMenu = () => {
     const menuItem = [
       {
@@ -70,6 +71,7 @@ const UserPage: React.FC = () => {
       children: [],
     };
     dispatch(setExistNewChild({ newChild: newChild, id: id }));
+    return newId;
   };
   const handleDeleteNode = (id: string) => {
     deleteNodes(id);
@@ -132,7 +134,7 @@ const UserPage: React.FC = () => {
               <div className="flex flex-col gap-5 py-5 container">
                 <div
                   onClick={async () => {
-                    addNode(id, templates![0]);
+                    addNode(id, templates![2]);
                   }}
                   className="flex justify-between items-center p-3 rounded-20 border"
                 >
@@ -141,22 +143,36 @@ const UserPage: React.FC = () => {
                 </div>
                 <div
                   onClick={async () => {
-                    addNode(id, templates![1]);
+                    addNode(id, templates![0]);
                   }}
                   className="flex justify-between items-center p-3 rounded-20 border"
                 >
                   <span className="text-2xl font-bold">Текст</span>
                   <div className="w-20 h-20 bg-black/50 rounded-20" />
                 </div>
-                <div
-                  onClick={async () => {
-                    addNode(id, templates![2]);
-                  }}
+                <label
+                  htmlFor="image"
                   className="flex justify-between items-center p-3 rounded-20 border"
                 >
+                  <input
+                    type="file"
+                    id="image"
+                    className="w-0 h-0 absolute"
+                    onChange={async (e) => {
+                      if (e.target.files) {
+                        const formData = new FormData();
+                        const newId = await addNode(id, templates![1]);
+                        formData.append("file", e.target.files[0]);
+                        formData.append("node_id", newId);
+                        await axiosBase.post("images/", formData);
+                        dispatch(setCoreNewChild({ id: newId, children: [] }));
+                        queryClient.invalidateQueries("getTreeNodes");
+                      }
+                    }}
+                  />
                   <span className="text-2xl font-bold">Изображение</span>
                   <div className="w-20 h-20 bg-black/50 rounded-20" />
-                </div>
+                </label>
               </div>
             </DrawerContent>
           </div>
@@ -191,7 +207,7 @@ const UserPage: React.FC = () => {
               onClick={async () => {
                 const { data: newId } = (await postNodes({
                   parent: tree ? tree.id : "",
-                  template_id: templates![0],
+                  template_id: templates![2],
                 })) as { data: string };
                 dispatch(setCoreNewChild({ id: newId, children: [] }));
               }}
@@ -204,7 +220,7 @@ const UserPage: React.FC = () => {
               onClick={async () => {
                 const { data: newId } = (await postNodes({
                   parent: tree ? tree.id : "",
-                  template_id: templates![1],
+                  template_id: templates![0],
                 })) as { data: string };
                 dispatch(setCoreNewChild({ id: newId, children: [] }));
               }}
@@ -213,19 +229,32 @@ const UserPage: React.FC = () => {
               <span className="text-2xl font-bold">Текст</span>
               <div className="w-20 h-20 bg-black/50 rounded-20" />
             </div>
-            <div
-              onClick={async () => {
-                const { data: newId } = (await postNodes({
-                  parent: tree ? tree.id : "",
-                  template_id: templates![2],
-                })) as { data: string };
-                dispatch(setCoreNewChild({ id: newId, children: [] }));
-              }}
+            <label
+              htmlFor="image"
               className="flex justify-between items-center p-3 rounded-20 border"
             >
+              <input
+                onChange={async (e) => {
+                  if (e.target.files) {
+                    const formData = new FormData();
+                    const { data: newId } = (await postNodes({
+                      parent: tree ? tree.id : "",
+                      template_id: templates![1],
+                    })) as { data: string };
+                    formData.append("file", e.target.files[0]);
+                    formData.append("node_id", newId);
+                    await axiosBase.post("images/", formData);
+                    dispatch(setCoreNewChild({ id: newId, children: [] }));
+                    queryClient.invalidateQueries("getTreeNodes");
+                  }
+                }}
+                type="file"
+                id="image"
+                className="w-0 h-0 absolute"
+              />
               <span className="text-2xl font-bold">Изображение</span>
               <div className="w-20 h-20 bg-black/50 rounded-20" />
-            </div>
+            </label>
           </div>
         </DrawerContent>
       </Drawer>
