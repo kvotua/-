@@ -14,7 +14,3 @@ class IImageService(ABC):
     @abstractmethod
     async def remove_image(self, node_id: NodeId) -> None:
         pass
-
-    @abstractmethod
-    async def get_image_response(self, node_id: NodeId) -> str:
-        pass

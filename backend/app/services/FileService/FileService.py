@@ -1,4 +1,4 @@
-from os import path, remove
+from os import listdir, mkdir, path, remove, rmdir
 from re import Pattern
 
 import filetype  # type: ignore
@@ -31,8 +31,8 @@ class FileService(IFileService):
             raise FileDoesNotExistError()
         remove(file_path)
 
-    async def exists(self, file_name: str) -> bool:
-        return path.isfile(path.join(settings.storage, file_name))
+    async def exists(self, file_path: str) -> bool:
+        return path.isfile(path.join(settings.storage, file_path))
 
     async def __validate_file(self, file: UploadFile, allowed_formats: Pattern) -> None:
         file_info = filetype.guess(file.file)
@@ -53,3 +53,24 @@ class FileService(IFileService):
                 raise FileTooBigError()
 
         await file.seek(0)
+
+    async def create_folder(self, folder_path: str, folder_name: str) -> None:
+        new_path = path.join(folder_path, folder_name)
+        end_path = path.join(settings.storage, new_path)
+        if not path.exists(end_path):
+            mkdir(end_path)
+
+    async def remove_folder(self, folder_path: str) -> None:
+        files = listdir(path.join(settings.storage, folder_path))
+        for file in files:
+            file_path = path.join(settings.storage, folder_path, file)
+            if path.isfile(file_path):
+                remove(file_path)
+                continue
+            await self.remove_folder(file_path)
+        rmdir(path.join(settings.storage, folder_path))
+
+    async def save_page(self, file_path: str, html: str) -> None:
+        end_path = path.join(settings.storage, file_path, "index.html")
+        with open(end_path, "wb") as new_page:
+            new_page.write(html.encode("utf-8"))

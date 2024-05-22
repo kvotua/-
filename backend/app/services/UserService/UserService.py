@@ -6,6 +6,7 @@ from ..exceptions import (
     UserNotFoundError,
     WrongInitiatorError,
 )
+from ..FileService import IFileService
 from .IUserService import IUserService
 from .schemas.UserCreateSchema import UserCreateSchema
 from .schemas.UserId import UserId
@@ -18,6 +19,7 @@ class UserService(IUserService):
     """
 
     __registry: IRegistry
+    __file_service: IFileService
 
     def __init__(self, registry: IRegistry) -> None:
         """
@@ -27,6 +29,9 @@ class UserService(IUserService):
             registry (IRegistry): The registry to use for user operations.
         """
         self.__registry = registry
+
+    async def inject_dependencies(self, file_service: IFileService) -> None:
+        self.__file_service = file_service
 
     async def user_exist_validation(self, user_id: UserId) -> None:
         """
@@ -78,6 +83,7 @@ class UserService(IUserService):
             raise UserExistError()
         user = UserSchema(**new_user.model_dump())
         self.__registry.create(user.id, user.model_dump(exclude={"id"}))
+        await self.__file_service.create_folder("", user.id)
 
     async def exist(self, user_id: UserId) -> bool:
         """

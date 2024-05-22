@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
-from fastapi.responses import FileResponse
 
 from app.services.exceptions import (
     FileDoesNotExistError,
@@ -9,6 +8,7 @@ from app.services.exceptions import (
     IncompatibleNodeError,
     InvalidFileFormatError,
     NodeAttributeNotFoundError,
+    NotAllowedError,
 )
 from app.services.ImageService.ImageService import ImageService
 from app.services.NodeService.schemas.NodeId import NodeId
@@ -48,26 +48,6 @@ async def add_image_to_node(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "File too big")
 
 
-@router.get(
-    "/{node_id}/",
-    response_class=FileResponse,
-    status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_200_OK: {"content": {"image/*": {}}},
-        status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
-    },
-)
-async def receive_image(
-    image_service: Annotated[ImageService, Depends(get_image_service)],
-    node_id: NodeId,
-) -> FileResponse:
-    try:
-        path = await image_service.get_image_response(node_id)
-        return FileResponse(path=path, media_type="image/*")
-    except FileDoesNotExistError:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "File does not exist")
-
-
 @router.delete(
     "/{node_id}/",
     response_model=None,
@@ -86,3 +66,5 @@ async def delete_image(
         await image_service.remove_image(node_id)
     except FileDoesNotExistError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Node does not exist")
+    except NotAllowedError:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "You can't delete this image")
