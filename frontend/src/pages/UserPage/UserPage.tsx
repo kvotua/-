@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useAppDispatch } from "src/app/hooks/useAppDispatch";
 import { useAppSelector } from "src/app/hooks/useAppSelector";
 import useGetTree from "src/app/hooks/useGetTree";
@@ -77,14 +77,29 @@ const UserPage: React.FC = () => {
     deleteNodes(id);
     dispatch(deleteNode(id));
   };
+  console.log(nodes);
+
+  const [text, setText] = useState("");
+  useEffect(() => {
+    document.addEventListener("keydown", (e) => {
+      if (e.key.length === 1) {
+        setText((prev) => prev + e.key);
+      }
+      if (e.key === "Backspace") {
+        setText((prev) => prev.slice(0, -1));
+      }
+    });
+  }, []);
   const renderNode = ({
     id,
     children,
     type_id,
+    attrs,
   }: ITreeNode): React.ReactNode => {
     if (isTreeSuccess && tree && id === tree.id) {
       return children?.map((child) => renderNode(child));
     }
+
     return (
       <Reorder.Item value={id} key={id}>
         <Drawer>
@@ -114,6 +129,9 @@ const UserPage: React.FC = () => {
                 alt=""
                 className="rounded-20"
               />
+            )}
+            {type_id === "text" && (
+              <p className="text-sm break-words relative">{text}</p>
             )}
             {children.length > 0 && (
               <Reorder.Group
