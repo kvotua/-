@@ -20,7 +20,14 @@ import Exit from "src/app/assets/icons/exit.svg?react";
 import { useNavigate, useParams } from "react-router-dom";
 import { menuContext } from "src/app/context";
 import { ITreeNode } from "src/app/types/nodes.types";
-import { AnimatePresence, Reorder, motion } from "framer-motion";
+import { AnimatePresence, Reorder } from "framer-motion";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "src/shared/ui/ui/drawer";
 
 const UserPage: React.FC = () => {
   const navigate = useNavigate();
@@ -72,80 +79,117 @@ const UserPage: React.FC = () => {
     if (isTreeSuccess && tree && id === tree.id) {
       return children?.map((child) => renderNode(child));
     }
-    // console.log(id, clickedNodeId);
-
     return (
       <Reorder.Item value={id} key={id}>
-        <motion.div
-          initial={{
-            scale: 0,
-          }}
-          animate={{
-            scale: 1,
-          }}
-          exit={{
-            scale: 0,
-          }}
-          transition={{
-            duration: 0.3,
-          }}
-          onClick={(event) => {
-            if (event.target === event.currentTarget) {
-              setMenuItems([
-                {
-                  handleClick: () => setBaseMenu(),
-                  Image: Back,
-                },
-                {
-                  handleClick: () => {
-                    handleDeleteNode(id);
-                    setBaseMenu();
+        <Drawer>
+          <div
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setMenuItems([
+                  {
+                    handleClick: () => setBaseMenu(),
+                    Image: Back,
                   },
-                  Image: Trash,
-                },
-              ]);
-            }
-          }}
-          className="px-4 py-8 border-2 border-black w-full grid  text-4xl gap-4 rounded-20"
-        >
-          <Reorder.Group
-            values={children.map((node) => node.id)}
-            onReorder={(newOrder: Array<string>) => setNodes(id, newOrder)}
-            className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-4 "
-          >
-            {children?.map((child) => renderNode(child))}
-          </Reorder.Group>
-          <AddButton
-            handleClick={() => {
-              addNode(id);
+                  {
+                    handleClick: () => {
+                      handleDeleteNode(id);
+                      setBaseMenu();
+                    },
+                    Image: Trash,
+                  },
+                ]);
+              }
             }}
-          />
-        </motion.div>
+            className="px-4 py-8 border-2 border-black w-full grid  text-4xl gap-4 rounded-20"
+          >
+            {children.length > 0 && (
+              <Reorder.Group
+                values={children.map((node) => node.id)}
+                onReorder={(newOrder: Array<string>) => setNodes(id, newOrder)}
+                className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-4 "
+              >
+                {children.map((child) => renderNode(child))}
+              </Reorder.Group>
+            )}
+            <DrawerTrigger>
+              <AddButton />
+            </DrawerTrigger>
+            <DrawerContent className="bg-white">
+              <DrawerHeader>
+                <DrawerTitle>Выберите шаблон</DrawerTitle>
+              </DrawerHeader>
+              <div className="flex flex-col gap-5 py-5 container">
+                <div
+                  onClick={async () => {
+                    addNode(id);
+                  }}
+                  className="flex justify-between items-center p-3 rounded-20 border"
+                >
+                  <span className="text-2xl font-bold">Блок</span>
+                  <div className="w-20 h-20 bg-black/50 rounded-20" />
+                </div>
+                <div className="flex justify-between items-center p-3 rounded-20 border">
+                  <span className="text-2xl font-bold">Текст</span>
+                  <div className="w-20 h-20 bg-black/50 rounded-20" />
+                </div>
+                <div className="flex justify-between items-center p-3 rounded-20 border">
+                  <span className="text-2xl font-bold">Изображение</span>
+                  <div className="w-20 h-20 bg-black/50 rounded-20" />
+                </div>
+              </div>
+            </DrawerContent>
+          </div>
+        </Drawer>
       </Reorder.Item>
     );
   };
 
   return (
     <div className="h-fit min-h-screen bg-white p-4">
-      <AnimatePresence mode="popLayout" initial={false}>
-        <Reorder.Group
-          values={nodes.children.map((node) => node.id)}
-          onReorder={(newOrder: Array<string>) => setNodes(nodes.id, newOrder)}
-          className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-4 "
-        >
-          {renderNode(nodes)}
-        </Reorder.Group>
-      </AnimatePresence>
-      <AddButton
-        handleClick={async () => {
-          const { data: newId } = (await postNodes({
-            parent: tree ? tree.id : "",
-            template_id: templates![0],
-          })) as { data: string };
-
-          dispatch(setCoreNewChild({ id: newId, children: [] }));
-        }}
-      />
+      <Drawer>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <Reorder.Group
+            values={nodes.children.map((node) => node.id)}
+            onReorder={(newOrder: Array<string>) =>
+              setNodes(nodes.id, newOrder)
+            }
+            className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-4 "
+          >
+            {renderNode(nodes)}
+          </Reorder.Group>
+        </AnimatePresence>
+        <DrawerTrigger className="w-full pt-5">
+          <AddButton />
+        </DrawerTrigger>
+        <DrawerContent className="bg-white">
+          <DrawerHeader>
+            <DrawerTitle>Выберите шаблон</DrawerTitle>
+          </DrawerHeader>
+          <div className="flex flex-col gap-5 py-5 container">
+            <div
+              onClick={async () => {
+                const { data: newId } = (await postNodes({
+                  parent: tree ? tree.id : "",
+                  template_id: templates![0],
+                })) as { data: string };
+                dispatch(setCoreNewChild({ id: newId, children: [] }));
+              }}
+              className="flex justify-between items-center p-3 rounded-20 border"
+            >
+              <span className="text-2xl font-bold">Блок</span>
+              <div className="w-20 h-20 bg-black/50 rounded-20" />
+            </div>
+            <div className="flex justify-between items-center p-3 rounded-20 border">
+              <span className="text-2xl font-bold">Текст</span>
+              <div className="w-20 h-20 bg-black/50 rounded-20" />
+            </div>
+            <div className="flex justify-between items-center p-3 rounded-20 border">
+              <span className="text-2xl font-bold">Изображение</span>
+              <div className="w-20 h-20 bg-black/50 rounded-20" />
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
