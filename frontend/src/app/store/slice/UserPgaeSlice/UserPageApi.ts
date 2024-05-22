@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 interface INewNode {
   parent: string;
-  template_id: string | undefined;
+  template_id: string;
 }
 
 export const nodesApi = createApi({
