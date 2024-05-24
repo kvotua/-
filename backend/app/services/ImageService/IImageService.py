@@ -1,14 +1,13 @@
 from abc import ABC, abstractmethod
 
-from fastapi import UploadFile
-
+from ..FileService.IFileWrapper import IFileWrapper
 from ..NodeService.schemas.NodeId import NodeId
 
 
 class IImageService(ABC):
 
     @abstractmethod
-    async def add_image(self, node_id: NodeId, file: UploadFile) -> None:
+    async def add_image(self, node_id: NodeId, file: IFileWrapper) -> None:
         pass
 
     @abstractmethod

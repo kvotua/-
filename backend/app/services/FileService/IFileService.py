@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from re import Pattern
 
-from fastapi import UploadFile
+from .IFileWrapper import IFileWrapper
 
 
 class IFileService(ABC):
@@ -9,7 +9,7 @@ class IFileService(ABC):
     @abstractmethod
     async def add_file(
         self,
-        file: UploadFile,
+        file: IFileWrapper,
         allowed_formats: Pattern,
         file_name: str,
     ) -> None:

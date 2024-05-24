@@ -2,19 +2,19 @@ from os import listdir, mkdir, path, remove, rmdir
 from re import Pattern
 
 import filetype  # type: ignore
-from fastapi import UploadFile
 
 from app.config import settings
 
 from ..exceptions import FileDoesNotExistError, FileTooBigError, InvalidFileFormatError
 from .IFileService import IFileService
+from .IFileWrapper import IFileWrapper
 
 
 class FileService(IFileService):
 
     async def add_file(
         self,
-        file: UploadFile,
+        file: IFileWrapper,
         allowed_formats: Pattern,
         file_name: str,
     ) -> None:
@@ -34,7 +34,9 @@ class FileService(IFileService):
     async def exists(self, file_path: str) -> bool:
         return path.isfile(path.join(settings.storage, file_path))
 
-    async def __validate_file(self, file: UploadFile, allowed_formats: Pattern) -> None:
+    async def __validate_file(
+        self, file: IFileWrapper, allowed_formats: Pattern
+    ) -> None:
         file_info = filetype.guess(file.file)
         if file_info is None:
             raise InvalidFileFormatError()
@@ -51,8 +53,6 @@ class FileService(IFileService):
             real_file_size += len(chunk)
             if real_file_size > settings.max_file_size:
                 raise FileTooBigError()
-
-        await file.seek(0)
 
     async def create_folder(self, folder_path: str, folder_name: str) -> None:
         new_path = path.join(folder_path, folder_name)

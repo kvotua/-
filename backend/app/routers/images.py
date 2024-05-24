@@ -16,6 +16,7 @@ from app.services.UserService.schemas.UserId import UserId
 
 from .dependencies import get_image_service, get_user_id_by_init_data
 from .exceptions import HTTPExceptionSchema
+from .utils import FileWrapper
 
 router = APIRouter(prefix="/images", tags=["Images"])
 
@@ -37,7 +38,7 @@ async def add_image_to_node(
     file: UploadFile,
 ) -> None:
     try:
-        await image_service.add_image(node_id, file)
+        await image_service.add_image(node_id, FileWrapper(file))
     except InvalidFileFormatError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid file format")
     except NodeAttributeNotFoundError:

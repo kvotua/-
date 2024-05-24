@@ -1,10 +1,9 @@
 from re import compile
 
-from fastapi import UploadFile
-
 from ..AttributeService import IAttributeService
 from ..exceptions import IncompatibleNodeError
 from ..FileService import IFileService
+from ..FileService.IFileWrapper import IFileWrapper
 from ..NodeService.schemas.NodeId import NodeId
 from .IImageService import IImageService
 
@@ -27,7 +26,7 @@ class ImageService(IImageService):
         self.__attribute_service = attribute_service
         self.__file_service = file_service
 
-    async def add_image(self, node_id: NodeId, file: UploadFile) -> None:
+    async def add_image(self, node_id: NodeId, file: IFileWrapper) -> None:
         """
         adds image to a node
 
