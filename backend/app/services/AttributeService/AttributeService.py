@@ -261,6 +261,7 @@ class AttributeService(IAttributeService):
         await self.create_type(
             AttributeTypeSchema(
                 id="container",
+                holder=True,
                 attrs={
                     "direction": "^flex-(row|col)$",
                     "background": "^#(?:[0-9a-fA-F]{3}){1,2}$",
@@ -270,6 +271,7 @@ class AttributeService(IAttributeService):
         await self.create_type(
             AttributeTypeSchema(
                 id="text",
+                holder=False,
                 attrs={
                     "position": "^text-(left|right|center)$",
                     "color": "^#(?:[0-9a-fA-F]{3}){1,2}$",
@@ -280,6 +282,7 @@ class AttributeService(IAttributeService):
         await self.create_type(
             AttributeTypeSchema(
                 id="image",
+                holder=False,
                 attrs={
                     "rounded": "^(rounded){0,1}(-md|-lg|-full){0,1}$",
                 },
