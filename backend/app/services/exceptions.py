@@ -89,7 +89,7 @@ class InvalidFileFormatError(ServiceError):
 
 
 class IncompatibleNodeError(ServiceError):
-    """Raised when target node does not support addition of a file"""
+    """Raised when target node does not support an operation"""
 
     pass
 
@@ -102,3 +102,5 @@ class FileTooBigError(ServiceError):
 
 class EndNodeError(ServiceError):
     """Raised when trying to add a node to an end node"""
+
+    pass

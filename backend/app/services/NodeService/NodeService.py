@@ -6,6 +6,7 @@ from ..AttributeService.schemas.NodeAttributeExternalSchema import (
 )
 from ..exceptions import (
     EndNodeError,
+    IncompatibleNodeError,
     NodeCannotBeDeletedError,
     NodeInDifferentTreeError,
     NodeNotFoundError,
@@ -122,6 +123,7 @@ class NodeService(INodeService):
             if not await self.__in_same_tree(node_id, node_update.parent):
                 raise NodeInDifferentTreeError()
             await self.__reparent(node_id, node_update.parent)
+        await self.__change_position(node_id, node_update.position)
 
     async def try_get_tree(
         self, initiator_id: UserId, node_id: NodeId
@@ -396,6 +398,15 @@ class NodeService(INodeService):
         project = await self.__project_service.get_by_root_node_id(root_node_id)
         if project.owner_id != initiator_id:
             raise NotAllowedError()
+
+    async def __change_position(self, node_id: NodeId, new_position: int) -> None:
+        node = await self.__get(node_id)
+        if node.parent is None:
+            raise IncompatibleNodeError
+        parent_node = await self.__get(node.parent)
+        parent_node.children.remove(node.id)
+        parent_node.children.insert(new_position, node.id)
+        self.__registry.update(parent_node.id, {"children": parent_node.children})
 
     async def __in_same_tree(self, *node_ids: NodeId) -> bool:
         """
