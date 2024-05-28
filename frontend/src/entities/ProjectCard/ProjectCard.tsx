@@ -19,7 +19,7 @@ const ProjectCard: React.FC<IProjectCard> = ({ title, id }) => {
             navigate(`/project/${id}/edit`);
           }}
         >
-          <Edit stroke="black" />
+          <Edit stroke="black" className="h-5 w-5" />
         </div>
         <LinkIcon fill="black" />
       </div>

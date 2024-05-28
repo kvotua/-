@@ -29,3 +29,28 @@ body, html, #root {
     padding: 0;
     box-sizing: border-box;
 }
+
+@keyframes shake {
+    0%, 100% {
+        transform: rotate(-0.7deg);
+    }
+    50% {
+        transform: rotate(0.7deg);
+    }
+}
+
+.shake {
+    animation: shake 0.25s infinite;
+}
+
+input[type="color"] {
+    -webkit-appearance: none;
+    border: none;
+    background: #fff;
+    width: 100%;
+
+    border-radius: 50px;
+    overflow: hidden;
+    outline: none;
+    cursor: inherit;
+  }
