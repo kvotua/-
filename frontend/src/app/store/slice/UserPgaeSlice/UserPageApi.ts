@@ -48,14 +48,14 @@ export const nodesApi = createApi({
       }),
     }),
     patchAttr: builder.mutation({
-      query: (body: {
-        node_id: string;
-        attribute_name: string;
-        attribute_value: string;
-      }) => ({
-        url: `attrs/?node_id=${body.node_id}&attribute_name=${body.attribute_name}&attribute_value=${body.attribute_value}`,
-        method: "PATCH",
-      }),
+      query: (body) => {
+        // Encode the attribute_value to ensure the # character is handled correctly
+        const encodedValue = encodeURIComponent(body.attribute_value);
+        return {
+          url: `attrs/?node_id=${body.node_id}&attribute_name=${body.attribute_name}&attribute_value=${encodedValue}`,
+          method: "PATCH",
+        };
+      },
     }),
     getTemplate: builder.query({
       query: (template_id: string) => ({

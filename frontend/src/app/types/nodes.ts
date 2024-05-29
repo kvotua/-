@@ -7,14 +7,30 @@ export interface INode {
     [key: string]: string;
   };
 }
+interface IContainerAttrs {
+  background: string;
+  direction: string;
+  [key: string]: string | undefined;
+}
+
+interface ITextAttrs {
+  color: string;
+  position: string;
+  text: string;
+  [key: string]: string | undefined;
+}
+
+interface IImageAttrs {
+  src: string;
+  alt: string;
+  [key: string]: string | undefined;
+}
 
 export interface ITreeNode {
   id: string;
   type_id: "container" | "text" | "image";
-  attrs: {
-    [key: string]: string;
-  };
-  children: INode[];
+  attrs: IContainerAttrs | ITextAttrs | IImageAttrs;
+  children: ITreeNode[];
 }
 
 export interface IPostNode {

@@ -24,7 +24,7 @@ import Exit from "src/app/assets/icons/exit.svg?react";
 import Edit from "src/app/assets/icons/edit.svg?react";
 import { useNavigate, useParams } from "react-router-dom";
 import { menuContext } from "src/app/context";
-import { AnimatePresence, Reorder, motion } from "framer-motion";
+import { AnimatePresence, Reorder, ValueTarget, motion } from "framer-motion";
 import {
   Drawer,
   DrawerContent,
@@ -50,11 +50,14 @@ const UserPage: React.FC = () => {
   const { tree, isTreeSuccess, templates, getIdByType } = useGetTree<ITreeNode>(
     projectId!,
   );
+  console.log(templates);
 
   const { setMenuItems } = useContext(menuContext);
   const [deleteNodes] = useDeleteNodesMutation();
   const queryClient = useQueryClient();
-  const [selectedType, setSelectedType] = useState(null);
+  const [selectedType, setSelectedType] = useState<
+    "container" | "text" | "image" | null
+  >(null);
   const [animate, setAnimate] = useState(false);
   const [nodeText, setNodeText] = useState<string>("");
 
@@ -84,7 +87,6 @@ const UserPage: React.FC = () => {
   const [postNodes] = usePostNodesMutation();
   const [getNodes] = useLazyGetNodesQuery();
   const [patchAttr] = usePatchAttrMutation();
-  const [color, setColor] = useState("#ffffff");
   const addNode = async (id: string, type: string) => {
     const { data: newId } = (await postNodes({
       parent: id,
@@ -118,15 +120,27 @@ const UserPage: React.FC = () => {
   };
   console.log(nodes);
 
-  const [text, setText] = useState("");
   const [activeItem, setActiveItem] = useState(false);
   const [activeItemChoice, setActiveItemChoice] = useState("");
+  type Tevent = {
+    target: {
+      elements: {
+        color: {
+          value: string;
+        };
+      };
+    };
+  };
+  const handleSubmit = async (
+    event: SubmitEvent | Tevent | React.FormEvent<HTMLFormElement>,
+    id: string,
+  ) => {
+    const submitEvent: SubmitEvent = event as SubmitEvent;
+    const targetEvent: Tevent = event as Tevent;
+    submitEvent.preventDefault();
 
-  const handleSubmit = async (event, id) => {
-    event.preventDefault();
+    const color = targetEvent.target.elements.color.value;
 
-    // Получение значения цвета из формы
-    const color = event.target.elements.color.value;
     console.log(color);
 
     const newId = await addNode(id, getIdByType("text"));
@@ -136,29 +150,20 @@ const UserPage: React.FC = () => {
       attribute_value: nodeText,
     };
     await patchNode(text);
-    const colorAttr = {
-      node_id: newId,
-      attribute_name: "color",
-      attribute_value: color,
-    };
-    await patchNode(colorAttr);
     const position = {
       node_id: newId,
       attribute_name: "position",
       attribute_value: align,
     };
     await patchNode(position);
+    const colorAttr = {
+      node_id: newId,
+      attribute_name: "color",
+      attribute_value: color,
+    };
+    await patchNode(colorAttr);
   };
-  useEffect(() => {
-    document.addEventListener("keydown", (e) => {
-      if (e.key.length === 1) {
-        setText((prev) => prev + e.key);
-      }
-      if (e.key === "Backspace") {
-        setText((prev) => prev.slice(0, -1));
-      }
-    });
-  }, []);
+
   const renderNode = ({
     id,
     children,
@@ -212,7 +217,12 @@ const UserPage: React.FC = () => {
               />
             )}
             {type_id === "text" && (
-              <p className="text-sm break-words relative">{attrs.text}</p>
+              <p
+                className={`text-sm break-words relative ${attrs.position}`}
+                style={{ color: attrs.color }}
+              >
+                {attrs.text}
+              </p>
             )}
             {children.length > 0 && (
               <Reorder.Group
