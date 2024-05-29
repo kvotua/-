@@ -366,6 +366,7 @@ const UserPage: React.FC = () => {
                   <div className="flex flex-col gap-5 py-5 container ">
                     <DrawerTrigger>
                       <LinkButton
+                        type=""
                         handleClick={async () => {
                           const newId = await addNode(
                             id,
