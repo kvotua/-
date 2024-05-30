@@ -31,6 +31,7 @@ export interface ITreeNode {
   type_id: "container" | "text" | "image";
   attrs: IContainerAttrs | ITextAttrs | IImageAttrs;
   children: ITreeNode[];
+  holder: boolean;
 }
 
 export interface IPostNode {

@@ -10,7 +10,7 @@ export const userPageSlice = createSlice({
   name: "projects",
   initialState,
   reducers: {
-    setCoreNewChild(state, action: PayloadAction<ITreeNode>) {
+    setCoreNewChild(state, action) {
       state.children.push(action.payload);
     },
     setExistNewChild(state, action) {
