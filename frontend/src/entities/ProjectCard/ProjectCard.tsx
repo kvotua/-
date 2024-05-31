@@ -21,7 +21,15 @@ const ProjectCard: React.FC<IProjectCard> = ({ title, id }) => {
         >
           <Edit stroke="black" className="h-5 w-5" />
         </div>
-        <LinkIcon fill="black" />
+        <div
+          onClick={(e) => {
+            e.preventDefault();
+            window.location = `http://localhost:7000/0/${id}/` as Location &
+              string;
+          }}
+        >
+          <LinkIcon fill="black" />
+        </div>
       </div>
     </Link>
   );

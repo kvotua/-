@@ -62,6 +62,12 @@ export const nodesApi = createApi({
         url: `templates/${template_id}`,
       }),
     }),
+    postPage: builder.mutation({
+      query: (body) => ({
+        url: `pages/${body.projectId}`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -74,4 +80,5 @@ export const {
   useGetTreeNodesQuery,
   usePatchAttrMutation,
   useLazyGetTemplateQuery,
+  usePostPageMutation,
 } = nodesApi;

@@ -15,6 +15,7 @@ import {
   useLazyGetNodesQuery,
   usePatchAttrMutation,
   usePostNodesMutation,
+  usePostPageMutation,
 } from "src/app/store/slice/UserPgaeSlice/UserPageApi";
 import { AddButton } from "src/shared/AddButton/AddButton";
 import Back from "src/app/assets/icons/back.svg?react";
@@ -24,7 +25,7 @@ import Exit from "src/app/assets/icons/exit.svg?react";
 import Edit from "src/app/assets/icons/edit.svg?react";
 import { useNavigate, useParams } from "react-router-dom";
 import { menuContext } from "src/app/context";
-import { AnimatePresence, Reorder, ValueTarget, motion } from "framer-motion";
+import { AnimatePresence, Reorder, motion } from "framer-motion";
 import {
   Drawer,
   DrawerContent,
@@ -39,6 +40,12 @@ import { InputDefault } from "src/shared/InputDefault/InputDefault";
 import { LinkButton } from "src/shared/LinkButton/LinkButton";
 import Alignment from "src/widgets/Alignment/Alignment";
 import BgAlignment from "src/widgets/Alignment/BgAlignment";
+import Upload from "src/app/assets/icons/upload.svg?react";
+import Container from "src/app/assets/icons/container.svg?react";
+import Text from "src/app/assets/icons/textEdit.svg?react";
+import Image from "src/app/assets/icons/imageEdit.svg?react";
+import Save from "src/app/assets/icons/save.svg?react";
+
 const UserPage: React.FC = () => {
   const [align, setAlign] = useState<string>("text-left");
   const [bgAlign, setBgAlign] = useState<string>("flex-col");
@@ -68,12 +75,16 @@ const UserPage: React.FC = () => {
     attribute_value: string;
     holder?: boolean;
   }
-
+  const [postPage] = usePostPageMutation();
   const setBaseMenu = () => {
     const menuItem = [
       {
         handleClick: () => navigate(-1),
         Image: Exit,
+      },
+      {
+        handleClick: () => postPage({ projectId }),
+        Image: Save,
       },
     ];
     setMenuItems(menuItem);
@@ -130,7 +141,7 @@ const UserPage: React.FC = () => {
     const newChild = {
       attrs: await data.attrs,
       type_id: await data.type_id,
-      children: [],
+      children: nodeInfo !== null ? nodeInfo.children : [],
       holder: attribute.holder,
     };
     dispatch(updateNode({ id: attribute.node_id, updatedValues: newChild }));
@@ -140,7 +151,6 @@ const UserPage: React.FC = () => {
     dispatch(deleteNode(id));
   };
   console.log(nodes);
-  const [open, setOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(false);
   const [activeItemChoice, setActiveItemChoice] = useState("");
   type Tevent = {
@@ -201,7 +211,23 @@ const UserPage: React.FC = () => {
       await patchNode(direction);
     }
   };
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [imageUploaded, setImageUploaded] = useState<boolean>(false);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFormData = new FormData();
+      newFormData.append("file", e.target.files[0]);
+      setFormData(newFormData);
+      setImageUploaded(true);
+
+      const url = URL.createObjectURL(e.target.files[0]);
+      setImageUrl(url);
+    }
+  };
+  const [nodeInfo, setNodeInfo] = useState<ITreeNode | null>(null);
   const renderNode = ({
     id,
     children,
@@ -212,7 +238,6 @@ const UserPage: React.FC = () => {
     if (isTreeSuccess && tree && id === tree.id) {
       return children?.map((child) => renderNode(child));
     }
-
     return (
       <Reorder.Item
         dragListener={activeItem}
@@ -220,7 +245,7 @@ const UserPage: React.FC = () => {
         value={id}
         key={id}
       >
-        <Drawer open={open}>
+        <Drawer>
           <div
             onClick={(event) => {
               if (event.target === event.currentTarget) {
@@ -237,6 +262,21 @@ const UserPage: React.FC = () => {
                   },
                   {
                     handleClick: () => {
+                      setSelectedType(type_id);
+                      setNodeInfo({
+                        id,
+                        children,
+                        holder,
+                        type_id,
+                        attrs,
+                      });
+                      if (type_id === "container") {
+                        setBgAlign(attrs.direction as string);
+                      } else if (type_id === "text") {
+                        setAlign(attrs.position as string);
+                        setNodeText(attrs.text as string);
+                      }
+                      setOpen(true);
                       setBaseMenu();
                     },
                     Image: Edit,
@@ -282,13 +322,14 @@ const UserPage: React.FC = () => {
                 onClick={() => {
                   setAnimate(false);
                   setSelectedType(null);
-                  setOpen(!open);
                 }}
               >
                 <AddButton />
               </DrawerTrigger>
             )}
-
+            {/* !!!!!!!!!!!!!!!!!!!!!! */}
+            {/* Drawer For Not Core Node */}
+            {/* !!!!!!!!!!!!!!!!!!!!!! */}
             <DrawerContent className="bg-white">
               {selectedType === null && (
                 <motion.div
@@ -311,7 +352,8 @@ const UserPage: React.FC = () => {
                       className="flex justify-between items-center p-3 rounded-20 border"
                     >
                       <span className="text-2xl font-bold">Блок</span>
-                      <div className="w-20 h-20 bg-black/50 rounded-20" />
+                      <div className=" bg-black/50 rounded-20" />
+                      <Container className="w-20 h-20" />
                     </div>
                     <div
                       onClick={() => {
@@ -321,33 +363,18 @@ const UserPage: React.FC = () => {
                       className="flex justify-between items-center p-3 rounded-20 border"
                     >
                       <span className="text-2xl font-bold">Текст</span>
-                      <div className="w-20 h-20 bg-black/50 rounded-20" />
+                      <Text className="w-20 h-20 stroke-black" />
                     </div>
-                    <label
-                      htmlFor="image"
+                    <div
+                      onClick={async () => {
+                        setAnimate(true);
+                        setSelectedType("image");
+                      }}
                       className="flex justify-between items-center p-3 rounded-20 border"
                     >
-                      <input
-                        type="file"
-                        id="image"
-                        className="w-0 h-0 absolute"
-                        onChange={async (e) => {
-                          if (e.target.files) {
-                            const formData = new FormData();
-                            const newId = await addNode(
-                              id,
-                              getIdByType("image"),
-                            );
-                            formData.append("file", e.target.files[0]);
-                            formData.append("node_id", newId);
-                            await axiosBase.post("images/", formData);
-                            queryClient.invalidateQueries("getTreeNodes");
-                          }
-                        }}
-                      />
                       <span className="text-2xl font-bold">Изображение</span>
-                      <div className="w-20 h-20 bg-black/50 rounded-20" />
-                    </label>
+                      <Image className="w-20 h-20" />
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -438,6 +465,62 @@ const UserPage: React.FC = () => {
                   </form>
                 </motion.div>
               )}
+              {selectedType === "image" && (
+                <motion.div
+                  key="hidden"
+                  initial={{ x: "100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "100%" }}
+                  transition={{ duration: 0.2 }}
+                  // className="absolute bottom-0 bg-white w-full"
+                >
+                  <DrawerHeader className="flex justify-between items-center">
+                    <Return
+                      onClick={() => {
+                        setAnimate(true);
+                        setSelectedType(null);
+                      }}
+                    />
+                    <DrawerTitle className="mx-auto">Изображение</DrawerTitle>
+                  </DrawerHeader>
+                  <form
+                    onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+                      e.preventDefault();
+                      if (formData) {
+                        const newId = await addCoreNode(
+                          id,
+                          getIdByType("image"),
+                        );
+                        formData.append("node_id", newId);
+                        await axiosBase.post("images/", formData);
+                        queryClient.invalidateQueries("getTreeNodes");
+                        setImageUrl("");
+                        setImageUploaded(false);
+                        setActiveItemChoice("");
+                      }
+                    }}
+                    className="flex flex-col gap-5 py-5 container "
+                  >
+                    <div className="relative flex justify-center items-center  border-2 border-black w-full rounded-20">
+                      <input
+                        type="file"
+                        onChange={handleImageUpload}
+                        className="w-full h-full px-4 py-4 relative z-10  opacity-0"
+                      />
+                      <Upload className="absolute" />
+                    </div>
+
+                    {imageUrl && <img src={imageUrl} alt="Uploaded" />}
+                    <DrawerTrigger>
+                      <LinkButton
+                        title="Сохранить"
+                        buttonActive={!imageUploaded}
+                        type="submit"
+                      />
+                    </DrawerTrigger>
+                  </form>
+                </motion.div>
+              )}
             </DrawerContent>
           </div>
         </Drawer>
@@ -447,6 +530,139 @@ const UserPage: React.FC = () => {
 
   return (
     <div className="h-fit min-h-screen bg-white p-4">
+      {/* !!!!!!!!!!!!!!!!!!!!!! */}
+      {/* Drawer for Edit */}
+      {/* !!!!!!!!!!!!!!!!!!!!!! */}
+      {nodeInfo !== null && (
+        <Drawer
+          open={open}
+          onOpenChange={setOpen}
+          onClose={() => setActiveItemChoice("")}
+        >
+          <DrawerContent className="bg-white">
+            {selectedType === "text" && (
+              <div>
+                <DrawerHeader className="flex justify-between items-center">
+                  <DrawerTitle className="mx-auto">Текст</DrawerTitle>
+                </DrawerHeader>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    await handleSubmit(e, {
+                      newId: nodeInfo.id,
+                      type: "text",
+                    });
+                    setActiveItemChoice("");
+                    setNodeInfo(null);
+                  }}
+                  className="flex flex-col gap-5 py-5 container "
+                >
+                  <Alignment align={align} setAlign={setAlign} />
+                  <InputDefault
+                    type="text"
+                    name="nodeText"
+                    handleChange={setNodeText}
+                    valueInp={nodeText}
+                    placeholder="Введите текст"
+                    className="placeholder:text-mainBlack text-mainBlack"
+                  />
+                  <input
+                    id="color"
+                    name="color"
+                    type="color"
+                    defaultValue={nodeInfo.attrs.color}
+                  />
+                  <DrawerTrigger>
+                    <LinkButton
+                      title="Сохранить"
+                      buttonActive={nodeText === "" ? true : false}
+                      type="submit"
+                    />
+                  </DrawerTrigger>
+                </form>
+              </div>
+            )}
+            {selectedType === "container" && (
+              <div>
+                <DrawerHeader className="flex justify-between items-center">
+                  <DrawerTitle className="mx-auto">Блок</DrawerTitle>
+                </DrawerHeader>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    await handleSubmit(e, {
+                      newId: nodeInfo.id,
+                      type: "container",
+                    });
+                    setActiveItemChoice("");
+                    setNodeInfo(null);
+                  }}
+                  className="flex flex-col gap-5 py-5 container "
+                >
+                  <BgAlignment align={bgAlign} setAlign={setBgAlign} />
+                  <input
+                    id="color"
+                    name="color"
+                    type="color"
+                    defaultValue={nodeInfo.attrs.background}
+                  />
+                  <DrawerTrigger>
+                    <LinkButton
+                      title="Сохранить"
+                      buttonActive={false}
+                      type="submit"
+                    />
+                  </DrawerTrigger>
+                </form>
+              </div>
+            )}
+            {selectedType === "image" && (
+              <div>
+                <DrawerHeader className="flex justify-between items-center">
+                  <DrawerTitle className="mx-auto">Изображение</DrawerTitle>
+                </DrawerHeader>
+                <form
+                  onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+                    e.preventDefault();
+                    if (formData) {
+                      formData.append("node_id", nodeInfo.id);
+                      await axiosBase.post("images/", formData);
+                      queryClient.invalidateQueries("getTreeNodes");
+                      setImageUrl("");
+                      setImageUploaded(false);
+                      setActiveItemChoice("");
+                      setNodeInfo(null);
+                    }
+                  }}
+                  className="flex flex-col gap-5 py-5 container "
+                >
+                  <div className="relative flex justify-center items-center  border-2 border-black w-full rounded-20">
+                    <input
+                      type="file"
+                      onChange={handleImageUpload}
+                      className="w-full h-full px-4 py-4 relative z-10  opacity-0"
+                    />
+                    <Upload className="absolute" />
+                  </div>
+
+                  {imageUrl && <img src={imageUrl} alt="Uploaded" />}
+                  <DrawerTrigger>
+                    <LinkButton
+                      title="Сохранить"
+                      buttonActive={!imageUploaded}
+                      type="submit"
+                    />
+                  </DrawerTrigger>
+                </form>
+              </div>
+            )}
+          </DrawerContent>
+        </Drawer>
+      )}
+
+      {/* !!!!!!!!!!!!!!!!!!!!!! */}
+      {/* Drawer for Core Node */}
+      {/* !!!!!!!!!!!!!!!!!!!!!! */}
       <Drawer>
         <AnimatePresence mode="popLayout" initial={false}>
           <Reorder.Group
@@ -491,7 +707,8 @@ const UserPage: React.FC = () => {
                   className="flex justify-between items-center p-3 rounded-20 border"
                 >
                   <span className="text-2xl font-bold">Блок</span>
-                  <div className="w-20 h-20 bg-black/50 rounded-20" />
+                  <div className=" bg-black/50 rounded-20" />
+                  <Container className="w-20 h-20" />
                 </div>
                 <div
                   onClick={() => {
@@ -501,30 +718,18 @@ const UserPage: React.FC = () => {
                   className="flex justify-between items-center p-3 rounded-20 border"
                 >
                   <span className="text-2xl font-bold">Текст</span>
-                  <div className="w-20 h-20 bg-black/50 rounded-20" />
+                  <Text className="w-20 h-20 stroke-black" />
                 </div>
-                <label
-                  htmlFor="image"
+                <div
+                  onClick={async () => {
+                    setAnimate(true);
+                    setSelectedType("image");
+                  }}
                   className="flex justify-between items-center p-3 rounded-20 border"
                 >
-                  <input
-                    type="file"
-                    id="image"
-                    className="w-0 h-0 absolute"
-                    onChange={async (e) => {
-                      if (e.target.files) {
-                        const formData = new FormData();
-                        const newId = await addNode(id, getIdByType("image"));
-                        formData.append("file", e.target.files[0]);
-                        formData.append("node_id", newId);
-                        await axiosBase.post("images/", formData);
-                        queryClient.invalidateQueries("getTreeNodes");
-                      }
-                    }}
-                  />
                   <span className="text-2xl font-bold">Изображение</span>
-                  <div className="w-20 h-20 bg-black/50 rounded-20" />
-                </label>
+                  <Image className="w-20 h-20" />
+                </div>
               </div>
             </motion.div>
           )}
@@ -612,6 +817,62 @@ const UserPage: React.FC = () => {
                   <LinkButton
                     title="Сохранить"
                     buttonActive={false}
+                    type="submit"
+                  />
+                </DrawerTrigger>
+              </form>
+            </motion.div>
+          )}
+          {selectedType === "image" && (
+            <motion.div
+              key="hidden"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.2 }}
+              // className="absolute bottom-0 bg-white w-full"
+            >
+              <DrawerHeader className="flex justify-between items-center">
+                <Return
+                  onClick={() => {
+                    setAnimate(true);
+                    setSelectedType(null);
+                  }}
+                />
+                <DrawerTitle className="mx-auto">Изображение</DrawerTitle>
+              </DrawerHeader>
+              <form
+                onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+                  e.preventDefault();
+                  if (formData) {
+                    const newId = await addCoreNode(
+                      tree ? tree.id : "",
+                      getIdByType("image"),
+                    );
+                    formData.append("node_id", newId);
+                    await axiosBase.post("images/", formData);
+                    queryClient.invalidateQueries("getTreeNodes");
+                    setImageUrl("");
+                    setImageUploaded(false);
+                    setActiveItemChoice("");
+                  }
+                }}
+                className="flex flex-col gap-5 py-5 container "
+              >
+                <div className="relative flex justify-center items-center  border-2 border-black w-full rounded-20">
+                  <input
+                    type="file"
+                    onChange={handleImageUpload}
+                    className="w-full h-full px-4 py-4 relative z-10  opacity-0"
+                  />
+                  <Upload className="absolute" />
+                </div>
+
+                {imageUrl && <img src={imageUrl} alt="Uploaded" />}
+                <DrawerTrigger>
+                  <LinkButton
+                    title="Сохранить"
+                    buttonActive={!imageUploaded}
                     type="submit"
                   />
                 </DrawerTrigger>
