@@ -7,3 +7,4 @@ from .NodeId import NodeId
 
 class NodeUpdateSchema(BaseModel):
     parent: Optional[NodeId] = None
+    position: int

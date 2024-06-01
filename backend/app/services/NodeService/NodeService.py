@@ -5,6 +5,8 @@ from ..AttributeService.schemas.NodeAttributeExternalSchema import (
     NodeAttributeExternalSchema,
 )
 from ..exceptions import (
+    EndNodeError,
+    IncompatibleNodeError,
     NodeCannotBeDeletedError,
     NodeInDifferentTreeError,
     NodeNotFoundError,
@@ -90,9 +92,8 @@ class NodeService(INodeService):
 
         await self.__user_service.user_exist_validation(initiator_id)
         await self.__check_initiator_permission(initiator_id, node_id)
-        node = await self.__get(node_id)
-        attributes = await self.__attribute_service.get_attribute(node.id)
-        return NodeExtendedSchema(**node.model_dump(), **attributes.model_dump())
+        node_exp = await self.__get_extended(node_id)
+        return node_exp
 
     async def try_update(
         self, initiator_id: UserId, node_id: NodeId, node_update: NodeUpdateSchema
@@ -122,6 +123,7 @@ class NodeService(INodeService):
             if not await self.__in_same_tree(node_id, node_update.parent):
                 raise NodeInDifferentTreeError()
             await self.__reparent(node_id, node_update.parent)
+        await self.__change_position(node_id, node_update.position)
 
     async def try_get_tree(
         self, initiator_id: UserId, node_id: NodeId
@@ -199,7 +201,9 @@ class NodeService(INodeService):
         """
         await self.__user_service.user_exist_validation(initiator_id)
         await self.__check_initiator_permission(initiator_id, new_node.parent)
-
+        parent = await self.__get_extended(new_node.parent)
+        if not parent.holder:
+            raise EndNodeError()
         instantiated_tree = await self.__template_service.instantiate(
             new_node.template_id
         )
@@ -248,8 +252,13 @@ class NodeService(INodeService):
             NodeNotFoundError: raised when node with given id does not exist
         """
         attributes = await self.__attribute_service.get_attribute(node_id)
+        attr_type = await self.__attribute_service.get_type(attributes.type_id)
         tree_root = NodeTreeSchema(
-            id=node_id, type_id=attributes.type_id, attrs=attributes.attrs, children=[]
+            id=node_id,
+            type_id=attributes.type_id,
+            holder=attr_type.holder,
+            attrs=attributes.attrs,
+            children=[],
         )
         nodes_to_process = [tree_root]
         while len(nodes_to_process) > 0:
@@ -259,10 +268,14 @@ class NodeService(INodeService):
                 child_attributes = await self.__attribute_service.get_attribute(
                     child_node_id
                 )
+                child_type = await self.__attribute_service.get_type(
+                    child_attributes.type_id
+                )
                 current_tree_node.children.append(
                     NodeTreeSchema(
                         id=child_node_id,
                         type_id=child_attributes.type_id,
+                        holder=child_type.holder,
                         attrs=child_attributes.attrs,
                         children=[],
                     )
@@ -287,6 +300,14 @@ class NodeService(INodeService):
         if node is None:
             raise NodeNotFoundError()
         return NodeSchema(**node)
+
+    async def __get_extended(self, node_id: NodeId) -> NodeExtendedSchema:
+        node = await self.__get(node_id)
+        attributes = await self.__attribute_service.get_attribute(node.id)
+        attr_type = await self.__attribute_service.get_type(attributes.type_id)
+        return NodeExtendedSchema(
+            **node.model_dump(), **attributes.model_dump(), holder=attr_type.holder
+        )
 
     async def __get_root_node_id(self, node_id: NodeId) -> NodeId:
         """
@@ -377,6 +398,15 @@ class NodeService(INodeService):
         project = await self.__project_service.get_by_root_node_id(root_node_id)
         if project.owner_id != initiator_id:
             raise NotAllowedError()
+
+    async def __change_position(self, node_id: NodeId, new_position: int) -> None:
+        node = await self.__get(node_id)
+        if node.parent is None:
+            raise IncompatibleNodeError
+        parent_node = await self.__get(node.parent)
+        parent_node.children.remove(node.id)
+        parent_node.children.insert(new_position, node.id)
+        self.__registry.update(parent_node.id, {"children": parent_node.children})
 
     async def __in_same_tree(self, *node_ids: NodeId) -> bool:
         """

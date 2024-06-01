@@ -152,7 +152,11 @@ class TemplateService(ITemplateService):
             parent_id=None,
             node_attributes=NodeAttributeExternalSchema(
                 type_id="container",
-                attrs={"direction": "flex-col", "background": "#ffffff"},
+                attrs={
+                    "direction": "flex-col",
+                    "background": "#ffffff",
+                    "background_image": "false",
+                },
             ),
         )
         text_id = await self.__node_service.create(
