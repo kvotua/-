@@ -55,10 +55,9 @@ const UserPage: React.FC = () => {
   const nodes = useAppSelector((state) => state.userPage);
   const setNodes = (node_id: string, new_nodes: Array<string>) =>
     dispatch(setChildrens({ id: node_id, children: new_nodes }));
-  const { tree, isTreeSuccess, templates, getIdByType } = useGetTree<ITreeNode>(
+  const { tree, isTreeSuccess, getIdByType } = useGetTree<ITreeNode>(
     projectId!,
   );
-  console.log(templates);
 
   const { setMenuItems } = useContext(menuContext);
   const [deleteNodes] = useDeleteNodesMutation();
@@ -106,7 +105,6 @@ const UserPage: React.FC = () => {
       template_id: type,
     })) as { data: string };
     const { data } = await getNodes(newId);
-    console.log(data);
 
     const newChild: Partial<ITreeNode> = {
       id: newId,
@@ -124,7 +122,6 @@ const UserPage: React.FC = () => {
       template_id: type,
     })) as { data: string };
     const { data } = await getNodes(newId);
-    console.log(data);
 
     const newChild: Partial<ITreeNode> = {
       id: newId,
@@ -150,7 +147,6 @@ const UserPage: React.FC = () => {
     deleteNodes(id);
     dispatch(deleteNode(id));
   };
-  console.log(nodes);
   const [activeItem, setActiveItem] = useState(false);
   const [activeItemChoice, setActiveItemChoice] = useState("");
   type Tevent = {
@@ -173,8 +169,6 @@ const UserPage: React.FC = () => {
     const targetEvent: Tevent = event as Tevent;
 
     const color = targetEvent.target.elements.color.value;
-
-    console.log(color);
     if (type == "text") {
       const text = {
         node_id: newId,
@@ -238,10 +232,11 @@ const UserPage: React.FC = () => {
     if (isTreeSuccess && tree && id === tree.id) {
       return children?.map((child) => renderNode(child));
     }
+
     return (
       <Reorder.Item
         dragListener={activeItem}
-        className="flex-1"
+        className={`flex-1 w-full h-screen`}
         value={id}
         key={id}
       >
@@ -298,7 +293,7 @@ const UserPage: React.FC = () => {
               backgroundImage:
                 type_id === "image" ? `url(http://localhost:7000/${id})` : "",
             }}
-            className={`px-4 py-8 border-2 border-black w-full grid  text-4xl gap-4 rounded-20 ${activeItemChoice === id ? "shake" : ""}`}
+            className={`px-4 py-8 text-4xl gap-4 ${activeItemChoice === id ? "shake" : ""} flex ${attrs?.direction}  w-full h-full `}
           >
             {type_id === "text" && (
               <p
@@ -312,13 +307,14 @@ const UserPage: React.FC = () => {
               <Reorder.Group
                 values={children.map((node) => node.id)}
                 onReorder={(newOrder: Array<string>) => setNodes(id, newOrder)}
-                className={`h-full flex ${attrs.direction} flex-wrap gap-4`}
+                className={`h-full flex ${attrs.direction} gap-4 w-full `}
               >
                 {children.map((child) => renderNode(child))}
               </Reorder.Group>
             )}
-            {holder && (
+            {holder && children.length < 2 && (
               <DrawerTrigger
+                className="w-full h-full"
                 onClick={() => {
                   setAnimate(false);
                   setSelectedType(null);
@@ -338,7 +334,7 @@ const UserPage: React.FC = () => {
                   animate={{ x: 0 }}
                   exit={{ x: "-100%" }}
                   transition={{ duration: 0.2 }}
-                  className=" w-full"
+                  className="w-full"
                 >
                   <DrawerHeader>
                     <DrawerTitle>Выберите шаблон</DrawerTitle>
@@ -529,7 +525,7 @@ const UserPage: React.FC = () => {
   };
 
   return (
-    <div className="h-fit min-h-screen bg-white p-4">
+    <div className=" h-full bg-white">
       {/* !!!!!!!!!!!!!!!!!!!!!! */}
       {/* Drawer for Edit */}
       {/* !!!!!!!!!!!!!!!!!!!!!! */}
@@ -665,24 +661,26 @@ const UserPage: React.FC = () => {
       {/* !!!!!!!!!!!!!!!!!!!!!! */}
       <Drawer>
         <AnimatePresence mode="popLayout" initial={false}>
-          <Reorder.Group
-            values={nodes.children.map((node) => node.id)}
-            onReorder={(newOrder: Array<string>) =>
-              setNodes(nodes.id, newOrder)
-            }
-            className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-4 "
-          >
-            {renderNode(nodes as ITreeNode)}
-          </Reorder.Group>
+          {nodes.children.length > 0 && (
+            <Reorder.Group
+              values={nodes.children.map((node) => node.id)}
+              onReorder={(newOrder: Array<string>) =>
+                setNodes(nodes.id, newOrder)
+              }
+              className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10"
+            >
+              {renderNode(nodes as ITreeNode)}
+            </Reorder.Group>
+          )}
         </AnimatePresence>
         <DrawerTrigger
-          className="w-full pt-5"
+          className="w-full h-full"
           onClick={() => {
             setAnimate(false);
             setSelectedType(null);
           }}
         >
-          <AddButton />
+          <AddButton className="h-screen" />
         </DrawerTrigger>
 
         <DrawerContent className="bg-white">
