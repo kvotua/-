@@ -15,12 +15,17 @@ class ApiBase:
     USERS = API_V1 + "/users"
     PROJECTS = API_V1 + "/projects"
     NODES = API_V1 + "/nodes"
+    TEMPLATES = API_V1 + "/templates"
 
     USER = USERS + "/{user_id}"
+
     PROJECT = PROJECTS + "/{project_id}"
     PROJECT_BY_USER = PROJECTS + "/by/user/{user_id}"
+
     NODE = NODES + "/{node_id}"
     NODE_TREE = NODES + "/tree/{node_id}"
+
+    TEMPLATE = TEMPLATES + "/{template_id}"
 
     def __init__(self, app: FastAPI):
         self.client = TestClient(app)
