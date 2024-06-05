@@ -201,8 +201,11 @@ class NodeService(INodeService):
         """
         await self.__user_service.user_exist_validation(initiator_id)
         await self.__check_initiator_permission(initiator_id, new_node.parent)
-        parent = await self.__get_extended(new_node.parent)
-        if not parent.holder:
+        parent_attributes = await self.__attribute_service.get_attribute(
+            new_node.parent
+        )
+        parent_type = await self.__attribute_service.get_type(parent_attributes.type_id)
+        if not parent_type.holder:
             raise EndNodeError()
         instantiated_tree = await self.__template_service.instantiate(
             new_node.template_id
@@ -252,11 +255,9 @@ class NodeService(INodeService):
             NodeNotFoundError: raised when node with given id does not exist
         """
         attributes = await self.__attribute_service.get_attribute(node_id)
-        attr_type = await self.__attribute_service.get_type(attributes.type_id)
         tree_root = NodeTreeSchema(
             id=node_id,
             type_id=attributes.type_id,
-            holder=attr_type.holder,
             attrs=attributes.attrs,
             children=[],
         )
@@ -268,14 +269,10 @@ class NodeService(INodeService):
                 child_attributes = await self.__attribute_service.get_attribute(
                     child_node_id
                 )
-                child_type = await self.__attribute_service.get_type(
-                    child_attributes.type_id
-                )
                 current_tree_node.children.append(
                     NodeTreeSchema(
                         id=child_node_id,
                         type_id=child_attributes.type_id,
-                        holder=child_type.holder,
                         attrs=child_attributes.attrs,
                         children=[],
                     )
@@ -304,9 +301,9 @@ class NodeService(INodeService):
     async def __get_extended(self, node_id: NodeId) -> NodeExtendedSchema:
         node = await self.__get(node_id)
         attributes = await self.__attribute_service.get_attribute(node.id)
-        attr_type = await self.__attribute_service.get_type(attributes.type_id)
         return NodeExtendedSchema(
-            **node.model_dump(), **attributes.model_dump(), holder=attr_type.holder
+            **node.model_dump(),
+            **attributes.model_dump(),
         )
 
     async def __get_root_node_id(self, node_id: NodeId) -> NodeId:
