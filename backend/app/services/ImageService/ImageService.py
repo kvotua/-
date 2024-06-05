@@ -1,13 +1,9 @@
-from os import path
 from re import compile
 
-from fastapi import UploadFile
-
-from app.config import settings
-
 from ..AttributeService import IAttributeService
-from ..exceptions import FileDoesNotExistError, IncompatibleNodeError
+from ..exceptions import IncompatibleNodeError
 from ..FileService import IFileService
+from ..FileService.IFileWrapper import IFileWrapper
 from ..NodeService.schemas.NodeId import NodeId
 from .IImageService import IImageService
 
@@ -30,7 +26,7 @@ class ImageService(IImageService):
         self.__attribute_service = attribute_service
         self.__file_service = file_service
 
-    async def add_image(self, node_id: NodeId, file: UploadFile) -> None:
+    async def add_image(self, node_id: NodeId, file: IFileWrapper) -> None:
         """
         adds image to a node
 
@@ -55,22 +51,3 @@ class ImageService(IImageService):
                   needs to be removed
         """
         await self.__file_service.remove_file(str(node_id))
-
-    async def get_image_response(self, node_id: NodeId) -> str:
-        """
-        checks if given node has an image and \
-            returns filepath to it
-
-        Args:
-            node_id (NodeId): node id
-
-        Raises:
-            FileDoesNotExistError: raised when given node \
-                  doesn't have an image
-
-        Returns:
-            str: path to an image
-        """
-        if not await self.__file_service.exists(str(node_id)):
-            raise FileDoesNotExistError()
-        return path.join("/", settings.storage, str(node_id))

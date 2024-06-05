@@ -98,3 +98,7 @@ class FileTooBigError(ServiceError):
     """Raised when given file is too big"""
 
     pass
+
+
+class EndNodeError(ServiceError):
+    """Raised when trying to add a node to an end node"""
