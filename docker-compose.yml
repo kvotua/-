@@ -13,22 +13,21 @@ services:
   backend:
     build: ./backend
     depends_on:
-      - mongo
+      - dynamodb
+    volumes:
+      - storage_volume:/storage
     environment:
       - MODE=${MODE}
       - BOT_KEY=${TELEGRAM_TOKEN}
-      - MONGO_USERNAME=${MONGO_USERNAME}
-      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - AWS_ACCESS_KEY_ID=${YDB_DOCUMENT_API_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${YDB_DOCUMENT_API_SECRET_ACCESS_KEY}
+      - YDB_DOCUMENT_API_ENDPOINT=${YDB_DOCUMENT_API_ENDPOINT}
 
-  mongo:
-    image: mongo:latest
-    volumes:
-      - mongo_volume:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+  dynamodb:
+    command: "-jar DynamoDBLocal.jar -disableTelemetry -inMemory -sharedDb"
+    image: "amazon/dynamodb-local:latest"
     ports:
-      - "27017:27017"
+      - "8000:8000"
 
   nginx:
     build:
@@ -57,5 +56,5 @@ services:
       - SERVER_NAME=${SERVER_NAME}
 
 volumes:
-  mongo_volume:
   html_volume:
+  storage_volume:

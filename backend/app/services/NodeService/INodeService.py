@@ -1,40 +1,59 @@
 from abc import ABC, abstractmethod
 
-from .schemas import NodeCreateSchema, NodeSchema, NodeTreeSchema, NodeUpdateSchema
+from ..AttributeService.schemas.NodeAttributeExternalSchema import (
+    NodeAttributeExternalSchema,
+)
+from ..UserService.schemas.UserId import UserId
+from .schemas.NodeCreateSchema import NodeCreateSchema
+from .schemas.NodeExtendedSchema import NodeExtendedSchema
+from .schemas.NodeId import NodeId
+from .schemas.NodeTreeSchema import NodeTreeSchema
+from .schemas.NodeUpdateSchema import NodeUpdateSchema
 
 
 class INodeService(ABC):
-
     @abstractmethod
-    def try_get(self, initiator_id: str, node_id: str) -> NodeSchema:
+    async def try_get(
+        self, initiator_id: UserId, node_id: NodeId
+    ) -> NodeExtendedSchema:
         pass
 
     @abstractmethod
-    def try_update(
-        self, initiator_id: str, node_id: str, node_update: NodeUpdateSchema
+    async def try_update(
+        self, initiator_id: UserId, node_id: NodeId, node_update: NodeUpdateSchema
     ) -> None:
         pass
 
     @abstractmethod
-    def try_get_tree(self, initiator_id: str, node_id: str) -> NodeTreeSchema:
+    async def try_get_tree(
+        self, initiator_id: UserId, node_id: NodeId
+    ) -> NodeTreeSchema:
         pass
 
     @abstractmethod
-    def try_delete(self, initiator_id: str, node_id: str) -> None:
+    async def try_delete(self, initiator_id: UserId, node_id: NodeId) -> None:
         pass
 
     @abstractmethod
-    def create(self, initiator_id: str, new_node: NodeCreateSchema) -> str:
+    async def try_create(
+        self, initiator_id: UserId, new_node: NodeCreateSchema
+    ) -> NodeId:
         pass
 
     @abstractmethod
-    def create_root(self) -> str:
+    async def create(
+        self, parent_id: NodeId | None, node_attributes: NodeAttributeExternalSchema
+    ) -> NodeId:
         pass
 
     @abstractmethod
-    def exist(self, node_id: str) -> bool:
+    async def exist(self, node_id: NodeId) -> bool:
         pass
 
     @abstractmethod
-    def delete(self, node_id: str) -> None:
+    async def get_tree(self, node_id: NodeId) -> NodeTreeSchema:
+        pass
+
+    @abstractmethod
+    async def delete(self, node_id: NodeId) -> None:
         pass

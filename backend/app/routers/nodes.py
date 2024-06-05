@@ -5,16 +5,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.services import NodeService
 from app.services.exceptions import (
     NodeCannotBeDeletedError,
+    NodeInDifferentTreeError,
     NodeNotFoundError,
     NotAllowedError,
+    TemplateDoesNotExistError,
     UserNotFoundError,
 )
-from app.services.NodeService.schemas import (
-    NodeCreateSchema,
-    NodeSchema,
-    NodeTreeSchema,
-    NodeUpdateSchema,
-)
+from app.services.NodeService.schemas.NodeCreateSchema import NodeCreateSchema
+from app.services.NodeService.schemas.NodeExtendedSchema import NodeExtendedSchema
+from app.services.NodeService.schemas.NodeId import NodeId
+from app.services.NodeService.schemas.NodeTreeSchema import NodeTreeSchema
+from app.services.NodeService.schemas.NodeUpdateSchema import NodeUpdateSchema
+from app.services.UserService.schemas.UserId import UserId
 
 from .dependencies import get_node_service, get_user_id_by_init_data
 from .exceptions import HTTPExceptionSchema
@@ -24,7 +26,7 @@ router = APIRouter(prefix="/nodes", tags=["Nodes"])
 
 @router.get(
     "/{node_id}",
-    response_model=NodeSchema,
+    response_model=NodeExtendedSchema,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
@@ -32,13 +34,13 @@ router = APIRouter(prefix="/nodes", tags=["Nodes"])
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def node_get(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+async def node_get(
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
-    node_id: str,
-) -> NodeSchema:
+    node_id: NodeId,
+) -> NodeExtendedSchema:
     try:
-        return node_service.try_get(initiator_id, node_id)
+        return await node_service.try_get(initiator_id, node_id)
     except UserNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A user with this ID does not exist"
@@ -60,13 +62,13 @@ def node_get(
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def node_get_tree(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+async def node_get_tree(
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
-    node_id: str,
+    node_id: NodeId,
 ) -> NodeTreeSchema:
     try:
-        return node_service.try_get_tree(initiator_id, node_id)
+        return await node_service.try_get_tree(initiator_id, node_id)
     except UserNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A user with this ID does not exist"
@@ -89,13 +91,13 @@ def node_get_tree(
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def node_add(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+async def node_add(
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
     node_create: NodeCreateSchema,
 ) -> str:
     try:
-        return node_service.create(initiator_id, node_create)
+        return await node_service.try_create(initiator_id, node_create)
     except UserNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A user with this ID does not exist"
@@ -103,6 +105,10 @@ def node_add(
     except NodeNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A node with this id does not exist"
+        )
+    except TemplateDoesNotExistError:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "A template with this ID does not exist"
         )
     except NotAllowedError:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "You cant create this node")
@@ -118,14 +124,14 @@ def node_add(
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def update_node(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+async def update_node(
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
     node_update: NodeUpdateSchema,
-    node_id: str,
+    node_id: NodeId,
 ) -> None:
     try:
-        node_service.try_update(initiator_id, node_id, node_update)
+        await node_service.try_update(initiator_id, node_id, node_update)
     except UserNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A user with this ID does not exist"
@@ -136,6 +142,10 @@ def update_node(
         )
     except NotAllowedError:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "You cant update this node")
+    except NodeInDifferentTreeError:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "Nodes can be reparented only in same tree"
+        )
 
 
 @router.delete(
@@ -149,13 +159,13 @@ def update_node(
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def delete_node(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
+async def delete_node(
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
     node_service: Annotated[NodeService, Depends(get_node_service)],
-    node_id: str,
+    node_id: NodeId,
 ) -> None:
     try:
-        node_service.try_delete(initiator_id, node_id)
+        await node_service.try_delete(initiator_id, node_id)
     except UserNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,

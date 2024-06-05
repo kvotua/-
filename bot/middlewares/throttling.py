@@ -1,9 +1,8 @@
 from typing import Any, Awaitable, Callable
 
 from aiogram import BaseMiddleware
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, TelegramObject
 from cachetools import TTLCache
-from aiogram.types import TelegramObject
 
 
 class ThrottlingMiddleware(BaseMiddleware):

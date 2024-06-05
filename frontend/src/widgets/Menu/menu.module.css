@@ -1,23 +1,8 @@
-.menu {
-    padding: 33px 48px;
-    /* 353 была ширина */
-    max-width: fit-content;
-    margin: 0 auto;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 20px;
-
-    @apply fixed w-full bottom-[20px] left-1/2 -translate-x-1/2 backdrop-blur-sm;
-}
 
 @media screen and (max-height: 654px){
     .menu {
-        @apply fixed w-full bottom-[0] left-1/2 -translate-x-1/2;
+        @apply fixed w-full !bottom-[0]  -translate-x-1/2 !rounded-none;
 
-        padding:23px 48px;
-        max-width: 100%;
-        margin: 0 auto;
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 0px;
 
     }
 }

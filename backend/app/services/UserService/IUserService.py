@@ -1,21 +1,23 @@
 from abc import ABC, abstractmethod
 
-from .schemas import UserCreateSchema, UserSchema
+from .schemas.UserCreateSchema import UserCreateSchema
+from .schemas.UserId import UserId
+from .schemas.UserSchema import UserSchema
 
 
 class IUserService(ABC):
     @abstractmethod
-    def try_get_by_id(self, initiator_id: str, user_id: str) -> UserSchema:
+    async def try_get_by_id(self, initiator_id: UserId, user_id: UserId) -> UserSchema:
         pass
 
     @abstractmethod
-    def create(self, new_user: UserCreateSchema) -> None:
+    async def create(self, new_user: UserCreateSchema) -> None:
         pass
 
     @abstractmethod
-    def user_exist_validation(self, user_id: str) -> None:
+    async def user_exist_validation(self, user_id: UserId) -> None:
         pass
 
     @abstractmethod
-    def exist(self, user_id: str) -> bool:
+    async def exist(self, user_id: UserId) -> bool:
         pass

@@ -1,25 +1,28 @@
-import { useLocation } from "react-router-dom";
-import { useGetProjectsByIdQuery } from "../store/slice/ProjectsSlice/projectsApi";
-import { useGetTreeNodesQuery } from "../store/slice/UserPgaeSlice/UserPageApi";
+import { useFetchQuery } from "./useFetchQuery";
+import { IProject } from "../types/project.types";
 
-const useGetTree = () => {
-  const location = useLocation();
-
-  const regex = /\/project\/(\w{8}-(\w{4}-){3}\w{12})/;
-
-  const projectId = location.pathname.match(regex)![1];
-
+const useGetTree = <T>(projectId: string) => {
   const { data: project, isSuccess: isProjectSuccess } =
-    useGetProjectsByIdQuery(projectId);
+    useFetchQuery<IProject>({
+      index: ["getProject", projectId],
+      url: `projects/${projectId}`,
+      isModalLoading: false,
+    });
 
-  const { data: tree, isSuccess: isTreeSuccess } = useGetTreeNodesQuery(
-    project?.core_node_id,
-    {
-      skip: !isProjectSuccess,
-    },
-  );
+  const { data: tree, isSuccess: isTreeSuccess } = useFetchQuery<T>({
+    index: "getTreeNodes",
+    url: `/nodes/tree/${project?.core_node_id}`,
+    isModalLoading: false,
+    enabled: isProjectSuccess,
+  });
 
-  return { tree: tree, isTreeSuccess: isTreeSuccess };
+  const { data: templates } = useFetchQuery<string[]>({
+    index: "getAllTemplates",
+    url: `templates/`,
+    isModalLoading: false,
+    enabled: isTreeSuccess,
+  });
+  return { tree, isTreeSuccess, templates };
 };
 
 export default useGetTree;

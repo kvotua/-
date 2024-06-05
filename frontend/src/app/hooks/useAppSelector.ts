@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import { TypedUseSelectorHook } from "react-redux";
 import type { RootState } from "../store";
-//хук для обычного селектора но с типизацией
+
+/** **useAppSelector** - это redux хук useSelector со строгой типизацией */
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

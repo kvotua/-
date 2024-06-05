@@ -1,5 +1,4 @@
 import httpx
-
 from aiogram import Bot, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
@@ -20,14 +19,24 @@ async def start(message: Message, bot: Bot) -> None:
         bot (Bot): Бот
     """
     async with httpx.AsyncClient() as client:
-        protocol = "https" if config.MODE != "local" else "http"
-        url = f"{protocol}://{config.SERVER_NAME}/api/v1/users/"
+        url = f"{config.SERVER_NAME}/api/v1/users/"
         _id = str(message.from_user.id if message.from_user is not None else 0)
 
-        _ = await client.post(
+        response = await client.post(
             url=url,
             json={"id": _id},
         )
+
+    match response.status_code:
+        case 201:
+            text = (
+                "Добро пожаловать в бот-конструктор сайтов.\n"
+                "Начните создание сайта по кнопке ниже."
+            )
+        case 409:
+            text = "Вы уже зарегистрированы. Начните создание сайта по кнопке ниже."
+        case _:
+            text = "Произошла ошибка. Начните создание сайта по кнопке ниже."
 
     webapp = get_webapp()
 
@@ -37,6 +46,6 @@ async def start(message: Message, bot: Bot) -> None:
     )
 
     await message.answer(
-        "Привет!\nЯ бот-конструктор сайтов.",
+        text=text,
         reply_markup=get_webapp_inline_kb(webapp),
     )

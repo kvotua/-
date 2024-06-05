@@ -9,7 +9,9 @@ from app.services.exceptions import (
     UserNotFoundError,
     WrongInitiatorError,
 )
-from app.services.UserService.schemas import UserCreateSchema, UserSchema
+from app.services.UserService.schemas.UserCreateSchema import UserCreateSchema
+from app.services.UserService.schemas.UserId import UserId
+from app.services.UserService.schemas.UserSchema import UserSchema
 
 from .dependencies import get_user_id_by_init_data, get_user_service
 from .exceptions import HTTPExceptionSchema
@@ -27,13 +29,13 @@ router = APIRouter(prefix="/users", tags=["Users"])
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
     },
 )
-def user_get(
-    initiator_id: Annotated[str, Depends(get_user_id_by_init_data)],
-    user_id: str,
+async def user_get(
+    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
+    user_id: UserId,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserSchema:
     try:
-        return user_service.try_get_by_id(initiator_id, user_id)
+        return await user_service.try_get_by_id(initiator_id, user_id)
     except WrongInitiatorError:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, "The user with this ID was not found"
@@ -48,18 +50,6 @@ def user_get(
         )
 
 
-@router.get(
-    path="/{user_id}/exist",
-    response_model=bool,
-    status_code=status.HTTP_200_OK,
-)
-def user_exist(
-    user_id: str,
-    user_service: Annotated[UserService, Depends(get_user_service)],
-) -> bool:
-    return user_service.exist(user_id)
-
-
 @router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
@@ -67,11 +57,11 @@ def user_exist(
         status.HTTP_409_CONFLICT: {"model": HTTPExceptionSchema},
     },
 )
-def user_add(
+async def user_add(
     user: UserCreateSchema,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> None:
     try:
-        user_service.create(user)
+        await user_service.create(user)
     except UserExistError:
         raise HTTPException(status.HTTP_409_CONFLICT, "User already exist")

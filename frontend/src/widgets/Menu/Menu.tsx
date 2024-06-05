@@ -1,19 +1,10 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
-import { CustomLink } from "src/shared/CustomLink/CustomLink";
 import style from "./menu.module.css";
-
-interface IMenu {
-  link?: string;
-  Image: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-  handleClick?: (n: unknown) => void;
-}
-
-interface IMenuItem {
-  menuItem: IMenu[];
-}
+import { CustomLink } from "src/shared/CustomLink/CustomLink";
+import { IMenuItem } from "./MenuModel";
 
 const Menu: React.FC<IMenuItem> = ({ menuItem }) => {
   console.log("render");
@@ -21,17 +12,50 @@ const Menu: React.FC<IMenuItem> = ({ menuItem }) => {
   return (
     <>
       <Outlet />
-      <div className="container">
-        <motion.nav className={style.menu}>
-          <ul className="flex justify-between gap-[8vw]">
-            {menuItem.map(({ link, Image, handleClick }, i) => (
-              <li key={i} onClick={handleClick}>
-                <CustomLink to={link} Image={Image} />
-              </li>
-            ))}
-          </ul>
+      <AnimatePresence mode="wait">
+        <motion.nav
+          key={menuItem.toString()}
+          initial={{
+            opacity: 0,
+          }}
+          animate={{
+            opacity: 1,
+          }}
+          exit={{
+            opacity: 0,
+          }}
+          className={`fixed  py-[33px] px-[48px] bg-black/50 rounded-20 left-1/2 -translate-x-1/2 bottom-[20px] z-50 duration-200 ${style.menu}`}
+        >
+          <motion.ul
+            key={menuItem.toString()}
+            initial={{
+              gap: 0,
+              scale: 0,
+            }}
+            animate={{
+              gap: "8vw",
+              scale: 1,
+            }}
+            exit={{
+              gap: 0,
+              scale: 0,
+            }}
+            className="flex justify-center"
+          >
+            {menuItem.map(({ link, Image, handleClick }, i) => {
+              return (
+                <motion.li
+                  whileTap={{ scale: 0.9 }}
+                  key={i}
+                  onClick={handleClick}
+                >
+                  <CustomLink to={link} Image={Image!} />
+                </motion.li>
+              );
+            })}
+          </motion.ul>
         </motion.nav>
-      </div>
+      </AnimatePresence>
     </>
   );
 };

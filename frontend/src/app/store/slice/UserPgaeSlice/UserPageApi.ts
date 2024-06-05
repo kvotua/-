@@ -2,15 +2,15 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 interface INewNode {
   parent: string;
-  children: [] | string[];
+  template_id: string | undefined;
 }
 
 export const nodesApi = createApi({
   reducerPath: "nodesApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost/api/v1/",
+    baseUrl: `${import.meta.env.VITE_API_URL}/api/v1/`,
     headers: {
-      "user-init-data": 'user={"id":0}',
+      "user-init-data": 'user={"id":"0"}',
     },
   }),
   endpoints: (builder) => ({

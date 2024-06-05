@@ -1,29 +1,39 @@
 import React, { useState } from "react";
 import { InputDefault } from "src/shared/InputDefault/InputDefault";
-import Back from "src/assets/back.svg?react";
-import Save from "src/assets/save.svg?react";
+import Back from "src/app/assets/icons/back.svg?react";
+import Save from "src/app/assets/icons/save.svg?react";
 import { useNavigate } from "react-router-dom";
-import { useAddProjectMutation } from "src/app/store/slice/ProjectsSlice/projectsApi";
-import { addProject } from "./AddProjectApi";
-import { Menu } from "src/widgets/Menu/Menu";
+import { useChangeMenu } from "src/app/hooks/useChangeMenu";
+import { useFetchMutation } from "src/app/hooks/useFetchMutation";
+import { IProject } from "src/app/types/project.types";
+
 const AddProject: React.FC = () => {
   const [projectName, setProjectName] = useState<string>("");
   const navigate = useNavigate();
-  const [mutation] = useAddProjectMutation();
-
+  const { mutate } = useFetchMutation<IProject>({
+    index: "addProject",
+    onSuccess: () => navigate(-1),
+    body: { name: projectName },
+    refetchKey: "getProjectsByUserId",
+  });
   const menuItem = [
     {
       handleClick: () => navigate(-1),
       Image: Back,
     },
     {
-      handleClick: () => addProject(mutation, navigate, { name: projectName }),
+      handleClick: () =>
+        mutate({
+          method: "POST",
+          url: "projects",
+        }),
       Image: Save,
     },
   ];
+  useChangeMenu(menuItem);
 
   return (
-    <div>
+    <>
       <div
         style={{ background: "linear-gradient(#7942D1, #E74EEA)" }}
         className="container pt-[4vh] min-h-[100dvh] min-w-[100vw] m-auto z-10 fixed top-0"
@@ -40,10 +50,9 @@ const AddProject: React.FC = () => {
             placeholder="Мой проект"
           />
         </div>
-        <Menu menuItem={menuItem} />
       </div>
-    </div>
+    </>
   );
 };
 
-export { AddProject };
+export default AddProject;

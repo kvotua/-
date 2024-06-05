@@ -1,13 +1,7 @@
 import React from "react";
 import { useAppSelector } from "src/app/hooks/useAppSelector";
-import { tg } from "src/app/tg";
-export interface IUser {
-  id?: string;
-  login?: string;
-}
 
 const Profile: React.FC = () => {
-  const tgUser: IUser = tg.initDataUnsafe.user;
   const id = useAppSelector((state) => state.user.user?.id);
 
   return (
@@ -31,8 +25,8 @@ const Profile: React.FC = () => {
     //     </li>
     //   </ul>
     // </div>
-    <>{tgUser ? tgUser?.id : id}</>
+    <>{id}</>
   );
 };
 
-export { Profile };
+export default Profile;

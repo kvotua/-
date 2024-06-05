@@ -4,4 +4,4 @@ const Awards: React.FC = () => {
   return <div>Awards</div>;
 };
 
-export { Awards };
+export default Awards;

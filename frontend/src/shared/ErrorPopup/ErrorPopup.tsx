@@ -1,9 +1,5 @@
 import React from "react";
-
-interface IErrorPopup {
-  errorMessage?: string;
-  handleClick: () => void;
-}
+import { type IErrorPopup } from "./ErrorPopupModel";
 
 const ErrorPopup: React.FC<IErrorPopup> = ({ errorMessage, handleClick }) => {
   return (
