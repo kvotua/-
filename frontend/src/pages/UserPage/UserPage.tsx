@@ -453,6 +453,19 @@ const UserPage: React.FC = () => {
                     <input id="color" name="color" type="color" />
                     <DrawerTrigger>
                       <LinkButton
+                        type=""
+                        handleClick={async () => {
+                          const newId = await addNode(
+                            id,
+                            getIdByType("container"),
+                          );
+                          // const attribute = {
+                          //   node_id: newId,
+                          //   attribute_name: "text",
+                          //   attribute_value: nodeText,
+                          // };
+                          // await patchNode(attribute);
+                        }}
                         title="Сохранить"
                         buttonActive={false}
                         type="submit"
