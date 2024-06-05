@@ -39,7 +39,7 @@ node_id:
 # (1, 1a)
 def test_get_node(
     create_user: Callable, create_project: Callable, create_node: Callable
-):
+) -> None:
     """(1, 1a) - 200 - узел действительно отображается"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -55,7 +55,7 @@ def test_get_node(
 
 
 # (1, 1b)
-def test_get_root_node(create_user: Callable, create_project: Callable):
+def test_get_root_node(create_user: Callable, create_project: Callable) -> None:
     """(1, 1b) - 404"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -72,7 +72,7 @@ def test_get_root_node(create_user: Callable, create_project: Callable):
 # (1, 2a)
 def test_try_get_another_node(
     create_user: Callable, create_project: Callable, create_node: Callable
-):
+) -> None:
     """(1, 2a) - 403"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -89,7 +89,9 @@ def test_try_get_another_node(
 
 
 # (1, 2b)
-def test_try_get_another_root_node(create_user: Callable, create_project: Callable):
+def test_try_get_another_root_node(
+    create_user: Callable, create_project: Callable
+) -> None:
     """(1, 2b) - 403"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -105,7 +107,7 @@ def test_try_get_another_root_node(create_user: Callable, create_project: Callab
 
 
 # (1, 3)
-def test_try_get_nonexistent_node(create_user: Callable):
+def test_try_get_nonexistent_node(create_user: Callable) -> None:
     """(1, 3) - 404"""
     _, user_init_data = create_user()
     node_id = "0"
@@ -121,7 +123,7 @@ def test_try_get_nonexistent_node(create_user: Callable):
 # (2, 1a), (2, 2a)
 def test_try_get_node_from_nonexistent_user(
     create_user: Callable, create_project: Callable, create_node: Callable
-):
+) -> None:
     """(2, 1a) - 401, (2, 2a) - 401"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -140,7 +142,7 @@ def test_try_get_node_from_nonexistent_user(
 # (2, 2a), (2, 2b)
 def test_try_get_root_node_from_nonexistent_user(
     create_user: Callable, create_project: Callable
-):
+) -> None:
     """(2, 1a) - 401, (2, 2a) - 401"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -156,7 +158,7 @@ def test_try_get_root_node_from_nonexistent_user(
 
 
 # (2, 3)
-def test_try_get_nonexistent_node_from_nonexistent_user():
+def test_try_get_nonexistent_node_from_nonexistent_user() -> None:
     """(2, 3) - 401"""
     _, user_init_data = client.get_random_user()
     node_id = "0"
@@ -172,7 +174,7 @@ def test_try_get_nonexistent_node_from_nonexistent_user():
 # (3, 1a), (3, 2a)
 def test_try_get_node_with_bad_token(
     create_user: Callable, create_project: Callable, create_node: Callable
-):
+) -> None:
     """(3, 1a), (3, 2a) - 401"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -191,7 +193,7 @@ def test_try_get_node_with_bad_token(
 # (3, 1b), (3, 2b)
 def test_try_get_root_node_with_bad_token(
     create_user: Callable, create_project: Callable
-):
+) -> None:
     """(3, 1b), (3, 2b) - 401"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -207,7 +209,7 @@ def test_try_get_root_node_with_bad_token(
 
 
 # (3, 3)
-def test_try_get_nonexistent_node_with_bad_token():
+def test_try_get_nonexistent_node_with_bad_token() -> None:
     """(3, 3) - 401"""
     user_init_data = "bad-token"
     node_id = "0"

@@ -57,7 +57,7 @@ parent_id:
 # (1, 1a, 1a)
 def test_move_node(
     create_user: Callable, create_project: Callable, create_node: Callable
-):
+) -> None:
     """(1, 1a, 1a) - 200 - родитель узла поменялся"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -92,7 +92,7 @@ def test_move_node(
 # (1, 1a, 1b)
 def test_move_node_in_other_project(
     create_user: Callable, create_project: Callable, create_node: Callable
-):
+) -> None:
     """(1, 1a, 1b) - 400"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)

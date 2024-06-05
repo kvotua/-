@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 import pytest
-from dataclass_wizard import JSONWizard
+from dataclass_wizard import JSONWizard  # type: ignore
 from fastapi import status
 
 from .setup import client

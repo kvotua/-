@@ -30,7 +30,7 @@ parent_id:
 
 
 # (1, 1)
-def test_create_node(create_user: Callable, create_project: Callable):
+def test_create_node(create_user: Callable, create_project: Callable) -> None:
     """(1, 1) - 200 - узел создался"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -46,7 +46,7 @@ def test_create_node(create_user: Callable, create_project: Callable):
 # (1, 2)
 def test_try_create_node_for_another_parent(
     create_user: Callable, create_project: Callable
-):
+) -> None:
     """(1, 2) - 403"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -61,7 +61,7 @@ def test_try_create_node_for_another_parent(
 
 
 # (1, 3)
-def test_try_create_node_for_nonexistent_parent(create_user: Callable):
+def test_try_create_node_for_nonexistent_parent(create_user: Callable) -> None:
     """(1, 3) - 404"""
     _, user_init_data = create_user()
     project_id = "0"
@@ -77,7 +77,7 @@ def test_try_create_node_for_nonexistent_parent(create_user: Callable):
 # (2, 1), (2, 2)
 def test_try_create_node_from_nonexistent_user(
     create_user: Callable, create_project: Callable
-):
+) -> None:
     """(2, 1), (2, 2) - 401"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -92,7 +92,7 @@ def test_try_create_node_from_nonexistent_user(
 
 
 # (2, 3)
-def test_try_create_node_from_nonexistent_user_for_nonexistent_parent():
+def test_try_create_node_from_nonexistent_user_for_nonexistent_parent() -> None:
     """(2, 3) - 401"""
     _, user_init_data = client.get_random_user()
     project_id = "0"
@@ -108,7 +108,7 @@ def test_try_create_node_from_nonexistent_user_for_nonexistent_parent():
 # (3, 1), (3, 2)
 def test_try_create_node_with_bad_token(
     create_user: Callable, create_project: Callable
-):
+) -> None:
     """(3, 1), (3, 2) - 401"""
     _, user_init_data = create_user()
     project = create_project(user_init_data=user_init_data)
@@ -124,7 +124,7 @@ def test_try_create_node_with_bad_token(
 
 
 # (3, 3)
-def test_try_create_node_with_bad_token_for_nonexistent_parent():
+def test_try_create_node_with_bad_token_for_nonexistent_parent() -> None:
     """(3, 3) - 401"""
     user_init_data = "bad-format"
     project_id = "0"
