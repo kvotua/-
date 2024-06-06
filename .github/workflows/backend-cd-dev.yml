@@ -12,8 +12,8 @@ env:
   path: ./backend
 
 jobs:
-  deploy:
-    name: Deploy container to Yandex Cloud
+  build:
+    name: Build container and push to Yandex Cloud
     runs-on: ubuntu-latest
     steps:
       - name: Get repository code
@@ -27,12 +27,17 @@ jobs:
       - name: Build docker image
         run: |
           cd ${{ env.path }}
-          docker build -t cr.yandex/${{ secrets.YC_CR_ID_DEV }}/dev:latest .
+          docker build -t cr.yandex/${{ secrets.YC_CR_ID_DEV }}/dev:latest --target production .
 
       - name: Push docker image to Yandex Cloud Container Registry
         timeout-minutes: 2  # Sometime docker push can stuck
         run: docker push cr.yandex/${{ secrets.YC_CR_ID_DEV }}/dev:latest
 
+  deploy:
+    name: Deploy container on Yandex Cloud
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
       - name: Deploy Serverless Container
         uses: yc-actions/yc-sls-container-deploy@v2
         with:
