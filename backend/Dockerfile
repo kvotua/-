@@ -9,8 +9,7 @@ COPY pyproject.toml poetry.lock ./
 FROM base AS production
 RUN poetry install --only main
 COPY app app
-CMD poetry run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
-
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 FROM base AS test
 RUN poetry install
