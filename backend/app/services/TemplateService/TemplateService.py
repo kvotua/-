@@ -79,6 +79,11 @@ class TemplateService(ITemplateService):
         self.__registry.create(template.id, template.model_dump(exclude={"id"}))
         return template.id
 
+    async def delete(self, template_id: TemplateId) -> None:
+        template = await self.get(template_id)
+        await self.__node_service.delete(template.tree.id)
+        self.__registry.delete(template_id)
+
     async def instantiate(self, template_id: TemplateId) -> NodeTreeSchema:
         """
         Instantiate a template
