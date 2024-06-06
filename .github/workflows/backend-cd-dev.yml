@@ -1,0 +1,60 @@
+name: "Backend Deploy Dev"
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - backend/**
+      - .github/workflows/backend-cd-dev.yml
+
+env:
+  path: ./backend
+
+jobs:
+  build:
+    name: Build container and push to Yandex Cloud
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4
+
+      - name: Login to Yandex Cloud Container Registry
+        uses: yc-actions/yc-cr-login@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build docker image
+        run: |
+          cd ${{ env.path }}
+          docker build -t cr.yandex/${{ secrets.YC_CR_ID_DEV }}/dev:latest --target production .
+
+      - name: Push docker image to Yandex Cloud Container Registry
+        timeout-minutes: 2  # Sometime docker push can stuck
+        run: docker push cr.yandex/${{ secrets.YC_CR_ID_DEV }}/dev:latest
+
+  deploy:
+    name: Deploy container on Yandex Cloud
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Deploy Serverless Container
+        uses: yc-actions/yc-sls-container-deploy@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          container-name: backend-dev
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
+          revision-service-account-id: ${{ secrets.YC_SA_ID_BACKEND }}
+          revision-cores: 1
+          revision-memory: 128Mb
+          revision-core-fraction: 100
+          revision-concurrency: 16
+          revision-image-url: cr.yandex/${{ secrets.YC_CR_ID_DEV }}/dev:latest
+          revision-execution-timeout: 10
+          public: true
+          revision-env: |
+            MODE=production
+            BOT_KEY=${{ secrets.TELEGRAM_TOKEN_DEV }}
+            AWS_ACCESS_KEY_ID=${{ secrets.YDB_DOCUMENT_API_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.YDB_DOCUMENT_API_SECRET_ACCESS_KEY }}
+            YDB_DOCUMENT_API_ENDPOINT=${{ secrets.YDB_DOCUMENT_API_ENDPOINT }}
