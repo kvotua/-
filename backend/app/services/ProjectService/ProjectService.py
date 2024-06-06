@@ -1,5 +1,3 @@
-from os import path
-
 from app.registry import IRegistry
 
 from ..AttributeService.schemas.NodeAttributeExternalSchema import (
@@ -11,7 +9,6 @@ from ..exceptions import (
     ProjectNotFoundError,
     UserNotFoundError,
 )
-from ..FileService import IFileService
 from ..NodeService import INodeService
 from ..NodeService.schemas.NodeId import NodeId
 from ..UserService import IUserService
@@ -31,7 +28,6 @@ class ProjectService(IProjectService):
     __registry: IRegistry
     __user_service: IUserService
     __node_service: INodeService
-    __file_service: IFileService
 
     def __init__(
         self,
@@ -46,10 +42,7 @@ class ProjectService(IProjectService):
         self.__registry = registry
 
     async def inject_dependencies(
-        self,
-        user_service: IUserService,
-        node_service: INodeService,
-        file_service: IFileService,
+        self, user_service: IUserService, node_service: INodeService
     ) -> None:
         """
         Inject dependencies necessary for the service to work.
@@ -60,7 +53,6 @@ class ProjectService(IProjectService):
         """
         self.__user_service = user_service
         self.__node_service = node_service
-        self.__file_service = file_service
 
     async def user_exist_validation(self, user_id: UserId) -> None:
         await self.__user_service.user_exist_validation(user_id)
@@ -141,7 +133,6 @@ class ProjectService(IProjectService):
             **new_project.model_dump(), owner_id=initiator_id, core_node_id=node_id
         )
         self.__registry.create(project.id, project.model_dump(exclude={"id"}))
-        await self.__file_service.create_folder(str(initiator_id), str(project.id))
         return project
 
     async def try_update(
@@ -189,9 +180,6 @@ class ProjectService(IProjectService):
             raise NotAllowedError()
         await self.__delete(project_id)
         await self.__node_service.delete(project.core_node_id)
-        await self.__file_service.remove_folder(
-            path.join(str(initiator_id), str(project_id))
-        )
 
     async def try_get_by_core_node_id(
         self, initiator_id: UserId, node_id: NodeId

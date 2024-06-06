@@ -83,11 +83,9 @@ class ServiceMediator:
         return self.__html_service
 
     async def __inject_dependencies(self) -> None:
-        await self.__user_service.inject_dependencies(self.__file_service)
         await self.__project_service.inject_dependencies(
             self.__user_service,
             self.__node_service,
-            self.__file_service,
         )
         await self.__node_service.inject_dependencies(
             self.__user_service,
@@ -105,7 +103,7 @@ class ServiceMediator:
         )
 
         await self.__html_service.inject_dependencies(
-            self.__project_service, self.__node_service, self.__file_service
+            self.__project_service, self.__node_service
         )
 
     def __instantiate_user_service(self) -> None:

@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.services import NodeService
 from app.services.exceptions import (
-    EndNodeError,
     NodeCannotBeDeletedError,
     NodeInDifferentTreeError,
     NodeNotFoundError,
@@ -87,7 +86,6 @@ async def node_get_tree(
     status_code=status.HTTP_201_CREATED,
     response_model=str,
     responses={
-        status.HTTP_400_BAD_REQUEST: {"model": HTTPExceptionSchema},
         status.HTTP_401_UNAUTHORIZED: {"model": HTTPExceptionSchema},
         status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
@@ -114,10 +112,6 @@ async def node_add(
         )
     except NotAllowedError:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "You cant create this node")
-    except EndNodeError:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST, "You can't add a child to this node"
-        )
 
 
 @router.patch(

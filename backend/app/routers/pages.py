@@ -1,39 +1,38 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
 
-from app.services.exceptions import NotAllowedError, ProjectNotFoundError
+from app.services.exceptions import ProjectNotFoundError
 from app.services.HTMLService import IHTMLService
 from app.services.ProjectService.schemas.ProjectId import ProjectId
-from app.services.UserService.schemas.UserId import UserId
 
-from .dependencies import get_html_service, get_user_id_by_init_data
+from .dependencies import get_html_service
 from .exceptions import HTTPExceptionSchema
 
 router = APIRouter(prefix="/pages", tags=["Pages"])
 
 
-@router.post(
-    "/{project_id}/",
-    response_model=None,
+@router.get(
+    "/{project_id}",
+    response_class=HTMLResponse,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_404_NOT_FOUND: {"model": HTTPExceptionSchema},
-        status.HTTP_403_FORBIDDEN: {"model": HTTPExceptionSchema},
     },
 )
-async def save_index_page(
+async def get_index_page(
     html_service: Annotated[IHTMLService, Depends(get_html_service)],
+    request: Request,
     project_id: ProjectId,
-    initiator_id: Annotated[UserId, Depends(get_user_id_by_init_data)],
-) -> None:
+) -> HTMLResponse:
     try:
-        await html_service.render_index_page(
-            initiator_id=initiator_id, project_id=project_id
+        return HTMLResponse(
+            content=await html_service.render_index_page(
+                request=request, project_id=project_id
+            )
         )
     except ProjectNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "Project with this id does not exist"
         )
-    except NotAllowedError:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "You can't save this project")

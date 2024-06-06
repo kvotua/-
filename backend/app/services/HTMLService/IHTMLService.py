@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 
+from fastapi import Request
+
 from ..ProjectService.schemas.ProjectId import ProjectId
-from ..UserService.schemas.UserId import UserId
 
 
 class IHTMLService(ABC):
     @abstractmethod
-    async def render_index_page(
-        self, initiator_id: UserId, project_id: ProjectId
-    ) -> None:
+    async def render_index_page(self, request: Request, project_id: ProjectId) -> str:
         pass
