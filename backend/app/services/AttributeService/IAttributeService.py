@@ -44,9 +44,5 @@ class IAttributeService(ABC):
         pass
 
     @abstractmethod
-    async def is_file_type(self, node_id: NodeId) -> bool:
-        pass
-
-    @abstractmethod
     async def exist_type(self, attribute_type: AttributeTypeId) -> bool:
         pass

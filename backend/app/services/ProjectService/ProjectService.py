@@ -102,7 +102,7 @@ class ProjectService(IProjectService):
             WrongInitiatorError: if the initiator does not exist.
         """
         await self.__user_service.user_exist_validation(initiator_id)
-        project = await self.get(project_id)
+        project = await self.__get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         return project
@@ -156,7 +156,7 @@ class ProjectService(IProjectService):
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
         await self.__user_service.user_exist_validation(initiator_id)
-        project = await self.get(project_id)
+        project = await self.__get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         await self.__update(project_id, project_update)
@@ -175,7 +175,7 @@ class ProjectService(IProjectService):
             ProjectNotFoundError: If the project with the specified ID is not found.
         """
         await self.__user_service.user_exist_validation(initiator_id)
-        project = await self.get(project_id)
+        project = await self.__get(project_id)
         if initiator_id != project.owner_id:
             raise NotAllowedError()
         await self.__delete(project_id)
@@ -264,7 +264,7 @@ class ProjectService(IProjectService):
         ):
             raise ProjectNotFoundError()
 
-    async def get(self, project_id: ProjectId) -> ProjectSchema:
+    async def __get(self, project_id: ProjectId) -> ProjectSchema:
         """
         Retrieve a project.
 

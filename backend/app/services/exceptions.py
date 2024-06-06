@@ -42,10 +42,6 @@ class NodeInDifferentTreeError(ServiceError):
     pass
 
 
-class TemplateDoesNotExistError(ServiceError):
-    """Raised when given node template does not exist"""
-
-
 class AttributeTypeNotFoundError(ServiceError):
     """Raised when attribute type does not exist"""
 
@@ -72,29 +68,5 @@ class AttributeTypeAlreadyExists(ServiceError):
 
 class InvalidAttributeValueError(ServiceError):
     """Raised when attribute is being passed with wrong value"""
-
-    pass
-
-
-class FileDoesNotExistError(ServiceError):
-    """Raised when given file does not exist"""
-
-    pass
-
-
-class InvalidFileFormatError(ServiceError):
-    """Raised when given file with incompatible format"""
-
-    pass
-
-
-class IncompatibleNodeError(ServiceError):
-    """Raised when target node does not support addition of a file"""
-
-    pass
-
-
-class FileTooBigError(ServiceError):
-    """Raised when given file is too big"""
 
     pass

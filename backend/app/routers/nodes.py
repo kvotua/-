@@ -8,7 +8,6 @@ from app.services.exceptions import (
     NodeInDifferentTreeError,
     NodeNotFoundError,
     NotAllowedError,
-    TemplateDoesNotExistError,
     UserNotFoundError,
 )
 from app.services.NodeService.schemas.NodeCreateSchema import NodeCreateSchema
@@ -105,10 +104,6 @@ async def node_add(
     except NodeNotFoundError:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "A node with this id does not exist"
-        )
-    except TemplateDoesNotExistError:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, "A template with this ID does not exist"
         )
     except NotAllowedError:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "You cant create this node")
