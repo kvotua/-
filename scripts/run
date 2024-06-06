@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+from argparse import ArgumentParser, Namespace
+import subprocess
+
+
+class Test:
+    COMMAND = [
+        "docker-compose",
+        "--env-file",
+        ".env.test",
+        "-f",
+        "docker-compose.yml",
+        "-f",
+        "docker-compose.test.yml",
+    ]
+
+    @staticmethod
+    def run(args: Namespace) -> int:
+        returncode = Test.build(args)
+        if returncode != 0:
+            print("Can't build docker image")
+            return returncode
+        print("Running tests")
+        returncode = subprocess.run(
+            [
+                *Test.COMMAND,
+                "up",
+                "backend",
+                "--force-recreate",
+                "--always-recreate-deps",
+                "--abort-on-container-exit",
+                "--no-log-prefix",
+            ]
+        ).returncode
+        Test.halt()
+        return returncode
+
+    @staticmethod
+    def build(args) -> int:
+        print(f"Building backend docker image with python{args.python_version}")
+        returncode = subprocess.run(
+            [
+                *Test.COMMAND,
+                "build",
+                "backend",
+                "--build-arg",
+                f"VERSION={args.python_version}",
+                "-q",
+            ]
+        ).returncode
+        return returncode
+
+    @staticmethod
+    def halt() -> int:
+        print("Removing docker containers")
+        returncode = subprocess.run(
+            [
+                *Test.COMMAND,
+                "down",
+                "-v",
+            ]
+        ).returncode
+        return returncode
+
+
+def main():
+    parser = ArgumentParser()
+    subparsers = parser.add_subparsers(title="Action", required=True, dest="action")
+    test_subparser = subparsers.add_parser("test", help="Run tests")
+    test_subparser.add_argument("--python-version", type=str, default="3.11")
+    args = parser.parse_args()
+    print(f"{args=}")
+    match args.action:
+        case "test":
+            if Test.run(args) == 0:
+                print("Success")
+            else:
+                print("Error")
+
+
+if __name__ == "__main__":
+    main()
