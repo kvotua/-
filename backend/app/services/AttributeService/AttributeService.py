@@ -245,33 +245,34 @@ class AttributeService(IAttributeService):
 
     async def __prepopulate_type(self) -> None:
         """
-        prepolutes type table with attribute types
+        prepolates type table with attribute types
         """
-        await self.create_type(
-            AttributeTypeSchema(
-                id="container",
-                attrs={
-                    "direction": "^flex-(row|col)$",
-                    "background": "^#(?:[0-9a-fA-F]{3}){1,2}$",
-                    "background_image": "^true|false$",
-                },
+        if not await self.get_all_types():
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="container",
+                    attrs={
+                        "direction": "^flex-(row|col)$",
+                        "background": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                        "background_image": "^true|false$",
+                    },
+                )
             )
-        )
-        await self.create_type(
-            AttributeTypeSchema(
-                id="text",
-                attrs={
-                    "position": "^text-(left|right|center)$",
-                    "color": "^#(?:[0-9a-fA-F]{3}){1,2}$",
-                    "text": "^.{1,50}$",
-                },
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="text",
+                    attrs={
+                        "position": "^text-(left|right|center)$",
+                        "color": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                        "text": "^.{1,50}$",
+                    },
+                )
             )
-        )
-        await self.create_type(
-            AttributeTypeSchema(
-                id="image",
-                attrs={
-                    "rounded": "^(rounded){0,1}(-md|-lg|-full){0,1}$",
-                },
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="image",
+                    attrs={
+                        "rounded": "^(rounded){0,1}(-md|-lg|-full){0,1}$",
+                    },
+                )
             )
-        )
