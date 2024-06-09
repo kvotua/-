@@ -79,6 +79,11 @@ class TemplateService(ITemplateService):
         self.__registry.create(template.id, template.model_dump(exclude={"id"}))
         return template.id
 
+    async def delete(self, template_id: TemplateId) -> None:
+        template = await self.get(template_id)
+        await self.__node_service.delete(template.tree.id)
+        self.__registry.delete(template_id)
+
     async def instantiate(self, template_id: TemplateId) -> NodeTreeSchema:
         """
         Instantiate a template
@@ -148,31 +153,36 @@ class TemplateService(ITemplateService):
         """
         Prepopulate node and template registries with records
         """
-        container_id = await self.__node_service.create(
-            parent_id=None,
-            node_attributes=NodeAttributeExternalSchema(
-                type_id="container",
-                attrs={"direction": "flex-col", "background": "#ffffff"},
-            ),
-        )
-        text_id = await self.__node_service.create(
-            parent_id=None,
-            node_attributes=NodeAttributeExternalSchema(
-                type_id="text",
-                attrs={
-                    "position": "text-left",
-                    "color": "#000000",
-                    "text": "Text goes here",
-                },
-            ),
-        )
-        image_id = await self.__node_service.create(
-            parent_id=None,
-            node_attributes=NodeAttributeExternalSchema(
-                type_id="image",
-                attrs={"rounded": ""},
-            ),
-        )
-        await self.create(container_id)
-        await self.create(text_id)
-        await self.create(image_id)
+        if not await self.get_all():
+            container_id = await self.__node_service.create(
+                parent_id=None,
+                node_attributes=NodeAttributeExternalSchema(
+                    type_id="container",
+                    attrs={
+                        "direction": "flex-col",
+                        "background": "#ffffff",
+                        "background_image": "false",
+                    },
+                ),
+            )
+            text_id = await self.__node_service.create(
+                parent_id=None,
+                node_attributes=NodeAttributeExternalSchema(
+                    type_id="text",
+                    attrs={
+                        "position": "text-left",
+                        "color": "#000000",
+                        "text": "Text goes here",
+                    },
+                ),
+            )
+            image_id = await self.__node_service.create(
+                parent_id=None,
+                node_attributes=NodeAttributeExternalSchema(
+                    type_id="image",
+                    attrs={"rounded": ""},
+                ),
+            )
+            await self.create(container_id)
+            await self.create(text_id)
+            await self.create(image_id)

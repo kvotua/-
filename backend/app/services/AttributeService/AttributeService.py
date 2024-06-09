@@ -25,7 +25,7 @@ class AttributeService(IAttributeService):
     __type_registry: IRegistry
     __attribute_registry: IRegistry
     __file_service: IFileService
-    __file_based_attribute_types = "image"
+    __file_based_attribute_types = ["image", "container"]
 
     def __init__(self, type_registry: IRegistry, attribute_service: IRegistry) -> None:
         """
@@ -147,7 +147,9 @@ class AttributeService(IAttributeService):
             NodeAttributeNotFoundError: raised when node-attribute with given id does \
             not exist
         """
-        if await self.is_file_type(attribute_id):
+        if await self.is_file_type(attribute_id) and await self.__file_service.exists(
+            attribute_id
+        ):
             await self.__file_service.remove_file(attribute_id)
         self.__attribute_registry.delete(attribute_id)
 
@@ -202,19 +204,6 @@ class AttributeService(IAttributeService):
         attr_type = self.__type_registry.get(attribute_id)
         return attr_type is not None
 
-    async def __is_file_type(self, type: AttributeTypeId) -> bool:
-        """
-        checks if given node attribute type belongs to file types
-
-        Args:
-            type (AttributeTypeId): attribute type id
-
-        Returns:
-            bool: returns true if attribute type belongs to file types, \
-            returns false if attribute type does not belongs to file types
-        """
-        return type in self.__file_based_attribute_types
-
     async def is_file_type(self, node_id: NodeId) -> bool:
         """
         checks if given node has node attribute type that belongs to a file types \
@@ -228,7 +217,7 @@ class AttributeService(IAttributeService):
         """
 
         attrs = await self.get_attribute(node_id)
-        return await self.__is_file_type(attrs.type_id)
+        return attrs.type_id in self.__file_based_attribute_types
 
     async def __validate_attribute(
         self, key: str, value: str, node_type: AttributeTypeSchema
@@ -256,32 +245,34 @@ class AttributeService(IAttributeService):
 
     async def __prepopulate_type(self) -> None:
         """
-        prepolutes type table with attribute types
+        prepolates type table with attribute types
         """
-        await self.create_type(
-            AttributeTypeSchema(
-                id="container",
-                attrs={
-                    "direction": "^flex-(row|col)$",
-                    "background": "^#(?:[0-9a-fA-F]{3}){1,2}$",
-                },
+        if not await self.get_all_types():
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="container",
+                    attrs={
+                        "direction": "^flex-(row|col)$",
+                        "background": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                        "background_image": "^true|false$",
+                    },
+                )
             )
-        )
-        await self.create_type(
-            AttributeTypeSchema(
-                id="text",
-                attrs={
-                    "position": "^text-(left|right|center)$",
-                    "color": "^#(?:[0-9a-fA-F]{3}){1,2}$",
-                    "text": "^.{1,50}$",
-                },
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="text",
+                    attrs={
+                        "position": "^text-(left|right|center)$",
+                        "color": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                        "text": "^.{1,50}$",
+                    },
+                )
             )
-        )
-        await self.create_type(
-            AttributeTypeSchema(
-                id="image",
-                attrs={
-                    "rounded": "^(rounded){0,1}(-md|-lg|-full){0,1}$",
-                },
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="image",
+                    attrs={
+                        "rounded": "^(rounded){0,1}(-md|-lg|-full){0,1}$",
+                    },
+                )
             )
-        )

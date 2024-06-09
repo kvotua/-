@@ -1,4 +1,4 @@
-<div class="container" flex {{node.attrs.direction}} style = "background-color: {{node.attrs.background}};">
+<div class="container" flex {{node.attrs.direction}} style = "background-color: {{node.attrs.background}};{% if 'true' == node.attrs.background_image %}background-image: url( http://localhost:7000/{{node.id }});{% endif %}">
     {% for node in node_list %}
         {{node|safe}}
     {% endfor %}
