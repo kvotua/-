@@ -52,6 +52,7 @@ jobs:
           revision-image-url: cr.yandex/${{ secrets.YC_CR_ID_DEV }}/dev:latest
           revision-execution-timeout: 10
           public: true
+          revision-storage-mounts: "${{ secrets.YC_BUCKET_NAME_STORAGE_DEV }}:/storage:rw"
           revision-env: |
             MODE=production
             BOT_KEY=${{ secrets.TELEGRAM_TOKEN_DEV }}
