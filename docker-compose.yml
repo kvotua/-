@@ -14,12 +14,22 @@ services:
     build: ./backend
     depends_on:
       - dynamodb
+      - storage
+    volumes:
+      - storage_volume:/storage
     environment:
       - MODE=${MODE}
       - BOT_KEY=${TELEGRAM_TOKEN}
       - AWS_ACCESS_KEY_ID=${YDB_DOCUMENT_API_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${YDB_DOCUMENT_API_SECRET_ACCESS_KEY}
       - YDB_DOCUMENT_API_ENDPOINT=${YDB_DOCUMENT_API_ENDPOINT}
+  
+  storage:
+    build: ./object_service
+    volumes:
+      - storage_volume:/storage
+    ports:
+      - "7000:7000"
 
   dynamodb:
     command: "-jar DynamoDBLocal.jar -disableTelemetry -inMemory -sharedDb"
@@ -55,3 +65,4 @@ services:
 
 volumes:
   html_volume:
+  storage_volume:

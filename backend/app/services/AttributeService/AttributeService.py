@@ -9,6 +9,7 @@ from ..exceptions import (
     InvalidAttributeValueError,
     NodeAttributeNotFoundError,
 )
+from ..FileService import IFileService
 from ..NodeService.schemas.NodeId import NodeId
 from .IAttributeService import IAttributeService
 from .schemas.AttributeTypeSchema import AttributeTypeSchema
@@ -23,10 +24,12 @@ class AttributeService(IAttributeService):
 
     __type_registry: IRegistry
     __attribute_registry: IRegistry
+    __file_service: IFileService
+    __file_based_attribute_types = ["image", "container"]
 
     def __init__(self, type_registry: IRegistry, attribute_service: IRegistry) -> None:
         """
-        initialize the AttributeService wit two registries
+        initialize the AttributeService with two registries
 
         Args:
             type_registry (IRegistry): registry used for types of attributes
@@ -35,12 +38,11 @@ class AttributeService(IAttributeService):
         self.__type_registry = type_registry
         self.__attribute_registry = attribute_service
 
-    async def inject_dependencies(
-        self,
-    ) -> None:
+    async def inject_dependencies(self, file_service: IFileService) -> None:
         """
         injects dependencies and prepopulates table
         """
+        self.__file_service = file_service
         await self.__prepopulate_type()
 
     async def get_type(self, attribute_type: AttributeTypeId) -> AttributeTypeSchema:
@@ -145,8 +147,11 @@ class AttributeService(IAttributeService):
             NodeAttributeNotFoundError: raised when node-attribute with given id does \
             not exist
         """
-        if not self.__attribute_registry.delete(attribute_id):
-            raise NodeAttributeNotFoundError()
+        if await self.is_file_type(attribute_id) and await self.__file_service.exists(
+            attribute_id
+        ):
+            await self.__file_service.remove_file(attribute_id)
+        self.__attribute_registry.delete(attribute_id)
 
     async def delete_type(self, attribute_id: AttributeTypeId) -> None:
         """
@@ -199,9 +204,38 @@ class AttributeService(IAttributeService):
         attr_type = self.__type_registry.get(attribute_id)
         return attr_type is not None
 
+    async def is_file_type(self, node_id: NodeId) -> bool:
+        """
+        checks if given node has node attribute type that belongs to a file types \
+
+        Args:
+            type (AttributeTypeId): attribute type id
+
+        Returns:
+            bool: returns true if attribute type belongs to file types, \
+            returns false if attribute type does not belongs to file types
+        """
+
+        attrs = await self.get_attribute(node_id)
+        return attrs.type_id in self.__file_based_attribute_types
+
     async def __validate_attribute(
         self, key: str, value: str, node_type: AttributeTypeSchema
     ) -> None:
+        """
+        validates attribute
+
+        Args:
+            key (str): attribute name
+            value (str): new attribute value
+            node_type (AttributeTypeSchema): object representation \
+                of an node attribute type.
+
+        Raises:
+            AttributeDoesNotExistError: raised when attribute type does not contain \
+                given attribute name
+            InvalidAttributeValueError: raised when attribute new value is invalid
+        """
         regex = node_type.attrs.get(key)
         if regex is None:
             raise AttributeDoesNotExistError()
@@ -211,24 +245,34 @@ class AttributeService(IAttributeService):
 
     async def __prepopulate_type(self) -> None:
         """
-        prepolutes type table with attribute types
+        prepolates type table with attribute types
         """
-        await self.create_type(
-            AttributeTypeSchema(
-                id="container",
-                attrs={
-                    "direction": "^flex-(row|col)$",
-                    "background": "^#(?:[0-9a-fA-F]{3}){1,2}$",
-                },
+        if not await self.get_all_types():
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="container",
+                    attrs={
+                        "direction": "^flex-(row|col)$",
+                        "background": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                        "background_image": "^true|false$",
+                    },
+                )
             )
-        )
-        await self.create_type(
-            AttributeTypeSchema(
-                id="text",
-                attrs={
-                    "position": "^text-(left|right|center)$",
-                    "color": "^#(?:[0-9a-fA-F]{3}){1,2}$",
-                    "text": "^.{1,50}$",
-                },
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="text",
+                    attrs={
+                        "position": "^text-(left|right|center)$",
+                        "color": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                        "text": "^.{1,50}$",
+                    },
+                )
             )
-        )
+            await self.create_type(
+                AttributeTypeSchema(
+                    id="image",
+                    attrs={
+                        "rounded": "^(rounded){0,1}(-md|-lg|-full){0,1}$",
+                    },
+                )
+            )
