@@ -6,7 +6,7 @@ on:
       - dev
     paths:
       - frontend/**
-      - .github/workflows/frontend-cd.yml
+      - .github/workflows/frontend-cd-dev.yml
 
 jobs:
   deploy:
