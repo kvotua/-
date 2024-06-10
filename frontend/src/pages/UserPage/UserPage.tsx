@@ -286,7 +286,7 @@ const UserPage: React.FC = () => {
     return (
       <Reorder.Item
         dragListener={activeItem}
-        className={`flex-1 w-full h-screen`}
+        className={`flex-1 w-full ${children[0] !== undefined ? "h-screen" : "h-full"}`}
         value={id}
         key={id}
       >
@@ -302,7 +302,7 @@ const UserPage: React.FC = () => {
               backgroundImage:
                 type_id === "image" ? `url(http://localhost:7000/${id})` : "",
             }}
-            className={`px-4 py-8 text-4xl gap-4 ${activeItemChoice === id ? "shake" : ""} flex ${attrs?.direction}  w-full h-full border-2 border-black rounded-[15px]`}
+            className={`px-4 py-8 text-4xl gap-4 ${activeItemChoice === id ? "shake" : ""} flex ${attrs?.direction}   w-full h-full border-2 border-black rounded-[15px]`}
           >
             {type_id === "text" && (
               <p
@@ -329,7 +329,7 @@ const UserPage: React.FC = () => {
                     body: { parent: id, position: newIndex },
                   });
                 }}
-                className={`h-full flex ${attrs.direction} gap-4 w-full `}
+                className={`flex ${attrs.direction} gap-4 w-full ${attrs?.direction === "flex-row" ? "h-[50vh]" : "h-full"} `}
               >
                 {children.map((child) => renderNode(child))}
               </Reorder.Group>
