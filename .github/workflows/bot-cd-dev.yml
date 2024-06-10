@@ -1,0 +1,32 @@
+name: "Bot Deploy Dev"
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - bot/**
+      - .github/workflows/bot-cd-dev.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: yc-actions/yc-sls-function@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS_BOT_DEV }}
+          bucket: ${{ secrets.YC_OS_BUCKET_NAME_BOT_DEV }}
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
+          function-name: 'site-constructor-bot-dev'
+          runtime: 'python312'
+          memory: '128Mb'
+          entrypoint: 'main.handler'
+          environment: |
+          include: |
+            TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN_DEV }}
+            MODE=production
+            SERVER_NAME=${{ secrets.FRONTEND_API_URL_DEV }}
