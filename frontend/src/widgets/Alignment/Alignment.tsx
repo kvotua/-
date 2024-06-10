@@ -2,7 +2,13 @@ import AlignCenter from "src/app/assets/icons/alignCenter.svg";
 import AlignLeft from "src/app/assets/icons/alignLeft.svg";
 import AlignRight from "src/app/assets/icons/alignRight.svg";
 
-const Alignment = ({ setAlign, align }) => {
+const Alignment = ({
+  setAlign,
+  align,
+}: {
+  setAlign: (value: string) => void;
+  align: string;
+}) => {
   return (
     <div className="w-[307px] h-[30px] bg-slate-100 mx-auto rounded-[10px] shadow-lg relative overflow-hidden">
       <ul className="flex w-full h-full justify-between items-center ">

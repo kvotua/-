@@ -4,6 +4,12 @@ import { ITreeNode } from "src/app/types/nodes";
 const initialState: ITreeNode = {
   id: "0",
   children: [],
+  type_id: "container",
+  attrs: {
+    direction: "flex-col",
+    background: "#ffffff",
+  },
+  holder: true,
 };
 
 export const userPageSlice = createSlice({
@@ -22,22 +28,22 @@ export const userPageSlice = createSlice({
           : [newChild];
       }
     },
-    setPage(state, action: PayloadAction<ITreeNode>) {
-      const { id } = action.payload;
-      const existingItem = findIdInNestedObjects(state, id);
+    // setPage(state, action: PayloadAction<ITreeNode>) {
+    //   const { id } = action.payload;
+    //   const existingItem = findIdInNestedObjects(state, id);
 
-      if (!existingItem) {
-        state.children.push(action.payload);
-      } else {
-        const newChild: ITreeNode = {
-          id,
-          children: [],
-        };
-        existingItem.children = existingItem.children
-          ? [...existingItem.children, newChild]
-          : [newChild];
-      }
-    },
+    //   if (!existingItem) {
+    //     state.children.push(action.payload);
+    //   } else {
+    //     const newChild: ITreeNode = {
+    //       id,
+    //       children: [],
+    //     };
+    //     existingItem.children = existingItem.children
+    //       ? [...existingItem.children, newChild]
+    //       : [newChild];
+    //   }
+    // },
     setChildrens(
       state,
       action: PayloadAction<{ id: string; children: Array<string> }>,
@@ -131,7 +137,7 @@ const findParentNode = (obj: ITreeNode, targetId: string): ITreeNode | null => {
 };
 
 export const {
-  setPage,
+  // setPage,
   setTree,
   setCoreNewChild,
   setExistNewChild,

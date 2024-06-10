@@ -1,5 +1,11 @@
 import Position from "src/app/assets/icons/position.svg";
-const BgAlignment = ({ setAlign, align }) => {
+const BgAlignment = ({
+  setAlign,
+  align,
+}: {
+  setAlign: (value: string) => void;
+  align: string;
+}) => {
   return (
     <div className="w-[307px] h-[30px] bg-slate-100 mx-auto rounded-[10px] shadow-lg relative overflow-hidden">
       <ul className="flex w-full h-full justify-between items-center ">
