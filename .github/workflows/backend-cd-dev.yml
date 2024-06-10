@@ -54,7 +54,7 @@ jobs:
           public: true
           revision-storage-mounts: "${{ secrets.YC_BUCKET_NAME_STORAGE_DEV }}:/storage:rw"
           revision-env: |
-            MODE=production
+            MODE=local
             BOT_KEY=${{ secrets.TELEGRAM_TOKEN_DEV }}
             AWS_ACCESS_KEY_ID=${{ secrets.YDB_DOCUMENT_API_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY=${{ secrets.YDB_DOCUMENT_API_SECRET_ACCESS_KEY }}
