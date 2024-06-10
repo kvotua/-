@@ -19,7 +19,7 @@ jobs:
       - uses: yc-actions/yc-sls-function@v2
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS_BOT_DEV }}
-          bucket: ${{ secrets.YC_OS_BUCKET_NAME_BOT_DEV }}
+          bucket: bot-dev
           folder-id: ${{ secrets.YC_FOLDER_ID }}
           function-name: 'site-constructor-bot-dev'
           runtime: 'python312'
