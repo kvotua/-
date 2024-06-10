@@ -12,10 +12,7 @@ const CustomLink: React.FC<ICustomLink> = ({ Image, to }) => {
           <Image stroke={match ? "#FF78E9" : "#FFFFFF"} />
         </Link>
       ) : (
-        <Image
-          style={{ cursor: "pointer" }}
-          stroke={match ? "#FF78E9" : "#FFFFFF"}
-        />
+        <Image style={{ cursor: "pointer" }} stroke={"#FFFFFF"} />
       )}
     </>
   );

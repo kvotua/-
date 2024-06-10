@@ -2,9 +2,9 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 interface INewNode {
   parent: string;
-  template_id: string | undefined;
+  template_id: string;
 }
-
+interface ITemplate {}
 export const nodesApi = createApi({
   reducerPath: "nodesApi",
   baseQuery: fetchBaseQuery({
@@ -25,7 +25,13 @@ export const nodesApi = createApi({
       }),
     }),
     patchNodes: builder.mutation({
-      query: ({ nodeId, body }: { nodeId: string; body: INewNode }) => ({
+      query: ({
+        nodeId,
+        body,
+      }: {
+        nodeId: string;
+        body: { parent: string; position: number };
+      }) => ({
         url: `nodes/${nodeId}`,
         method: "PATCH",
         body,
@@ -40,13 +46,45 @@ export const nodesApi = createApi({
     getTreeNodes: builder.query({
       query: (nodeId) => `nodes/tree/${nodeId}`,
     }),
+    postTemplate: builder.mutation({
+      query: (body: ITemplate) => ({
+        url: "templates/",
+        method: "POST",
+        body,
+      }),
+    }),
+    patchAttr: builder.mutation({
+      query: (body) => {
+        // Encode the attribute_value to ensure the # character is handled correctly
+        const encodedValue = encodeURIComponent(body.attribute_value);
+        return {
+          url: `attrs/?node_id=${body.node_id}&attribute_name=${body.attribute_name}&attribute_value=${encodedValue}`,
+          method: "PATCH",
+        };
+      },
+    }),
+    getTemplate: builder.query({
+      query: (template_id: string) => ({
+        url: `templates/${template_id}`,
+      }),
+    }),
+    postPage: builder.mutation({
+      query: (body) => ({
+        url: `pages/${body.projectId}`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
 export const {
   useGetNodesQuery,
+  useLazyGetNodesQuery,
   usePostNodesMutation,
   usePatchNodesMutation,
   useDeleteNodesMutation,
   useGetTreeNodesQuery,
+  usePatchAttrMutation,
+  useLazyGetTemplateQuery,
+  usePostPageMutation,
 } = nodesApi;

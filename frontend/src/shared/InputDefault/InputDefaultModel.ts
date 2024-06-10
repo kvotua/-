@@ -11,4 +11,5 @@ export interface IInputDefaultProps {
   handelFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   handelBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   defaultValue?: string;
+  className?: string;
 }
