@@ -14,6 +14,7 @@ import {
   useDeleteNodesMutation,
   useLazyGetNodesQuery,
   usePatchAttrMutation,
+  usePatchNodesMutation,
   usePostNodesMutation,
   usePostPageMutation,
 } from "src/app/store/slice/UserPgaeSlice/UserPageApi";
@@ -53,12 +54,10 @@ const UserPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { projectId } = useParams();
   const nodes = useAppSelector((state) => state.userPage);
-  const setNodes = (node_id: string, new_nodes: Array<string>) =>
-    dispatch(setChildrens({ id: node_id, children: new_nodes }));
   const { tree, isTreeSuccess, getIdByType } = useGetTree<ITreeNode>(
     projectId!,
   );
-
+  const [patchNodes] = usePatchNodesMutation();
   const { setMenuItems } = useContext(menuContext);
   const [deleteNodes] = useDeleteNodesMutation();
   const queryClient = useQueryClient();
@@ -174,12 +173,14 @@ const UserPage: React.FC = () => {
         node_id: newId,
         attribute_name: "text",
         attribute_value: nodeText,
+        holder: false,
       };
       await patchNode(text);
       const position = {
         node_id: newId,
         attribute_name: "position",
         attribute_value: align,
+        holder: false,
       };
       await patchNode(position);
       const colorAttr = {
@@ -194,6 +195,7 @@ const UserPage: React.FC = () => {
         node_id: newId,
         attribute_name: "background",
         attribute_value: color,
+        holder: true,
       };
       await patchNode(colorAttr);
       const direction = {
@@ -209,6 +211,54 @@ const UserPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [imageUploaded, setImageUploaded] = useState<boolean>(false);
+
+  const turnEditMode = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    { id, children, holder, type_id, attrs }: ITreeNode,
+  ) => {
+    if (event.target === event.currentTarget) {
+      setNodeInfo({
+        id,
+        children,
+        holder,
+        type_id,
+        attrs,
+      });
+      setActiveItemChoice(id);
+      setActiveItem(true);
+      setMenuItems([
+        {
+          handleClick: () => {
+            setActiveItem(false);
+            setActiveItemChoice("");
+            setBaseMenu();
+          },
+          Image: Back,
+        },
+        {
+          handleClick: () => {
+            setSelectedType(type_id);
+            if (type_id === "container") {
+              setBgAlign(attrs.direction as string);
+            } else if (type_id === "text") {
+              setAlign(attrs.position as string);
+              setNodeText(attrs.text as string);
+            }
+            setOpen(true);
+            setBaseMenu();
+          },
+          Image: Edit,
+        },
+        {
+          handleClick: () => {
+            handleDeleteNode(id);
+            setBaseMenu();
+          },
+          Image: Trash,
+        },
+      ]);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -242,50 +292,9 @@ const UserPage: React.FC = () => {
       >
         <Drawer>
           <div
-            onClick={(event) => {
-              if (event.target === event.currentTarget) {
-                setActiveItemChoice(id);
-                setActiveItem(true);
-                setMenuItems([
-                  {
-                    handleClick: () => {
-                      setActiveItem(false);
-                      setActiveItemChoice("");
-                      setBaseMenu();
-                    },
-                    Image: Back,
-                  },
-                  {
-                    handleClick: () => {
-                      setSelectedType(type_id);
-                      setNodeInfo({
-                        id,
-                        children,
-                        holder,
-                        type_id,
-                        attrs,
-                      });
-                      if (type_id === "container") {
-                        setBgAlign(attrs.direction as string);
-                      } else if (type_id === "text") {
-                        setAlign(attrs.position as string);
-                        setNodeText(attrs.text as string);
-                      }
-                      setOpen(true);
-                      setBaseMenu();
-                    },
-                    Image: Edit,
-                  },
-                  {
-                    handleClick: () => {
-                      handleDeleteNode(id);
-                      setBaseMenu();
-                    },
-                    Image: Trash,
-                  },
-                ]);
-              }
-            }}
+            onClick={(event) =>
+              turnEditMode(event, { id, children, holder, type_id, attrs })
+            }
             style={{
               backgroundSize: "cover",
               backgroundPosition: "center",
@@ -293,11 +302,14 @@ const UserPage: React.FC = () => {
               backgroundImage:
                 type_id === "image" ? `url(http://localhost:7000/${id})` : "",
             }}
-            className={`px-4 py-8 text-4xl gap-4 ${activeItemChoice === id ? "shake" : ""} flex ${attrs?.direction}  w-full h-full `}
+            className={`px-4 py-8 text-4xl gap-4 ${activeItemChoice === id ? "shake" : ""} flex ${attrs?.direction}  w-full h-full border-2 border-black rounded-[15px]`}
           >
             {type_id === "text" && (
               <p
-                className={`text-sm break-words relative ${attrs.position}`}
+                onClick={(event) =>
+                  turnEditMode(event, { id, children, holder, type_id, attrs })
+                }
+                className={`text-sm break-words relative ${attrs.position} w-full`}
                 style={{ color: attrs.color }}
               >
                 {attrs.text}
@@ -305,8 +317,18 @@ const UserPage: React.FC = () => {
             )}
             {children.length > 0 && (
               <Reorder.Group
+                axis={attrs.direction === "flex-row" ? "x" : "y"}
                 values={children.map((node) => node.id)}
-                onReorder={(newOrder: Array<string>) => setNodes(id, newOrder)}
+                onReorder={(newOrder: Array<string>) => {
+                  console.log(nodeInfo);
+
+                  dispatch(setChildrens({ id: id, children: newOrder }));
+                  const newIndex = newOrder.indexOf(nodeInfo!.id);
+                  patchNodes({
+                    nodeId: nodeInfo!.id,
+                    body: { parent: id, position: newIndex },
+                  });
+                }}
                 className={`h-full flex ${attrs.direction} gap-4 w-full `}
               >
                 {children.map((child) => renderNode(child))}
@@ -450,22 +472,14 @@ const UserPage: React.FC = () => {
                     className="flex flex-col gap-5 py-5 container "
                   >
                     <BgAlignment align={bgAlign} setAlign={setBgAlign} />
-                    <input id="color" name="color" type="color" />
+                    <input
+                      id="color"
+                      name="color"
+                      type="color"
+                      defaultValue={"#ffffff"}
+                    />
                     <DrawerTrigger>
                       <LinkButton
-                        type=""
-                        handleClick={async () => {
-                          const newId = await addNode(
-                            id,
-                            getIdByType("container"),
-                          );
-                          // const attribute = {
-                          //   node_id: newId,
-                          //   attribute_name: "text",
-                          //   attribute_value: nodeText,
-                          // };
-                          // await patchNode(attribute);
-                        }}
                         title="Сохранить"
                         buttonActive={false}
                         type="submit"
@@ -677,9 +691,14 @@ const UserPage: React.FC = () => {
           {nodes.children.length > 0 && (
             <Reorder.Group
               values={nodes.children.map((node) => node.id)}
-              onReorder={(newOrder: Array<string>) =>
-                setNodes(nodes.id, newOrder)
-              }
+              onReorder={(newOrder: Array<string>) => {
+                const newIndex = newOrder.indexOf(nodeInfo!.id);
+                patchNodes({
+                  nodeId: nodeInfo!.id,
+                  body: { parent: nodes.id, position: newIndex },
+                });
+                dispatch(setChildrens({ id: nodes.id, children: newOrder }));
+              }}
               className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10"
             >
               {renderNode(nodes as ITreeNode)}
@@ -823,7 +842,12 @@ const UserPage: React.FC = () => {
                 className="flex flex-col gap-5 py-5 container "
               >
                 <BgAlignment align={bgAlign} setAlign={setBgAlign} />
-                <input id="color" name="color" type="color" />
+                <input
+                  id="color"
+                  name="color"
+                  type="color"
+                  defaultValue={"#ffffff"}
+                />
                 <DrawerTrigger>
                   <LinkButton
                     title="Сохранить"
@@ -856,7 +880,7 @@ const UserPage: React.FC = () => {
                 onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
                   e.preventDefault();
                   if (formData) {
-                    const newId = await addCoreNode(
+                    const newId = await addNode(
                       tree ? tree.id : "",
                       getIdByType("image"),
                     );

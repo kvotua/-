@@ -25,7 +25,13 @@ export const nodesApi = createApi({
       }),
     }),
     patchNodes: builder.mutation({
-      query: ({ nodeId, body }: { nodeId: string; body: INewNode }) => ({
+      query: ({
+        nodeId,
+        body,
+      }: {
+        nodeId: string;
+        body: { parent: string; position: number };
+      }) => ({
         url: `nodes/${nodeId}`,
         method: "PATCH",
         body,
