@@ -118,8 +118,9 @@ class NodeService(INodeService):
         """
         await self.__user_service.user_exist_validation(initiator_id)
         await self.__check_initiator_permission(initiator_id, node_id)
+        node = await self.__get(node_id)
 
-        if node_update.parent is not None:
+        if not node.parent == node_update.parent:
             if not await self.__in_same_tree(node_id, node_update.parent):
                 raise NodeInDifferentTreeError()
             await self.__reparent(node_id, node_update.parent)
