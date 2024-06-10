@@ -8,4 +8,5 @@ class NodeTreeSchema(BaseModel):
     id: NodeId
     type_id: AttributeTypeId
     attrs: dict[str, str]
+    holder: bool
     children: list["NodeTreeSchema"]
