@@ -2,6 +2,8 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
+from app.config import settings
+
 from ..FileService import IFileService
 from ..NodeService import INodeService
 from ..NodeService.schemas.NodeTreeSchema import NodeTreeSchema
@@ -22,6 +24,9 @@ class HTMLService(IHTMLService):
         autoescape=True,
         enable_async=True,
     )
+
+    def __init__(self) -> None:
+        self.__templates.globals.setdefault("server_name", settings.server_name)
 
     async def inject_dependencies(
         self,
@@ -67,8 +72,6 @@ class HTMLService(IHTMLService):
         of a node
 
         Args:
-        #TODO:add a discription to the request
-            request (Request): wish I knew what that is
             child_nodes (list[NodeTreeSchema]): list of NodeTreeSchema objects
 
         Returns:

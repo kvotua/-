@@ -1,47 +1,55 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ITreeNode } from "src/app/types/nodes.types";
+import { ITreeNode } from "src/app/types/nodes";
 
 const initialState: ITreeNode = {
   id: "0",
   children: [],
+  type_id: "container",
+  attrs: {
+    direction: "flex-col",
+    background: "#ffffff",
+  },
+  holder: true,
 };
 
 export const userPageSlice = createSlice({
   name: "projects",
   initialState,
   reducers: {
-    setCoreNewChild(state, action: PayloadAction<ITreeNode>) {
+    setCoreNewChild(state, action) {
       state.children.push(action.payload);
     },
     setExistNewChild(state, action) {
       const { newChild, id } = action.payload;
       const existingItem = findIdInNestedObjects(state, id);
-      existingItem!.children = existingItem!.children
-        ? [...existingItem!.children, newChild]
-        : [newChild];
-    },
-    setPage(state, action: PayloadAction<ITreeNode>) {
-      const { id } = action.payload;
-      const existingItem = findIdInNestedObjects(state, id);
-
-      if (!existingItem) {
-        state.children.push(action.payload);
-      } else {
-        const newChild: ITreeNode = {
-          id,
-          children: [],
-        };
+      if (existingItem) {
         existingItem.children = existingItem.children
           ? [...existingItem.children, newChild]
           : [newChild];
       }
     },
+    // setPage(state, action: PayloadAction<ITreeNode>) {
+    //   const { id } = action.payload;
+    //   const existingItem = findIdInNestedObjects(state, id);
+
+    //   if (!existingItem) {
+    //     state.children.push(action.payload);
+    //   } else {
+    //     const newChild: ITreeNode = {
+    //       id,
+    //       children: [],
+    //     };
+    //     existingItem.children = existingItem.children
+    //       ? [...existingItem.children, newChild]
+    //       : [newChild];
+    //   }
+    // },
     setChildrens(
       state,
       action: PayloadAction<{ id: string; children: Array<string> }>,
     ) {
       const node = findIdInNestedObjects(state, action.payload.id);
-      if (node === null) {
+      if (!node) {
         console.error(
           `Can't update children: node with ID ${action.payload.id} not found`,
         );
@@ -50,8 +58,8 @@ export const userPageSlice = createSlice({
       const tmp = [...node.children];
       node.children = new Array<ITreeNode>();
       for (const child_id of action.payload.children) {
-        const new_node = tmp.find((value) => value.id == child_id);
-        if (new_node === undefined) {
+        const new_node = tmp.find((value) => value.id === child_id);
+        if (!new_node) {
           console.error(`Can't find node with ID ${child_id}`);
           return;
         }
@@ -73,6 +81,16 @@ export const userPageSlice = createSlice({
         state.children = state.children.filter(
           (child) => child.id !== targetId,
         );
+      }
+    },
+    updateNode(
+      state,
+      action: PayloadAction<{ id: string; updatedValues: Partial<ITreeNode> }>,
+    ) {
+      const { id, updatedValues } = action.payload;
+      const node = findIdInNestedObjects(state, id);
+      if (node) {
+        Object.assign(node, updatedValues);
       }
     },
   },
@@ -119,11 +137,12 @@ const findParentNode = (obj: ITreeNode, targetId: string): ITreeNode | null => {
 };
 
 export const {
-  setPage,
+  // setPage,
   setTree,
   setCoreNewChild,
   setExistNewChild,
   deleteNode,
   setChildrens,
+  updateNode,
 } = userPageSlice.actions;
 export default userPageSlice.reducer;

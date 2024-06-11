@@ -1,10 +1,8 @@
-from typing import Optional
-
 from pydantic import BaseModel
 
 from .NodeId import NodeId
 
 
 class NodeUpdateSchema(BaseModel):
-    parent: Optional[NodeId] = None
+    parent: NodeId
     position: int
