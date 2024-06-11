@@ -284,7 +284,7 @@ const UserPage: React.FC = () => {
     return (
       <Reorder.Item
         dragListener={id === nodeInfo?.id ? true : false}
-        className={`flex-1 w-full ${children[0] !== undefined ? "h-screen" : "h-full"}`}
+        className={`flex-1 w-full ${type_id === "image" ? "h-[30vh]" : "h-full"}`}
         value={id}
         key={id}
       >
@@ -295,14 +295,14 @@ const UserPage: React.FC = () => {
             }
             style={{
               backgroundSize: "cover",
-              backgroundPosition: "center",
+              backgroundPosition: "bottom",
               backgroundColor: type_id === "container" ? attrs.background : "",
               backgroundImage:
                 type_id === "image"
                   ? `url(${import.meta.env.VITE_API_URL}:7000/${id})`
                   : "",
             }}
-            className={`px-4 py-8 text-4xl gap-4 ${activeItemChoice === id ? "shake" : ""} flex ${attrs?.direction}   w-full h-full border-2 border-black rounded-[15px]`}
+            className={`px-4 py-8 text-4xl gap-4 ${activeItemChoice === id ? "shake" : ""} flex ${attrs?.direction} ${type_id === "image" ? "h-[30vh]" : "h-full"}  w-full h-full border-2 border-black rounded-[15px]`}
           >
             {type_id === "text" && (
               <p
