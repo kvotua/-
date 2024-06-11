@@ -224,7 +224,6 @@ const UserPage: React.FC = () => {
         attrs,
       });
       setActiveItemChoice(id);
-      setActiveItem(true);
       setMenuItems([
         {
           handleClick: () => {
