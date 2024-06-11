@@ -295,7 +295,7 @@ const UserPage: React.FC = () => {
             }
             style={{
               backgroundSize: "cover",
-              backgroundPosition: "bottom",
+              backgroundPosition: "50% 75%",
               backgroundColor: type_id === "container" ? attrs.background : "",
               backgroundImage:
                 type_id === "image"
@@ -699,7 +699,7 @@ const UserPage: React.FC = () => {
                 });
                 dispatch(setChildrens({ id: nodes.id, children: newOrder }));
               }}
-              className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10"
+              className="h-full grid grid-rows-[repeat(12, minmax(100px, 1fr))] rows-10 gap-5"
             >
               {renderNode(nodes as ITreeNode)}
             </Reorder.Group>
