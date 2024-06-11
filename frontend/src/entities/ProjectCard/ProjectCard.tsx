@@ -24,8 +24,9 @@ const ProjectCard: React.FC<IProjectCard> = ({ title, id }) => {
         <div
           onClick={(e) => {
             e.preventDefault();
-            window.location = `http://localhost:7000/0/${id}/` as Location &
-              string;
+            window.location =
+              `${import.meta.env.VITE_API_URL}:7000/0/${id}/` as Location &
+                string;
           }}
         >
           <LinkIcon fill="black" />

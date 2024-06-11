@@ -229,7 +229,7 @@ const UserPage: React.FC = () => {
       setMenuItems([
         {
           handleClick: () => {
-            setActiveItem(false);
+            setNodeInfo(null);
             setActiveItemChoice("");
             setBaseMenu();
           },
@@ -285,14 +285,14 @@ const UserPage: React.FC = () => {
 
     return (
       <Reorder.Item
-        dragListener={activeItem}
+        dragListener={id === nodeInfo?.id ? true : false}
         className={`flex-1 w-full ${children[0] !== undefined ? "h-screen" : "h-full"}`}
         value={id}
         key={id}
       >
         <Drawer>
           <div
-            onClick={(event) =>
+            onDoubleClick={(event) =>
               turnEditMode(event, { id, children, holder, type_id, attrs })
             }
             style={{
@@ -300,13 +300,15 @@ const UserPage: React.FC = () => {
               backgroundPosition: "center",
               backgroundColor: type_id === "container" ? attrs.background : "",
               backgroundImage:
-                type_id === "image" ? `url(http://localhost:7000/${id})` : "",
+                type_id === "image"
+                  ? `url(${import.meta.env.VITE_API_URL}:7000/${id})`
+                  : "",
             }}
             className={`px-4 py-8 text-4xl gap-4 ${activeItemChoice === id ? "shake" : ""} flex ${attrs?.direction}   w-full h-full border-2 border-black rounded-[15px]`}
           >
             {type_id === "text" && (
               <p
-                onClick={(event) =>
+                onDoubleClick={(event) =>
                   turnEditMode(event, { id, children, holder, type_id, attrs })
                 }
                 className={`text-sm break-words relative ${attrs.position} w-full`}
@@ -560,7 +562,10 @@ const UserPage: React.FC = () => {
         <Drawer
           open={open}
           onOpenChange={setOpen}
-          onClose={() => setActiveItemChoice("")}
+          onClose={() => {
+            setActiveItemChoice("");
+            setNodeInfo(null);
+          }}
         >
           <DrawerContent className="bg-white">
             {selectedType === "text" && (
@@ -577,6 +582,7 @@ const UserPage: React.FC = () => {
                     });
                     setActiveItemChoice("");
                     setNodeInfo(null);
+                    setOpen(false);
                   }}
                   className="flex flex-col gap-5 py-5 container "
                 >
@@ -595,13 +601,11 @@ const UserPage: React.FC = () => {
                     type="color"
                     defaultValue={nodeInfo.attrs.color}
                   />
-                  <DrawerTrigger>
-                    <LinkButton
-                      title="Сохранить"
-                      buttonActive={nodeText === "" ? true : false}
-                      type="submit"
-                    />
-                  </DrawerTrigger>
+                  <LinkButton
+                    title="Сохранить"
+                    buttonActive={nodeText === "" ? true : false}
+                    type="submit"
+                  />
                 </form>
               </div>
             )}
@@ -619,6 +623,7 @@ const UserPage: React.FC = () => {
                     });
                     setActiveItemChoice("");
                     setNodeInfo(null);
+                    setOpen(false);
                   }}
                   className="flex flex-col gap-5 py-5 container "
                 >
@@ -629,13 +634,11 @@ const UserPage: React.FC = () => {
                     type="color"
                     defaultValue={nodeInfo.attrs.background}
                   />
-                  <DrawerTrigger>
-                    <LinkButton
-                      title="Сохранить"
-                      buttonActive={false}
-                      type="submit"
-                    />
-                  </DrawerTrigger>
+                  <LinkButton
+                    title="Сохранить"
+                    buttonActive={false}
+                    type="submit"
+                  />
                 </form>
               </div>
             )}
@@ -655,6 +658,7 @@ const UserPage: React.FC = () => {
                       setImageUploaded(false);
                       setActiveItemChoice("");
                       setNodeInfo(null);
+                      setOpen(false);
                     }
                   }}
                   className="flex flex-col gap-5 py-5 container "
@@ -669,13 +673,11 @@ const UserPage: React.FC = () => {
                   </div>
 
                   {imageUrl && <img src={imageUrl} alt="Uploaded" />}
-                  <DrawerTrigger>
-                    <LinkButton
-                      title="Сохранить"
-                      buttonActive={!imageUploaded}
-                      type="submit"
-                    />
-                  </DrawerTrigger>
+                  <LinkButton
+                    title="Сохранить"
+                    buttonActive={!imageUploaded}
+                    type="submit"
+                  />
                 </form>
               </div>
             )}
