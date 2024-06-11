@@ -146,7 +146,6 @@ const UserPage: React.FC = () => {
     deleteNodes(id);
     dispatch(deleteNode(id));
   };
-  const [activeItem, setActiveItem] = useState(false);
   const [activeItemChoice, setActiveItemChoice] = useState("");
   type Tevent = {
     target: {
